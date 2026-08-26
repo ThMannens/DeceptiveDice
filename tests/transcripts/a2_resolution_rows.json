@@ -1,0 +1,225 @@
+{
+  "name": "A2 attack and defence resolution rows",
+  "initial_state": {
+    "match_id": "a2-rows",
+    "player_ids": ["alice", "bob"]
+  },
+  "setup_steps": [
+    {
+      "event": {"type": "draft_submitted", "match_id": "a2-rows", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}
+    },
+    {
+      "event": {"type": "draft_submitted", "match_id": "a2-rows", "exchange_number": 0, "phase": "DRAFT", "sender": 1, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}
+    },
+    {
+      "event": {"type": "formation_submitted", "match_id": "a2-rows", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["ledger", "gambler", "hook", "bruiser"]}}
+    },
+    {
+      "event": {"type": "formation_submitted", "match_id": "a2-rows", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}
+    },
+    {
+      "event": {"type": "action_selected", "match_id": "a2-rows", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "bruiser", "move_id": "light_attack", "target_id": "ledger"}}
+    },
+    {
+      "event": {"type": "commit_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "alice-commit", "observer_secret": "bob-observer-secret"}}
+    },
+    {
+      "event": {"type": "commit_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "bob-commit", "observer_secret": "alice-observer-secret"}}
+    }
+  ],
+  "cases": [
+    {
+      "name": "attack honest claim passes",
+      "steps": [
+        {"event": {"type": "claim_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 12}}},
+        {"event": {"type": "claim_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 8}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "alice-secret"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "bob-secret"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "a2-rows", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [12, 8]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.attack.outcome", "equals": "HONEST_PASS"},
+        {"path": "last_resolution.attack.locked_in", "equals": true},
+        {"path": "last_resolution.margin", "equals": 6},
+        {"path": "last_resolution.hit_damage", "equals": 21},
+        {"path": "teams.1.characters.0.hp", "equals": 34}
+      ]
+    },
+    {
+      "name": "attack padded claim passes",
+      "steps": [
+        {"event": {"type": "claim_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 12}}},
+        {"event": {"type": "claim_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 8}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "alice-secret"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "bob-secret"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "a2-rows", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [10, 8]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.attack.outcome", "equals": "PADDED_PASS"},
+        {"path": "last_resolution.attack.padding", "equals": 2},
+        {"path": "last_resolution.attack.locked_in", "equals": true},
+        {"path": "last_resolution.attack.bluff_effects_fire", "equals": true},
+        {"path": "last_resolution.hit_damage", "equals": 21},
+        {"path": "teams.1.characters.0.hp", "equals": 34}
+      ]
+    },
+    {
+      "name": "attack padded claim is caught",
+      "steps": [
+        {"event": {"type": "claim_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 12}}},
+        {"event": {"type": "claim_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 8}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": true}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "alice-secret"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "bob-secret"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "a2-rows", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [10, 8]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.attack.outcome", "equals": "CAUGHT"},
+        {"path": "last_resolution.attack.locked_in", "equals": false},
+        {"path": "last_resolution.attacker_self_damage", "equals": 2},
+        {"path": "last_resolution.hit", "equals": false},
+        {"path": "last_resolution.miss_reason", "equals": "ATTACK_CAUGHT"},
+        {"path": "teams.0.characters.1.hp", "equals": 68},
+        {"path": "teams.1.characters.0.hp", "equals": 55}
+      ]
+    },
+    {
+      "name": "attack honest claim is wrongly challenged",
+      "steps": [
+        {"event": {"type": "claim_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 12}}},
+        {"event": {"type": "claim_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 8}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": true}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "alice-secret"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "bob-secret"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "a2-rows", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [12, 8]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.attack.outcome", "equals": "WRONG_CALL"},
+        {"path": "last_resolution.attack.locked_in", "equals": true},
+        {"path": "last_resolution.attack_damage_multiplier", "equals": 2},
+        {"path": "last_resolution.hit_damage", "equals": 42},
+        {"path": "teams.1.characters.0.hp", "equals": 13}
+      ]
+    },
+    {
+      "name": "defence honest claim passes",
+      "steps": [
+        {"event": {"type": "claim_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 12}}},
+        {"event": {"type": "claim_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 8}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "alice-secret"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "bob-secret"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "a2-rows", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [12, 8]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.defence.outcome", "equals": "HONEST_PASS"},
+        {"path": "last_resolution.defence.resolved_value", "equals": 8},
+        {"path": "last_resolution.hit_damage", "equals": 21},
+        {"path": "teams.1.characters.0.hp", "equals": 34}
+      ]
+    },
+    {
+      "name": "defence padded claim passes",
+      "steps": [
+        {"event": {"type": "claim_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 12}}},
+        {"event": {"type": "claim_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 8}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "alice-secret"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "bob-secret"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "a2-rows", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [12, 5]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.defence.outcome", "equals": "PADDED_PASS"},
+        {"path": "last_resolution.defence.padding", "equals": 3},
+        {"path": "last_resolution.defence.resolved_value", "equals": 8},
+        {"path": "last_resolution.defence.bluff_effects_fire", "equals": true},
+        {"path": "last_resolution.hit_damage", "equals": 21},
+        {"path": "teams.1.characters.0.hp", "equals": 34}
+      ]
+    },
+    {
+      "name": "defence padded claim is caught",
+      "steps": [
+        {"event": {"type": "claim_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 12}}},
+        {"event": {"type": "claim_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 8}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": true}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "alice-secret"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "bob-secret"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "a2-rows", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [12, 5]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.defence.outcome", "equals": "CAUGHT"},
+        {"path": "last_resolution.defence.resolved_value", "equals": 5},
+        {"path": "last_resolution.defender_self_damage", "equals": 3},
+        {"path": "last_resolution.margin", "equals": 9},
+        {"path": "last_resolution.hit_damage", "equals": 23},
+        {"path": "teams.1.characters.0.hp", "equals": 29}
+      ]
+    },
+    {
+      "name": "defence honest claim is wrongly challenged",
+      "steps": [
+        {"event": {"type": "claim_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 12}}},
+        {"event": {"type": "claim_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 8}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": true}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "alice-secret"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "bob-secret"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "a2-rows", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [12, 8]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.defence.outcome", "equals": "WRONG_CALL"},
+        {"path": "last_resolution.defence.locked_in", "equals": true},
+        {"path": "last_resolution.defence_damage_divisor", "equals": 2},
+        {"path": "last_resolution.hit_damage", "equals": 10},
+        {"path": "teams.1.characters.0.hp", "equals": 45}
+      ]
+    },
+    {
+      "name": "both wrong calls cancel their damage modifiers",
+      "steps": [
+        {"event": {"type": "claim_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 12}}},
+        {"event": {"type": "claim_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 8}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": true}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": true}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "alice-secret"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "bob-secret"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "a2-rows", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [12, 8]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.attack.outcome", "equals": "WRONG_CALL"},
+        {"path": "last_resolution.defence.outcome", "equals": "WRONG_CALL"},
+        {"path": "last_resolution.hit_damage", "equals": 21},
+        {"path": "teams.1.characters.0.hp", "equals": 34}
+      ]
+    },
+    {
+      "name": "non-positive margin misses",
+      "steps": [
+        {"event": {"type": "claim_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 1}}},
+        {"event": {"type": "claim_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 20}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "alice-secret"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "bob-secret"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "a2-rows", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [1, 20]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.margin", "equals": -17},
+        {"path": "last_resolution.hit", "equals": false},
+        {"path": "last_resolution.miss_reason", "equals": "DEFENDED"},
+        {"path": "last_resolution.hit_damage", "equals": 0},
+        {"path": "teams.1.characters.0.hp", "equals": 55}
+      ]
+    }
+  ]
+}

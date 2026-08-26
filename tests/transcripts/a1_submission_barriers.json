@@ -1,0 +1,17 @@
+{
+  "name": "both players must submit before a blind phase advances",
+  "initial_state": {
+    "match_id": "barrier-test",
+    "player_ids": ["alice", "bob"]
+  },
+  "steps": [
+    {
+      "event": {"type": "draft_submitted", "match_id": "barrier-test", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}
+    }
+  ],
+  "assertions": [
+    {"path": "phase", "equals": "DRAFT"},
+    {"path": "teams.0.draft_locked", "equals": true},
+    {"path": "teams.1.draft_locked", "equals": false}
+  ]
+}

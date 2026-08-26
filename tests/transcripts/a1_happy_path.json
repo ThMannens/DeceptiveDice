@@ -1,0 +1,67 @@
+{
+  "name": "draft through the first exchange",
+  "initial_state": {
+    "match_id": "test-match",
+    "player_ids": ["alice", "bob"]
+  },
+  "steps": [
+    {
+      "event": {"type": "draft_submitted", "match_id": "test-match", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}},
+      "assertions": [{"path": "phase", "equals": "DRAFT"}]
+    },
+    {
+      "event": {"type": "draft_submitted", "match_id": "test-match", "exchange_number": 0, "phase": "DRAFT", "sender": 1, "payload": {"character_ids": ["mirror", "bruiser", "gambler", "hook"]}}
+    },
+    {
+      "event": {"type": "formation_submitted", "match_id": "test-match", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["ledger", "gambler", "hook", "bruiser"]}}
+    },
+    {
+      "event": {"type": "formation_submitted", "match_id": "test-match", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["hook", "bruiser", "gambler", "mirror"]}}
+    },
+    {
+      "event": {"type": "action_selected", "match_id": "test-match", "exchange_number": 1, "phase": "SELECT", "sender": 1, "payload": {"actor_id": "mirror", "move_id": "light_attack", "target_id": "bruiser"}}
+    },
+    {
+      "event": {"type": "commit_submitted", "match_id": "test-match", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "attack-commit", "observer_secret": "defence-observer-secret"}},
+      "assertions": [{"path": "phase", "equals": "COMMIT"}]
+    },
+    {
+      "event": {"type": "commit_submitted", "match_id": "test-match", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "defence-commit", "observer_secret": "attack-observer-secret"}}
+    },
+    {
+      "event": {"type": "claim_submitted", "match_id": "test-match", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 12}},
+      "assertions": [{"path": "phase", "equals": "CLAIM"}]
+    },
+    {
+      "event": {"type": "claim_submitted", "match_id": "test-match", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 15}}
+    },
+    {
+      "event": {"type": "challenge_submitted", "match_id": "test-match", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}},
+      "assertions": [{"path": "phase", "equals": "CHALLENGE"}]
+    },
+    {
+      "event": {"type": "challenge_submitted", "match_id": "test-match", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": true}}
+    },
+    {
+      "event": {"type": "reveal_submitted", "match_id": "test-match", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "attack-secret"}},
+      "assertions": [{"path": "phase", "equals": "REVEAL"}]
+    },
+    {
+      "event": {"type": "reveal_submitted", "match_id": "test-match", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "defence-secret"}}
+    },
+    {
+      "event": {"type": "exchange_resolved", "match_id": "test-match", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [12, 15]}}
+    }
+  ],
+  "assertions": [
+    {"path": "status", "equals": "ACTIVE"},
+    {"path": "phase", "equals": "SELECT"},
+    {"path": "exchange_number", "equals": 2},
+    {"path": "round_number", "equals": 1},
+    {"path": "active_player", "equals": 0},
+    {"path": "teams.0.characters.0.position", "equals": 1},
+    {"path": "teams.1.claim_history.0.claim", "equals": 15},
+    {"path": "teams.1.claim_history.0.challenge_result", "equals": "WRONG_CALL"},
+    {"path": "event_count", "equals": 14}
+  ]
+}

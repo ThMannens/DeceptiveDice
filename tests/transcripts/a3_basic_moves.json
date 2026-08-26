@@ -1,0 +1,104 @@
+{
+  "name": "A3 basic moves",
+  "initial_state": {
+    "match_id": "a3-moves",
+    "player_ids": ["alice", "bob"]
+  },
+  "setup_steps": [
+    {"event": {"type": "draft_submitted", "match_id": "a3-moves", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}},
+    {"event": {"type": "draft_submitted", "match_id": "a3-moves", "exchange_number": 0, "phase": "DRAFT", "sender": 1, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}},
+    {"event": {"type": "formation_submitted", "match_id": "a3-moves", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["ledger", "gambler", "hook", "bruiser"]}}},
+    {"event": {"type": "formation_submitted", "match_id": "a3-moves", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["ledger", "gambler", "hook", "bruiser"]}}}
+  ],
+  "cases": [
+    {
+      "name": "heavy attack applies its modifiers from position 4",
+      "steps": [
+        {"event": {"type": "action_selected", "match_id": "a3-moves", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "bruiser", "move_id": "heavy_attack", "target_id": "ledger"}}},
+        {"event": {"type": "commit_submitted", "match_id": "a3-moves", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "a3-moves", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
+        {"event": {"type": "claim_submitted", "match_id": "a3-moves", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 12}}},
+        {"event": {"type": "claim_submitted", "match_id": "a3-moves", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 8}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a3-moves", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a3-moves", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a3-moves", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a3-moves", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "b"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "a3-moves", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [12, 8]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.move_id", "equals": "heavy_attack"},
+        {"path": "last_resolution.effective_attack", "equals": 11},
+        {"path": "last_resolution.margin", "equals": 2},
+        {"path": "last_resolution.unscaled_damage", "equals": 34},
+        {"path": "last_resolution.hit_damage", "equals": 23},
+        {"path": "teams.1.characters.0.hp", "equals": 32}
+      ]
+    },
+    {
+      "name": "heavy attack is rejected from position 1",
+      "steps": [
+        {
+          "event": {"type": "action_selected", "match_id": "a3-moves", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "ledger", "move_id": "heavy_attack", "target_id": "ledger"}},
+          "expect_ok": false,
+          "error_contains": "position 3 or 4"
+        }
+      ],
+      "assertions": [
+        {"path": "phase", "equals": "SELECT"},
+        {"path": "teams.0.used_character_ids", "equals": []}
+      ]
+    },
+    {
+      "name": "defensive stance applies and boosts a later defence roll",
+      "steps": [
+        {"event": {"type": "action_selected", "match_id": "a3-moves", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "ledger", "move_id": "defensive_stance", "target_id": "ledger"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "a3-moves", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {}}},
+        {"event": {"type": "action_selected", "match_id": "a3-moves", "exchange_number": 2, "phase": "SELECT", "sender": 1, "payload": {"actor_id": "bruiser", "move_id": "light_attack", "target_id": "ledger"}}},
+        {"event": {"type": "commit_submitted", "match_id": "a3-moves", "exchange_number": 2, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "a3-moves", "exchange_number": 2, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
+        {"event": {"type": "claim_submitted", "match_id": "a3-moves", "exchange_number": 2, "phase": "CLAIM", "sender": 0, "payload": {"value": 8}}},
+        {"event": {"type": "claim_submitted", "match_id": "a3-moves", "exchange_number": 2, "phase": "CLAIM", "sender": 1, "payload": {"value": 12}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a3-moves", "exchange_number": 2, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a3-moves", "exchange_number": 2, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a3-moves", "exchange_number": 2, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a3-moves", "exchange_number": 2, "phase": "REVEAL", "sender": 1, "payload": {"secret": "b"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "a3-moves", "exchange_number": 2, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [8, 12]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.stance_defence_bonus", "equals": 5},
+        {"path": "last_resolution.margin", "equals": 1},
+        {"path": "last_resolution.hit_damage", "equals": 17},
+        {"path": "teams.0.characters.0.hp", "equals": 38},
+        {"path": "teams.0.characters.0.effect_counters.defensive_stance_active", "equals": true}
+      ]
+    },
+    {
+      "name": "swap exchanges adjacent positions",
+      "steps": [
+        {"event": {"type": "action_selected", "match_id": "a3-moves", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "hook", "move_id": "swap", "target_id": "bruiser"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "a3-moves", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.summary", "equals": "POSITIONS_SWAPPED"},
+        {"path": "teams.0.characters.3.position", "equals": 4},
+        {"path": "teams.0.characters.1.position", "equals": 3},
+        {"path": "teams.0.used_character_ids.0", "equals": "hook"}
+      ]
+    },
+    {
+      "name": "swap rejects a non-adjacent ally",
+      "steps": [
+        {
+          "event": {"type": "action_selected", "match_id": "a3-moves", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "ledger", "move_id": "swap", "target_id": "hook"}},
+          "expect_ok": false,
+          "error_contains": "adjacent ally"
+        }
+      ],
+      "assertions": [
+        {"path": "phase", "equals": "SELECT"},
+        {"path": "teams.0.characters.0.position", "equals": 1},
+        {"path": "teams.0.characters.3.position", "equals": 3}
+      ]
+    }
+  ]
+}

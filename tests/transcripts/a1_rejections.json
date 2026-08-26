@@ -1,0 +1,33 @@
+{
+  "name": "invalid events are rejected without changing state",
+  "initial_state": {
+    "match_id": "reject-test",
+    "player_ids": ["alice", "bob"]
+  },
+  "steps": [
+    {
+      "event": {"type": "claim_submitted", "match_id": "reject-test", "exchange_number": 0, "phase": "CLAIM", "sender": 0, "payload": {"value": 20}},
+      "expect_ok": false,
+      "error_contains": "current phase"
+    },
+    {
+      "event": {"type": "draft_submitted", "match_id": "wrong-match", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}},
+      "expect_ok": false,
+      "error_contains": "match_id"
+    },
+    {
+      "event": {"type": "draft_submitted", "match_id": "reject-test", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}
+    },
+    {
+      "event": {"type": "draft_submitted", "match_id": "reject-test", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}},
+      "expect_ok": false,
+      "error_contains": "already submitted"
+    }
+  ],
+  "assertions": [
+    {"path": "phase", "equals": "DRAFT"},
+    {"path": "event_count", "equals": 1},
+    {"path": "teams.0.draft_locked", "equals": true},
+    {"path": "teams.1.draft_locked", "equals": false}
+  ]
+}

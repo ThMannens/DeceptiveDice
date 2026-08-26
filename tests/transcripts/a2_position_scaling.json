@@ -1,0 +1,82 @@
+{
+  "name": "A2 position damage scaling",
+  "initial_state": {
+    "match_id": "a2-positions",
+    "player_ids": ["alice", "bob"]
+  },
+  "setup_steps": [
+    {"event": {"type": "draft_submitted", "match_id": "a2-positions", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}},
+    {"event": {"type": "draft_submitted", "match_id": "a2-positions", "exchange_number": 0, "phase": "DRAFT", "sender": 1, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}}
+  ],
+  "cases": [
+    {
+      "name": "position 2 takes 85 percent",
+      "steps": [
+        {"event": {"type": "formation_submitted", "match_id": "a2-positions", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["ledger", "gambler", "hook", "bruiser"]}}},
+        {"event": {"type": "formation_submitted", "match_id": "a2-positions", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["bruiser", "ledger", "gambler", "hook"]}}},
+        {"event": {"type": "action_selected", "match_id": "a2-positions", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "bruiser", "move_id": "light_attack", "target_id": "ledger"}}},
+        {"event": {"type": "commit_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "alice-commit", "observer_secret": "bob-observer-secret"}}},
+        {"event": {"type": "commit_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "bob-commit", "observer_secret": "alice-observer-secret"}}},
+        {"event": {"type": "claim_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 12}}},
+        {"event": {"type": "claim_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 8}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "alice-secret"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "bob-secret"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "a2-positions", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [12, 8]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.position_damage_percent", "equals": 85},
+        {"path": "last_resolution.unscaled_damage", "equals": 30},
+        {"path": "last_resolution.hit_damage", "equals": 25},
+        {"path": "teams.1.characters.0.hp", "equals": 30}
+      ]
+    },
+    {
+      "name": "position 3 takes 100 percent",
+      "steps": [
+        {"event": {"type": "formation_submitted", "match_id": "a2-positions", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["ledger", "gambler", "hook", "bruiser"]}}},
+        {"event": {"type": "formation_submitted", "match_id": "a2-positions", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["bruiser", "gambler", "ledger", "hook"]}}},
+        {"event": {"type": "action_selected", "match_id": "a2-positions", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "bruiser", "move_id": "light_attack", "target_id": "ledger"}}},
+        {"event": {"type": "commit_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "alice-commit", "observer_secret": "bob-observer-secret"}}},
+        {"event": {"type": "commit_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "bob-commit", "observer_secret": "alice-observer-secret"}}},
+        {"event": {"type": "claim_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 12}}},
+        {"event": {"type": "claim_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 8}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "alice-secret"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "bob-secret"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "a2-positions", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [12, 8]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.position_damage_percent", "equals": 100},
+        {"path": "last_resolution.unscaled_damage", "equals": 30},
+        {"path": "last_resolution.hit_damage", "equals": 30},
+        {"path": "teams.1.characters.0.hp", "equals": 25}
+      ]
+    },
+    {
+      "name": "position 4 takes 120 percent",
+      "steps": [
+        {"event": {"type": "formation_submitted", "match_id": "a2-positions", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["ledger", "gambler", "hook", "bruiser"]}}},
+        {"event": {"type": "formation_submitted", "match_id": "a2-positions", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["bruiser", "gambler", "hook", "ledger"]}}},
+        {"event": {"type": "action_selected", "match_id": "a2-positions", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "bruiser", "move_id": "light_attack", "target_id": "ledger"}}},
+        {"event": {"type": "commit_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "alice-commit", "observer_secret": "bob-observer-secret"}}},
+        {"event": {"type": "commit_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "bob-commit", "observer_secret": "alice-observer-secret"}}},
+        {"event": {"type": "claim_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 12}}},
+        {"event": {"type": "claim_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 8}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "alice-secret"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "bob-secret"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "a2-positions", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [12, 8]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.position_damage_percent", "equals": 120},
+        {"path": "last_resolution.unscaled_damage", "equals": 30},
+        {"path": "last_resolution.hit_damage", "equals": 36},
+        {"path": "teams.1.characters.0.hp", "equals": 19}
+      ]
+    }
+  ]
+}
