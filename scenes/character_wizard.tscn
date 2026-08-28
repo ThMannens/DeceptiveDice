@@ -220,7 +220,7 @@ tracks/17/keys = {
 [sub_resource type="Animation" id="Animation_5go3k"]
 resource_name = "idle_animation"
 length = 2.0
-loop_mode = 2
+loop_mode = 1
 tracks/0/type = "bezier"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -323,101 +323,101 @@ tracks/8/keys = {
 tracks/9/type = "bezier"
 tracks/9/imported = false
 tracks/9/enabled = true
-tracks/9/path = NodePath("IKTargets/HipTarget/HeadTarget:position:x")
+tracks/9/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:position:x")
 tracks/9/interp = 1
 tracks/9/loop_wrap = true
 tracks/9/keys = {
 "handle_modes": PackedInt32Array(0, 0, 0, 0),
-"points": PackedFloat32Array(273.38263, -0.25, 0, 0.25, 0, 273.70276, -0.083333336, -0.0533549, 0, 0, 279.3818, -0.083333336, -0.9465078, 0, 0, 273.38263, -0.25, 0, 0.25, 0),
+"points": PackedFloat32Array(-32.492172, -0.25, 0, 0.25, 0, -41.426987, -0.083333336, 1.4891357, 0, 0, -33.492043, -0.083333336, -1.3224907, 0, 0, -32.492172, -0.25, 0, 0.25, 0),
 "times": PackedFloat32Array(0, 0.73333335, 1.4, 2)
 }
 tracks/10/type = "bezier"
 tracks/10/imported = false
 tracks/10/enabled = true
-tracks/10/path = NodePath("IKTargets/HipTarget/HeadTarget:position:y")
+tracks/10/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:position:y")
 tracks/10/interp = 1
 tracks/10/loop_wrap = true
 tracks/10/keys = {
 "handle_modes": PackedInt32Array(0, 0, 0, 0),
-"points": PackedFloat32Array(-146.64226, -0.25, 0, 0.25, 0, -166.63972, -0.083333336, 3.3329113, 0, 0, -146.54623, -0.083333336, -3.348915, 0, 0, -146.64226, -0.25, 0, 0.25, 0),
+"points": PackedFloat32Array(30.483742, -0.25, 0, 0.25, 0, 26.340183, -0.083333336, 0.6905931, 0, 0, 30.467749, -0.083333336, -0.6879276, 0, 0, 30.483742, -0.25, 0, 0.25, 0),
 "times": PackedFloat32Array(0, 0.73333335, 1.4, 2)
 }
 tracks/11/type = "bezier"
 tracks/11/imported = false
 tracks/11/enabled = true
-tracks/11/path = NodePath("IKTargets/HipTarget/HeadTarget:rotation")
+tracks/11/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:rotation")
 tracks/11/interp = 1
 tracks/11/loop_wrap = true
 tracks/11/keys = {
 "handle_modes": PackedInt32Array(0, 0, 0, 0),
-"points": PackedFloat32Array(0.463514, -0.25, 0, 0.25, 0, 0.463514, -0.083333336, 0, 0, 0, 0.463514, -0.083333336, 0, 0, 0, 0.463514, -0.25, 0, 0.25, 0),
+"points": PackedFloat32Array(0.016009446, -0.25, 0, 0.25, 0, 0.016009446, -0.083333336, 0, 0, 0, 0.016009446, -0.083333336, 0, 0, 0, 0.016009446, -0.25, 0, 0.25, 0),
 "times": PackedFloat32Array(0, 0.73333335, 1.4, 2)
 }
 tracks/12/type = "bezier"
 tracks/12/imported = false
 tracks/12/enabled = true
-tracks/12/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:position:x")
+tracks/12/path = NodePath("IKTargets/HipTarget/ArmBackTarget:position:x")
 tracks/12/interp = 1
 tracks/12/loop_wrap = true
 tracks/12/keys = {
-"handle_modes": PackedInt32Array(0, 0, 0, 0),
-"points": PackedFloat32Array(-32.492172, -0.25, 0, 0.25, 0, -41.426987, -0.083333336, 1.4891357, 0, 0, -33.492043, -0.083333336, -1.3224907, 0, 0, -32.492172, -0.25, 0, 0.25, 0),
-"times": PackedFloat32Array(0, 0.73333335, 1.4, 2)
-}
-tracks/13/type = "bezier"
-tracks/13/imported = false
-tracks/13/enabled = true
-tracks/13/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:position:y")
-tracks/13/interp = 1
-tracks/13/loop_wrap = true
-tracks/13/keys = {
-"handle_modes": PackedInt32Array(0, 0, 0, 0),
-"points": PackedFloat32Array(30.483742, -0.25, 0, 0.25, 0, 26.340183, -0.083333336, 0.6905931, 0, 0, 30.467749, -0.083333336, -0.6879276, 0, 0, 30.483742, -0.25, 0, 0.25, 0),
-"times": PackedFloat32Array(0, 0.73333335, 1.4, 2)
-}
-tracks/14/type = "bezier"
-tracks/14/imported = false
-tracks/14/enabled = true
-tracks/14/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:rotation")
-tracks/14/interp = 1
-tracks/14/loop_wrap = true
-tracks/14/keys = {
-"handle_modes": PackedInt32Array(0, 0, 0, 0),
-"points": PackedFloat32Array(0.016009446, -0.25, 0, 0.25, 0, 0.016009446, -0.083333336, 0, 0, 0, 0.016009446, -0.083333336, 0, 0, 0, 0.016009446, -0.25, 0, 0.25, 0),
-"times": PackedFloat32Array(0, 0.73333335, 1.4, 2)
-}
-tracks/15/type = "bezier"
-tracks/15/imported = false
-tracks/15/enabled = true
-tracks/15/path = NodePath("IKTargets/HipTarget/ArmBackTarget:position:x")
-tracks/15/interp = 1
-tracks/15/loop_wrap = true
-tracks/15/keys = {
 "handle_modes": PackedInt32Array(0),
 "points": PackedFloat32Array(105.78698, -0.25, 0, 0.25, 0),
 "times": PackedFloat32Array(0)
 }
-tracks/16/type = "bezier"
-tracks/16/imported = false
-tracks/16/enabled = true
-tracks/16/path = NodePath("IKTargets/HipTarget/ArmBackTarget:position:y")
-tracks/16/interp = 1
-tracks/16/loop_wrap = true
-tracks/16/keys = {
+tracks/13/type = "bezier"
+tracks/13/imported = false
+tracks/13/enabled = true
+tracks/13/path = NodePath("IKTargets/HipTarget/ArmBackTarget:position:y")
+tracks/13/interp = 1
+tracks/13/loop_wrap = true
+tracks/13/keys = {
 "handle_modes": PackedInt32Array(0),
 "points": PackedFloat32Array(-48.31267, -0.25, 0, 0.25, 0),
 "times": PackedFloat32Array(0)
 }
-tracks/17/type = "bezier"
-tracks/17/imported = false
-tracks/17/enabled = true
-tracks/17/path = NodePath("IKTargets/HipTarget/ArmBackTarget:rotation")
-tracks/17/interp = 1
-tracks/17/loop_wrap = true
-tracks/17/keys = {
+tracks/14/type = "bezier"
+tracks/14/imported = false
+tracks/14/enabled = true
+tracks/14/path = NodePath("IKTargets/HipTarget/ArmBackTarget:rotation")
+tracks/14/interp = 1
+tracks/14/loop_wrap = true
+tracks/14/keys = {
 "handle_modes": PackedInt32Array(0),
 "points": PackedFloat32Array(0.016009446, -0.25, 0, 0.25, 0),
 "times": PackedFloat32Array(0)
+}
+tracks/15/type = "bezier"
+tracks/15/imported = false
+tracks/15/enabled = true
+tracks/15/path = NodePath("IKTargets/HipTarget/HeadTarget:position:x")
+tracks/15/interp = 1
+tracks/15/loop_wrap = true
+tracks/15/keys = {
+"handle_modes": PackedInt32Array(0, 2, 0),
+"points": PackedFloat32Array(57.188843, -0.25, 0, 0.25, 0, 36.959087, -0.16666667, 0, 0.16666667, 0, 57.188843, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 1, 2)
+}
+tracks/16/type = "bezier"
+tracks/16/imported = false
+tracks/16/enabled = true
+tracks/16/path = NodePath("IKTargets/HipTarget/HeadTarget:position:y")
+tracks/16/interp = 1
+tracks/16/loop_wrap = true
+tracks/16/keys = {
+"handle_modes": PackedInt32Array(0, 2, 0),
+"points": PackedFloat32Array(-386.13397, -0.25, 0, 0.25, 0, -386.2291, -0.16666667, 0, 0.16666667, 0, -386.13397, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 1, 2)
+}
+tracks/17/type = "bezier"
+tracks/17/imported = false
+tracks/17/enabled = true
+tracks/17/path = NodePath("IKTargets/HipTarget/HeadTarget:rotation")
+tracks/17/interp = 1
+tracks/17/loop_wrap = true
+tracks/17/keys = {
+"handle_modes": PackedInt32Array(0, 2, 0),
+"points": PackedFloat32Array(0.463514, -0.25, 0, 0.25, 0, 0.463514, -0.16666667, 0, 0.16666667, 0, 0.463514, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 1, 2)
 }
 
 [sub_resource type="Animation" id="Animation_pgfvk"]
@@ -525,62 +525,62 @@ tracks/8/keys = {
 tracks/9/type = "bezier"
 tracks/9/imported = false
 tracks/9/enabled = true
-tracks/9/path = NodePath("IKTargets/HipTarget/HeadTarget:position:x")
+tracks/9/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:position:x")
 tracks/9/interp = 1
 tracks/9/loop_wrap = true
 tracks/9/keys = {
 "handle_modes": PackedInt32Array(0, 0),
-"points": PackedFloat32Array(273.38263, -0.25, 0, 0.25, 0, 273.38263, -0.16666667, 0, 0, 0),
+"points": PackedFloat32Array(-32.492172, -0.25, 0, 0.25, 0, -149.54855, -0.16666667, 19.509398, 0, 0),
 "times": PackedFloat32Array(0, 0.23333333)
 }
 tracks/10/type = "bezier"
 tracks/10/imported = false
 tracks/10/enabled = true
-tracks/10/path = NodePath("IKTargets/HipTarget/HeadTarget:position:y")
+tracks/10/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:position:y")
 tracks/10/interp = 1
 tracks/10/loop_wrap = true
 tracks/10/keys = {
 "handle_modes": PackedInt32Array(0, 0),
-"points": PackedFloat32Array(-146.64226, -0.25, 0, 0.25, 0, -146.64226, -0.16666667, 0, 0, 0),
+"points": PackedFloat32Array(30.483742, -0.25, 0, 0.25, 0, -29.397854, -0.16666667, 9.980267, 0, 0),
 "times": PackedFloat32Array(0, 0.23333333)
 }
 tracks/11/type = "bezier"
 tracks/11/imported = false
 tracks/11/enabled = true
-tracks/11/path = NodePath("IKTargets/HipTarget/HeadTarget:rotation")
+tracks/11/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:rotation")
 tracks/11/interp = 1
 tracks/11/loop_wrap = true
 tracks/11/keys = {
 "handle_modes": PackedInt32Array(0, 0),
-"points": PackedFloat32Array(0.463514, -0.25, 0, 0.25, 0, 0.463514, -0.16666667, 0, 0, 0),
+"points": PackedFloat32Array(0.016009446, -0.25, 0, 0.25, 0, 0.016009446, -0.16666667, 0, 0, 0),
 "times": PackedFloat32Array(0, 0.23333333)
 }
 tracks/12/type = "bezier"
 tracks/12/imported = false
 tracks/12/enabled = true
-tracks/12/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:position:x")
+tracks/12/path = NodePath("IKTargets/HipTarget/ArmBackTarget:position:x")
 tracks/12/interp = 1
 tracks/12/loop_wrap = true
 tracks/12/keys = {
 "handle_modes": PackedInt32Array(0, 0),
-"points": PackedFloat32Array(-32.492172, -0.25, 0, 0.25, 0, -149.54855, -0.16666667, 19.509398, 0, 0),
+"points": PackedFloat32Array(105.78698, -0.25, 0, 0.25, 0, 208.42294, -0.16666667, -17.105995, 0, 0),
 "times": PackedFloat32Array(0, 0.23333333)
 }
 tracks/13/type = "bezier"
 tracks/13/imported = false
 tracks/13/enabled = true
-tracks/13/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:position:y")
+tracks/13/path = NodePath("IKTargets/HipTarget/ArmBackTarget:position:y")
 tracks/13/interp = 1
 tracks/13/loop_wrap = true
 tracks/13/keys = {
 "handle_modes": PackedInt32Array(0, 0),
-"points": PackedFloat32Array(30.483742, -0.25, 0, 0.25, 0, -29.397854, -0.16666667, 9.980267, 0, 0),
+"points": PackedFloat32Array(-48.31267, -0.25, 0, 0.25, 0, -149.68259, -0.16666667, 16.894987, 0, 0),
 "times": PackedFloat32Array(0, 0.23333333)
 }
 tracks/14/type = "bezier"
 tracks/14/imported = false
 tracks/14/enabled = true
-tracks/14/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:rotation")
+tracks/14/path = NodePath("IKTargets/HipTarget/ArmBackTarget:rotation")
 tracks/14/interp = 1
 tracks/14/loop_wrap = true
 tracks/14/keys = {
@@ -591,35 +591,35 @@ tracks/14/keys = {
 tracks/15/type = "bezier"
 tracks/15/imported = false
 tracks/15/enabled = true
-tracks/15/path = NodePath("IKTargets/HipTarget/ArmBackTarget:position:x")
+tracks/15/path = NodePath("IKTargets/HipTarget/HeadTarget:position:x")
 tracks/15/interp = 1
 tracks/15/loop_wrap = true
 tracks/15/keys = {
-"handle_modes": PackedInt32Array(0, 0),
-"points": PackedFloat32Array(105.78698, -0.25, 0, 0.25, 0, 208.42294, -0.16666667, -17.105995, 0, 0),
-"times": PackedFloat32Array(0, 0.23333333)
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(51.029526, -0.125, 0, 0.125, 0),
+"times": PackedFloat32Array(0)
 }
 tracks/16/type = "bezier"
 tracks/16/imported = false
 tracks/16/enabled = true
-tracks/16/path = NodePath("IKTargets/HipTarget/ArmBackTarget:position:y")
+tracks/16/path = NodePath("IKTargets/HipTarget/HeadTarget:position:y")
 tracks/16/interp = 1
 tracks/16/loop_wrap = true
 tracks/16/keys = {
-"handle_modes": PackedInt32Array(0, 0),
-"points": PackedFloat32Array(-48.31267, -0.25, 0, 0.25, 0, -149.68259, -0.16666667, 16.894987, 0, 0),
-"times": PackedFloat32Array(0, 0.23333333)
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(-376.23132, -0.125, 0, 0.125, 0),
+"times": PackedFloat32Array(0)
 }
 tracks/17/type = "bezier"
 tracks/17/imported = false
 tracks/17/enabled = true
-tracks/17/path = NodePath("IKTargets/HipTarget/ArmBackTarget:rotation")
+tracks/17/path = NodePath("IKTargets/HipTarget/HeadTarget:rotation")
 tracks/17/interp = 1
 tracks/17/loop_wrap = true
 tracks/17/keys = {
-"handle_modes": PackedInt32Array(0, 0),
-"points": PackedFloat32Array(0.016009446, -0.25, 0, 0.25, 0, 0.016009446, -0.16666667, 0, 0, 0),
-"times": PackedFloat32Array(0, 0.23333333)
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0.463514, -0.125, 0, 0.125, 0),
+"times": PackedFloat32Array(0)
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_pgfvk"]
@@ -634,118 +634,119 @@ _data = {
 [node name="Sprites" type="Node2D" parent="." unique_id=1709236486]
 
 [node name="Neck" type="Sprite2D" parent="Sprites" unique_id=1420531551]
-position = Vector2(16.28569, -87.25038)
-rotation = 0.075909264
-scale = Vector2(0.99999994, 0.99999994)
+position = Vector2(16.513615, -88.16207)
+rotation = -0.10594224
+scale = Vector2(0.9999999, 0.9999999)
 texture = ExtResource("2_k1xhg")
 offset = Vector2(11, -13)
 
 [node name="Head" type="Sprite2D" parent="Sprites/Neck" unique_id=1322964229]
-position = Vector2(12, -39.000008)
-rotation = -0.090659894
+position = Vector2(13.354004, -38.497063)
+rotation = 0.12739527
+scale = Vector2(0.99999994, 0.99999994)
 texture = ExtResource("1_br2nk")
 offset = Vector2(15, -53)
 
 [node name="Staff" type="Sprite2D" parent="Sprites" unique_id=2012842320]
-position = Vector2(126.32972, 29.620323)
-rotation = 0.16310848
+position = Vector2(126.55767, 28.708633)
+rotation = 0.16310857
 scale = Vector2(0.9999983, 0.9999983)
 texture = ExtResource("3_pgfvk")
 offset = Vector2(-4.3874817, 19.556866)
 
 [node name="HandBack" type="Sprite2D" parent="Sprites" unique_id=1964545805]
-position = Vector2(117.04007, 34.839626)
-rotation = -1.5822208
+position = Vector2(117.26802, 33.927937)
+rotation = -1.5822207
 scale = Vector2(0.99999833, 0.99999833)
 texture = ExtResource("7_euewv")
 offset = Vector2(3.5, 7)
 
 [node name="LowerArmBack" type="Sprite2D" parent="Sprites" unique_id=2008934934]
-position = Vector2(36.022648, 33.76512)
-rotation = -1.5822208
+position = Vector2(36.250595, 32.853424)
+rotation = -1.5822207
 scale = Vector2(0.99999833, 0.99999833)
 texture = ExtResource("6_otsgi")
 offset = Vector2(1.5, 32)
 
 [node name="UpperArmBack" type="Sprite2D" parent="Sprites" unique_id=1633068627]
-position = Vector2(15.638012, -65.2372)
-rotation = -0.24264598
+position = Vector2(15.865935, -66.14889)
+rotation = -0.24264625
 scale = Vector2(0.9999996, 0.9999996)
 texture = ExtResource("5_c712k")
 offset = Vector2(1.5, 41)
 
 [node name="LowerLegBack" type="Sprite2D" parent="Sprites" unique_id=892447442]
-position = Vector2(45.89528, 170.07153)
-rotation = -0.031528708
-scale = Vector2(0.9999996, 0.9999996)
+position = Vector2(43.975388, 169.55019)
+rotation = -0.05088399
+scale = Vector2(0.9999993, 0.9999993)
 texture = ExtResource("9_5go3k")
 offset = Vector2(-16, 46)
 
 [node name="UpperLegBack" type="Sprite2D" parent="Sprites" unique_id=793557731]
-position = Vector2(34.50153, 113.48372)
-rotation = 0.0462889
+position = Vector2(34.729454, 112.57204)
+rotation = 0.08410936
 scale = Vector2(0.9999996, 0.9999996)
 texture = ExtResource("8_pq6ca")
 offset = Vector2(3, 17)
 
 [node name="ToesBack" type="Sprite2D" parent="Sprites" unique_id=1279808350]
-position = Vector2(17.999998, 269)
-rotation = -0.04876838
-scale = Vector2(0.9999996, 0.9999996)
+position = Vector2(18.00001, 269)
+rotation = -0.06812366
+scale = Vector2(0.9999993, 0.9999993)
 texture = ExtResource("10_pgfvk")
 offset = Vector2(13, -4)
 
 [node name="LowerLegFront" type="Sprite2D" parent="Sprites" unique_id=750182096]
-position = Vector2(1.6512517, 167.53041)
-rotation = 0.15195203
-scale = Vector2(0.9999997, 0.9999997)
+position = Vector2(0.3233044, 166.92175)
+rotation = 0.13779126
+scale = Vector2(0.99999934, 0.99999934)
 texture = ExtResource("9_5go3k")
 offset = Vector2(-14, 48)
 
 [node name="UpperLegFront" type="Sprite2D" parent="Sprites" unique_id=1580685502]
-position = Vector2(-7.5251055, 112.15634)
-rotation = 0.053207964
-scale = Vector2(0.9999997, 0.9999997)
+position = Vector2(-7.297182, 111.24466)
+rotation = 0.080277905
+scale = Vector2(0.9999996, 0.9999996)
 texture = ExtResource("8_pq6ca")
 offset = Vector2(4, 21)
 
 [node name="ToesFront" type="Sprite2D" parent="Sprites" unique_id=871059513]
-position = Vector2(-42.000008, 261)
-rotation = 0.21052225
-scale = Vector2(0.99999964, 0.99999964)
+position = Vector2(-42.00001, 261.00003)
+rotation = 0.1963615
+scale = Vector2(0.9999993, 0.9999993)
 texture = ExtResource("10_pgfvk")
 offset = Vector2(16, -2)
 
 [node name="Torso" type="Sprite2D" parent="Sprites" unique_id=1013249041]
-position = Vector2(12.040095, 84.83963)
-rotation = -0.016009448
+position = Vector2(12.268019, 83.92794)
+rotation = -0.016009446
 texture = ExtResource("3_1x7nm")
 offset = Vector2(-3, -76)
 
 [node name="Belt" type="Sprite2D" parent="Sprites" unique_id=77606943]
-position = Vector2(5.4805574, 49.94017)
-rotation = -0.016009448
+position = Vector2(5.708481, 49.02848)
+rotation = -0.016009446
 texture = ExtResource("4_631rr")
 offset = Vector2(-2, -2)
 
 [node name="HandFront" type="Sprite2D" parent="Sprites" unique_id=1518975192]
-position = Vector2(-20.32076, 115.679245)
-rotation = -0.18973787
-scale = Vector2(0.9999992, 0.9999992)
+position = Vector2(-22.14415, 113.855865)
+rotation = -0.20574115
+scale = Vector2(0.99999887, 0.99999887)
 texture = ExtResource("7_euewv")
 offset = Vector2(2, 9)
 
 [node name="LowerArmFront" type="Sprite2D" parent="Sprites" unique_id=425560861]
-position = Vector2(-32.23506, 32.432396)
-rotation = -0.18973787
-scale = Vector2(0.9999992, 0.9999992)
+position = Vector2(-35.389088, 30.810356)
+rotation = -0.20574115
+scale = Vector2(0.99999887, 0.99999887)
 texture = ExtResource("6_otsgi")
 offset = Vector2(-1.4794769, 34.540222)
 
 [node name="UpperArmFront" type="Sprite2D" parent="Sprites" unique_id=350385651]
-position = Vector2(-13.374282, -65.77283)
-rotation = 0.18974437
-scale = Vector2(0.9999997, 0.9999997)
+position = Vector2(-13.146357, -66.68452)
+rotation = 0.22430357
+scale = Vector2(0.9999994, 0.9999994)
 texture = ExtResource("5_c712k")
 offset = Vector2(2.4514694, 44.581833)
 
@@ -754,8 +755,8 @@ offset = Vector2(2.4514694, 44.581833)
 [node name="Skeleton2D" type="Skeleton2D" parent="Bones" unique_id=44444575]
 
 [node name="Hip" type="Bone2D" parent="Bones/Skeleton2D" unique_id=317834541]
-position = Vector2(12.040095, 84.83963)
-rotation = -0.016009448
+position = Vector2(12.268019, 83.92794)
+rotation = -0.016009446
 rest = Transform2D(1, 0, 0, 1, -11, 63)
 
 [node name="RemoteTransform2D" type="RemoteTransform2D" parent="Bones/Skeleton2D/Hip" unique_id=822974769]
@@ -767,8 +768,8 @@ remote_path = NodePath("../../../../../Sprites/Belt")
 
 [node name="UpperLegFront" type="Bone2D" parent="Bones/Skeleton2D/Hip" unique_id=660182902]
 position = Vector2(-20, 27)
-rotation = 0.06921741
-scale = Vector2(0.9999997, 0.9999997)
+rotation = 0.096287355
+scale = Vector2(0.99999964, 0.99999964)
 rest = Transform2D(1, 0, 0, 1, -20, 27)
 
 [node name="RemoteTransform2D" type="RemoteTransform2D" parent="Bones/Skeleton2D/Hip/UpperLegFront" unique_id=1609239822]
@@ -776,8 +777,8 @@ remote_path = NodePath("../../../../../Sprites/UpperLegFront")
 
 [node name="LowerLegFront" type="Bone2D" parent="Bones/Skeleton2D/Hip/UpperLegFront" unique_id=1577659050]
 position = Vector2(14, 56)
-rotation = 0.098744065
-scale = Vector2(0.9999999, 0.9999999)
+rotation = 0.057513364
+scale = Vector2(0.99999976, 0.99999976)
 rest = Transform2D(1, 0, 0, 1, 14, 56)
 
 [node name="RemoteTransform2D" type="RemoteTransform2D" parent="Bones/Skeleton2D/Hip/UpperLegFront/LowerLegFront" unique_id=1460711563]
@@ -787,7 +788,7 @@ remote_path = NodePath("../../../../../../Sprites/LowerLegFront")
 [node name="FootFront" type="Bone2D" parent="Bones/Skeleton2D/Hip/UpperLegFront/LowerLegFront" unique_id=46090222]
 position = Vector2(-31, 98)
 rotation = 0.058570236
-scale = Vector2(0.99999994, 0.99999994)
+scale = Vector2(0.9999999, 0.9999999)
 rest = Transform2D(0.99995, 0.0099995, -0.0099995, 0.99995, -31, 98)
 auto_calculate_length_and_angle = false
 length = 30.0
@@ -798,8 +799,8 @@ remote_path = NodePath("../../../../../../../Sprites/ToesFront")
 
 [node name="UpperLegBack" type="Bone2D" parent="Bones/Skeleton2D/Hip" unique_id=279680558]
 position = Vector2(22, 29)
-rotation = 0.06229835
-scale = Vector2(0.99999964, 0.99999964)
+rotation = 0.10011881
+scale = Vector2(0.9999996, 0.9999996)
 rest = Transform2D(1, 0, 0, 1, 22, 29)
 
 [node name="RemoteTransform2D" type="RemoteTransform2D" parent="Bones/Skeleton2D/Hip/UpperLegBack" unique_id=246455072]
@@ -807,8 +808,8 @@ remote_path = NodePath("../../../../../Sprites/UpperLegBack")
 
 [node name="LowerLegBack" type="Bone2D" parent="Bones/Skeleton2D/Hip/UpperLegBack" unique_id=1294058932]
 position = Vector2(14, 56)
-rotation = -0.07781761
-scale = Vector2(0.99999994, 0.99999994)
+rotation = -0.13499336
+scale = Vector2(0.99999964, 0.99999964)
 rest = Transform2D(1, 0, 0, 1, 14, 56)
 
 [node name="RemoteTransform2D" type="RemoteTransform2D" parent="Bones/Skeleton2D/Hip/UpperLegBack/LowerLegBack" unique_id=900229656]
@@ -827,7 +828,7 @@ remote_path = NodePath("../../../../../../../Sprites/ToesBack")
 
 [node name="UpperArmBack" type="Bone2D" parent="Bones/Skeleton2D/Hip" unique_id=2129303576]
 position = Vector2(6, -150)
-rotation = -0.22663653
+rotation = -0.2266368
 scale = Vector2(0.9999996, 0.9999996)
 rest = Transform2D(0.818961, -0.57384896, 0.57384896, 0.818961, 6, -150)
 
@@ -836,7 +837,7 @@ remote_path = NodePath("../../../../../Sprites/UpperArmBack")
 
 [node name="LowerArmBack" type="Bone2D" parent="Bones/Skeleton2D/Hip/UpperArmBack" unique_id=46956704]
 position = Vector2(-4, 101)
-rotation = -1.3395748
+rotation = -1.3395745
 scale = Vector2(0.99999875, 0.99999875)
 rest = Transform2D(-0.2629489, -0.9648092, 0.9648092, -0.2629489, -4, 101)
 
@@ -860,8 +861,8 @@ remote_path = NodePath("../../../../../../../../Sprites/Staff")
 
 [node name="UpperArmFront" type="Bone2D" parent="Bones/Skeleton2D/Hip" unique_id=400978686]
 position = Vector2(-23, -151)
-rotation = 0.20575382
-scale = Vector2(0.9999997, 0.9999997)
+rotation = 0.24031302
+scale = Vector2(0.99999946, 0.99999946)
 rest = Transform2D(1, 0, 0, 1, -23, -151)
 
 [node name="RemoteTransform2D" type="RemoteTransform2D" parent="Bones/Skeleton2D/Hip/UpperArmFront" unique_id=1304107616]
@@ -869,8 +870,8 @@ remote_path = NodePath("../../../../../Sprites/UpperArmFront")
 
 [node name="LowerArmFront" type="Bone2D" parent="Bones/Skeleton2D/Hip/UpperArmFront" unique_id=850009462]
 position = Vector2(0, 100)
-rotation = -0.37948224
-scale = Vector2(0.9999995, 0.9999995)
+rotation = -0.43004474
+scale = Vector2(0.99999946, 0.99999946)
 rest = Transform2D(1, 0, 0, 1, 0, 100)
 
 [node name="RemoteTransform2D" type="RemoteTransform2D" parent="Bones/Skeleton2D/Hip/UpperArmFront/LowerArmFront" unique_id=201601368]
@@ -888,7 +889,8 @@ remote_path = NodePath("../../../../../../../Sprites/HandFront")
 
 [node name="Neck" type="Bone2D" parent="Bones/Skeleton2D/Hip" unique_id=1706642671]
 position = Vector2(7, -172)
-rotation = 0.091918714
+rotation = -0.0899328
+scale = Vector2(0.9999999, 0.9999999)
 rest = Transform2D(1, 0, 0, 1, 7, -172)
 
 [node name="RemoteTransform2D" type="RemoteTransform2D" parent="Bones/Skeleton2D/Hip/Neck" unique_id=1560582375]
@@ -896,14 +898,16 @@ remote_path = NodePath("../../../../../Sprites/Neck")
 
 [node name="Head" type="Bone2D" parent="Bones/Skeleton2D/Hip/Neck" unique_id=934062233]
 position = Vector2(12, -39)
-rotation = -0.09065989
-scale = Vector2(0.99999994, 0.99999994)
+rotation = -1.2722975
+scale = Vector2(0.9999998, 0.9999998)
 rest = Transform2D(0.9958932, -0.090535745, 0.090535745, 0.9958932, 12, -39)
 auto_calculate_length_and_angle = false
-length = 40.0
-bone_angle = 0.0
+length = 37.499485
+bone_angle = 90.0
 
 [node name="RemoteTransform2D" type="RemoteTransform2D" parent="Bones/Skeleton2D/Hip/Neck/Head" unique_id=516242418]
+position = Vector2(-0.08250666, 1.4420338)
+rotation = 1.3996928
 remote_path = NodePath("../../../../../../Sprites/Neck/Head")
 
 [node name="IKTargets" type="Node2D" parent="." unique_id=965380633]
@@ -977,7 +981,7 @@ control_rotation = true
 control_position = true
 bone_node = NodePath("../../Bones/Skeleton2D/Hip")
 target_node = NodePath("../../IKTargets/HipTarget")
-target_rotation = -0.016009448
+target_rotation = -0.016009446
 metadata/_custom_type_script = "uid://b5uiivwxcoics"
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1138206201]
