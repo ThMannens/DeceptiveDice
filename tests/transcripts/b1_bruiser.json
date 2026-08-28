@@ -1,0 +1,190 @@
+{
+  "name": "B1 The Bruiser",
+  "initial_state": {
+    "match_id": "b1-bruiser",
+    "player_ids": ["alice", "bob"]
+  },
+  "setup_steps": [
+    {"event": {"type": "draft_submitted", "match_id": "b1-bruiser", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}},
+    {"event": {"type": "draft_submitted", "match_id": "b1-bruiser", "exchange_number": 0, "phase": "DRAFT", "sender": 1, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}}
+  ],
+  "cases": [
+    {
+      "name": "Thick Skull halves padding damage when the Bruiser is caught attacking",
+      "steps": [
+        {"event": {"type": "formation_submitted", "match_id": "b1-bruiser", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["ledger", "gambler", "hook", "bruiser"]}}},
+        {"event": {"type": "formation_submitted", "match_id": "b1-bruiser", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["ledger", "gambler", "hook", "bruiser"]}}},
+        {"event": {"type": "action_selected", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "bruiser", "move_id": "light_attack", "target_id": "ledger"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
+        {"event": {"type": "claim_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 18}}},
+        {"event": {"type": "claim_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 8}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": true}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "b"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [10, 8]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.attack.outcome", "equals": "CAUGHT"},
+        {"path": "last_resolution.attack.padding", "equals": 8},
+        {"path": "last_resolution.hit", "equals": false},
+        {"path": "last_resolution.miss_reason", "equals": "ATTACK_CAUGHT"},
+        {"path": "last_resolution.attacker_self_damage", "equals": 4},
+        {"path": "last_resolution.kit_effects.0.effect", "equals": "FRONT_FIGHTER"},
+        {"path": "last_resolution.kit_effects.1.effect", "equals": "THICK_SKULL"},
+        {"path": "last_resolution.kit_effects.1.detail", "equals": "PADDING_HALVED"},
+        {"path": "last_resolution.kit_effects.1.amount_before", "equals": 8},
+        {"path": "last_resolution.kit_effects.1.amount_after", "equals": 4},
+        {"path": "teams.0.characters.1.hp", "equals": 66}
+      ]
+    },
+    {
+      "name": "Thick Skull rounds an odd padding down",
+      "steps": [
+        {"event": {"type": "formation_submitted", "match_id": "b1-bruiser", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["ledger", "gambler", "hook", "bruiser"]}}},
+        {"event": {"type": "formation_submitted", "match_id": "b1-bruiser", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["ledger", "gambler", "hook", "bruiser"]}}},
+        {"event": {"type": "action_selected", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "bruiser", "move_id": "light_attack", "target_id": "ledger"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
+        {"event": {"type": "claim_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 15}}},
+        {"event": {"type": "claim_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 8}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": true}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "b"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [10, 8]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.attack.padding", "equals": 5},
+        {"path": "last_resolution.attacker_self_damage", "equals": 2},
+        {"path": "teams.0.characters.1.hp", "equals": 68}
+      ]
+    },
+    {
+      "name": "Thick Skull does not fire when the Bruiser claims honestly and is wrongly challenged",
+      "steps": [
+        {"event": {"type": "formation_submitted", "match_id": "b1-bruiser", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["ledger", "gambler", "hook", "bruiser"]}}},
+        {"event": {"type": "formation_submitted", "match_id": "b1-bruiser", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["ledger", "gambler", "hook", "bruiser"]}}},
+        {"event": {"type": "action_selected", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "bruiser", "move_id": "light_attack", "target_id": "ledger"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
+        {"event": {"type": "claim_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 10}}},
+        {"event": {"type": "claim_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 8}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": true}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "b"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [10, 8]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.attack.outcome", "equals": "WRONG_CALL"},
+        {"path": "last_resolution.attacker_self_damage", "equals": 0},
+        {"path": "last_resolution.attack_damage_multiplier", "equals": 2},
+        {"path": "teams.0.characters.1.hp", "equals": 70}
+      ]
+    },
+    {
+      "name": "Front Fighter adds six damage from position 4",
+      "steps": [
+        {"event": {"type": "formation_submitted", "match_id": "b1-bruiser", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["ledger", "gambler", "hook", "bruiser"]}}},
+        {"event": {"type": "formation_submitted", "match_id": "b1-bruiser", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["ledger", "gambler", "hook", "bruiser"]}}},
+        {"event": {"type": "action_selected", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "bruiser", "move_id": "light_attack", "target_id": "bruiser"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
+        {"event": {"type": "claim_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 12}}},
+        {"event": {"type": "claim_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 8}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "b"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [12, 8]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.margin", "equals": 9},
+        {"path": "last_resolution.margin_bonus", "equals": 9},
+        {"path": "last_resolution.unscaled_damage", "equals": 39},
+        {"path": "last_resolution.kit_effects.0.effect", "equals": "FRONT_FIGHTER"},
+        {"path": "last_resolution.kit_effects.0.detail", "equals": "POSITION_4_BONUS"},
+        {"path": "last_resolution.kit_effects.0.damage_modifier", "equals": 6},
+        {"path": "last_resolution.hit_damage", "equals": 46}
+      ]
+    },
+    {
+      "name": "Front Fighter gives no bonus from position 3",
+      "steps": [
+        {"event": {"type": "formation_submitted", "match_id": "b1-bruiser", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["ledger", "gambler", "bruiser", "hook"]}}},
+        {"event": {"type": "formation_submitted", "match_id": "b1-bruiser", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["ledger", "gambler", "hook", "bruiser"]}}},
+        {"event": {"type": "action_selected", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "bruiser", "move_id": "light_attack", "target_id": "bruiser"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
+        {"event": {"type": "claim_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 12}}},
+        {"event": {"type": "claim_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 8}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "b"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [12, 8]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.margin", "equals": 9},
+        {"path": "last_resolution.margin_bonus", "equals": 9},
+        {"path": "last_resolution.unscaled_damage", "equals": 33},
+        {"path": "last_resolution.kit_effects", "equals": []},
+        {"path": "last_resolution.hit_damage", "equals": 39}
+      ]
+    },
+    {
+      "name": "Front Fighter removes the margin bonus from position 2",
+      "steps": [
+        {"event": {"type": "formation_submitted", "match_id": "b1-bruiser", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}},
+        {"event": {"type": "formation_submitted", "match_id": "b1-bruiser", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["ledger", "gambler", "hook", "bruiser"]}}},
+        {"event": {"type": "action_selected", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "bruiser", "move_id": "light_attack", "target_id": "bruiser"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
+        {"event": {"type": "claim_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 12}}},
+        {"event": {"type": "claim_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 8}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "b"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [12, 8]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.margin", "equals": 9},
+        {"path": "last_resolution.margin_bonus", "equals": 0},
+        {"path": "last_resolution.unscaled_damage", "equals": 24},
+        {"path": "last_resolution.kit_effects.0.effect", "equals": "FRONT_FIGHTER"},
+        {"path": "last_resolution.kit_effects.0.detail", "equals": "BACK_POSITION_PENALTY"},
+        {"path": "last_resolution.hit_damage", "equals": 28}
+      ]
+    },
+    {
+      "name": "Front Fighter and Thick Skull both fire in one exchange",
+      "steps": [
+        {"event": {"type": "formation_submitted", "match_id": "b1-bruiser", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["ledger", "gambler", "hook", "bruiser"]}}},
+        {"event": {"type": "formation_submitted", "match_id": "b1-bruiser", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["ledger", "gambler", "hook", "bruiser"]}}},
+        {"event": {"type": "action_selected", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "bruiser", "move_id": "light_attack", "target_id": "bruiser"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
+        {"event": {"type": "claim_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 14}}},
+        {"event": {"type": "claim_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 14}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": true}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "b"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "b1-bruiser", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [14, 8]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.attack.outcome", "equals": "HONEST_PASS"},
+        {"path": "last_resolution.defence.outcome", "equals": "CAUGHT"},
+        {"path": "last_resolution.defence.padding", "equals": 6},
+        {"path": "last_resolution.defender_self_damage", "equals": 3},
+        {"path": "last_resolution.kit_effects.0.effect", "equals": "FRONT_FIGHTER"},
+        {"path": "last_resolution.kit_effects.1.effect", "equals": "THICK_SKULL"},
+        {"path": "last_resolution.kit_effects.1.amount_before", "equals": 6},
+        {"path": "last_resolution.kit_effects.1.amount_after", "equals": 3}
+      ]
+    }
+  ]
+}

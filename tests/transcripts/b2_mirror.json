@@ -1,0 +1,168 @@
+{
+  "name": "B2 The Mirror",
+  "initial_state": {
+    "match_id": "b2-mirror",
+    "player_ids": ["alice", "bob"]
+  },
+  "setup_steps": [
+    {"event": {"type": "draft_submitted", "match_id": "b2-mirror", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["mirror", "bruiser", "gambler", "hook"]}}},
+    {"event": {"type": "draft_submitted", "match_id": "b2-mirror", "exchange_number": 0, "phase": "DRAFT", "sender": 1, "payload": {"character_ids": ["mirror", "bruiser", "gambler", "hook"]}}}
+  ],
+  "cases": [
+    {
+      "name": "Reflect deals the padding instead of the bluffer taking it as self-damage",
+      "steps": [
+        {"event": {"type": "formation_submitted", "match_id": "b2-mirror", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["mirror", "gambler", "hook", "bruiser"]}}},
+        {"event": {"type": "formation_submitted", "match_id": "b2-mirror", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["bruiser", "gambler", "hook", "mirror"]}}},
+        {"event": {"type": "action_selected", "match_id": "b2-mirror", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "gambler", "move_id": "light_attack", "target_id": "mirror"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
+        {"event": {"type": "claim_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 18}}},
+        {"event": {"type": "claim_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 9}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": true}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "b"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "b2-mirror", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [12, 9]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.attack.outcome", "equals": "CAUGHT"},
+        {"path": "last_resolution.attack.padding", "equals": 6},
+        {"path": "last_resolution.attacker_self_damage", "equals": 0},
+        {"path": "last_resolution.attacker_reflected_damage", "equals": 12},
+        {"path": "last_resolution.kit_effects.0.effect", "equals": "ALL_IN"},
+        {"path": "last_resolution.kit_effects.0.detail", "equals": "PADDING_DOUBLED"},
+        {"path": "last_resolution.kit_effects.1.effect", "equals": "REFLECT"},
+        {"path": "last_resolution.kit_effects.1.detail", "equals": "PADDING_REFLECTED"},
+        {"path": "last_resolution.kit_effects.1.amount", "equals": 12},
+        {"path": "teams.0.characters.2.hp", "equals": 33},
+        {"path": "teams.1.characters.0.hp", "equals": 50}
+      ]
+    },
+    {
+      "name": "Reflect does not fire on a wrong call",
+      "steps": [
+        {"event": {"type": "formation_submitted", "match_id": "b2-mirror", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["mirror", "gambler", "hook", "bruiser"]}}},
+        {"event": {"type": "formation_submitted", "match_id": "b2-mirror", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["bruiser", "gambler", "hook", "mirror"]}}},
+        {"event": {"type": "action_selected", "match_id": "b2-mirror", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "gambler", "move_id": "light_attack", "target_id": "mirror"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
+        {"event": {"type": "claim_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 12}}},
+        {"event": {"type": "claim_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 9}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": true}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "b"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "b2-mirror", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [12, 9]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.attack.outcome", "equals": "WRONG_CALL"},
+        {"path": "last_resolution.attacker_self_damage", "equals": 0},
+        {"path": "last_resolution.attacker_reflected_damage", "equals": 0},
+        {"path": "last_resolution.kit_effects", "equals": []},
+        {"path": "teams.0.characters.2.hp", "equals": 45}
+      ]
+    },
+    {
+      "name": "Reflect deals only what Thick Skull left of a Bruiser bluff",
+      "steps": [
+        {"event": {"type": "formation_submitted", "match_id": "b2-mirror", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["mirror", "gambler", "hook", "bruiser"]}}},
+        {"event": {"type": "formation_submitted", "match_id": "b2-mirror", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["bruiser", "gambler", "hook", "mirror"]}}},
+        {"event": {"type": "action_selected", "match_id": "b2-mirror", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "bruiser", "move_id": "light_attack", "target_id": "mirror"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
+        {"event": {"type": "claim_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 18}}},
+        {"event": {"type": "claim_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 9}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": true}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "b"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "b2-mirror", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [12, 9]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.attack.padding", "equals": 6},
+        {"path": "last_resolution.attacker_self_damage", "equals": 0},
+        {"path": "last_resolution.attacker_reflected_damage", "equals": 3},
+        {"path": "last_resolution.kit_effects.0.effect", "equals": "FRONT_FIGHTER"},
+        {"path": "last_resolution.kit_effects.1.effect", "equals": "THICK_SKULL"},
+        {"path": "last_resolution.kit_effects.2.effect", "equals": "REFLECT"},
+        {"path": "last_resolution.kit_effects.2.amount", "equals": 3},
+        {"path": "teams.0.characters.1.hp", "equals": 67}
+      ]
+    },
+    {
+      "name": "Read the Room arms when the Mirror's own claim locks in",
+      "steps": [
+        {"event": {"type": "formation_submitted", "match_id": "b2-mirror", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["mirror", "gambler", "hook", "bruiser"]}}},
+        {"event": {"type": "formation_submitted", "match_id": "b2-mirror", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["bruiser", "gambler", "hook", "mirror"]}}},
+        {"event": {"type": "action_selected", "match_id": "b2-mirror", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "gambler", "move_id": "light_attack", "target_id": "mirror"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
+        {"event": {"type": "claim_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 12}}},
+        {"event": {"type": "claim_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 9}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "b"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "b2-mirror", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [12, 9]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.defence.locked_in", "equals": true},
+        {"path": "teams.1.characters.0.effect_counters.read_the_room_armed", "equals": true}
+      ]
+    },
+    {
+      "name": "Read the Room does not arm when the Mirror's claim is caught",
+      "steps": [
+        {"event": {"type": "formation_submitted", "match_id": "b2-mirror", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["mirror", "gambler", "hook", "bruiser"]}}},
+        {"event": {"type": "formation_submitted", "match_id": "b2-mirror", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["bruiser", "gambler", "hook", "mirror"]}}},
+        {"event": {"type": "action_selected", "match_id": "b2-mirror", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "gambler", "move_id": "light_attack", "target_id": "mirror"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
+        {"event": {"type": "claim_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 12}}},
+        {"event": {"type": "claim_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 16}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": true}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "b"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "b2-mirror", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [12, 9]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.defence.outcome", "equals": "CAUGHT"},
+        {"path": "last_resolution.defence.locked_in", "equals": false},
+        {"path": "teams.1.characters.0.effect_counters.read_the_room_armed", "equals": false}
+      ]
+    },
+    {
+      "name": "an armed Read the Room makes the next wrong call cost nothing",
+      "steps": [
+        {"event": {"type": "formation_submitted", "match_id": "b2-mirror", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["mirror", "gambler", "hook", "bruiser"]}}},
+        {"event": {"type": "formation_submitted", "match_id": "b2-mirror", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["bruiser", "gambler", "hook", "mirror"]}}},
+        {"event": {"type": "action_selected", "match_id": "b2-mirror", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "gambler", "move_id": "light_attack", "target_id": "mirror"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
+        {"event": {"type": "claim_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 12}}},
+        {"event": {"type": "claim_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 9}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b2-mirror", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "b"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "b2-mirror", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [12, 9]}}},
+        {"event": {"type": "action_selected", "match_id": "b2-mirror", "exchange_number": 2, "phase": "SELECT", "sender": 1, "payload": {"actor_id": "gambler", "move_id": "light_attack", "target_id": "gambler"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b2-mirror", "exchange_number": 2, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b2-mirror", "exchange_number": 2, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
+        {"event": {"type": "claim_submitted", "match_id": "b2-mirror", "exchange_number": 2, "phase": "CLAIM", "sender": 0, "payload": {"value": 10}}},
+        {"event": {"type": "claim_submitted", "match_id": "b2-mirror", "exchange_number": 2, "phase": "CLAIM", "sender": 1, "payload": {"value": 14}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b2-mirror", "exchange_number": 2, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b2-mirror", "exchange_number": 2, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b2-mirror", "exchange_number": 2, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b2-mirror", "exchange_number": 2, "phase": "REVEAL", "sender": 1, "payload": {"secret": "b"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "b2-mirror", "exchange_number": 2, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [10, 14]}}}
+      ],
+      "assertions": [
+        {"path": "teams.1.characters.0.effect_counters.read_the_room_armed", "equals": true},
+        {"path": "phase", "equals": "SELECT"}
+      ]
+    }
+  ]
+}

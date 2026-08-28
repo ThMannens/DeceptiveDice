@@ -3,6 +3,8 @@ extends Control
 const HotseatMatch = preload("res://src/local/hotseat_match.gd")
 const MatchState = preload("res://src/core/match_state.gd")
 const Moves = preload("res://src/core/moves.gd")
+const Kits = preload("res://src/core/kits.gd")
+const RulesTooltip = preload("res://src/presentation/rules_tooltip.gd")
 const DirectTransport = preload("res://src/network/direct_transport.gd")
 const NetworkMatch = preload("res://src/network/network_match.gd")
 
@@ -25,6 +27,7 @@ var board_scroll: ScrollContainer
 var lower_row: HBoxContainer
 var prompt_box: VBoxContainer
 var history_label: RichTextLabel
+var claims_label: RichTextLabel
 var error_label: Label
 var subtitle_label: Label
 
@@ -87,7 +90,7 @@ func _build_shell() -> void:
 	board_scroll = ScrollContainer.new()
 	board_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	board_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	board_scroll.custom_minimum_size.y = 170
+	board_scroll.custom_minimum_size.y = 232
 	page.add_child(board_scroll)
 
 	board_container = HBoxContainer.new()
@@ -100,7 +103,7 @@ func _build_shell() -> void:
 	# match stays reachable without scrolling the page.
 	lower_row = HBoxContainer.new()
 	lower_row.add_theme_constant_override("separation", 12)
-	lower_row.custom_minimum_size.y = 246
+	lower_row.custom_minimum_size.y = 200
 	lower_row.size_flags_vertical = Control.SIZE_SHRINK_END
 	page.add_child(lower_row)
 	var lower := lower_row
@@ -189,7 +192,69 @@ func _build_history_panel() -> PanelContainer:
 	history_label.add_theme_font_size_override("normal_font_size", 13)
 	history_label.add_theme_color_override("default_color", UiTheme.COLOR_MUTED)
 	history_box.add_child(history_label)
+
+	# The claim record is public information both players read each other from,
+	# and the Bookkeeping ledger is unplayable if you cannot see what is on it.
+	history_box.add_child(_section_heading("Claim record"))
+	claims_label = RichTextLabel.new()
+	claims_label.bbcode_enabled = true
+	claims_label.fit_content = false
+	claims_label.scroll_active = true
+	claims_label.custom_minimum_size.y = 120
+	claims_label.add_theme_font_size_override("normal_font_size", 12)
+	claims_label.add_theme_color_override("default_color", UiTheme.COLOR_MUTED)
+	history_box.add_child(claims_label)
 	return history_panel
+
+
+## The public claim record: what each player has claimed, and which paddings the
+## Ledger currently has banked for Bookkeeping.
+func _render_claim_record() -> void:
+	if claims_label == null:
+		return
+	if state_is_empty():
+		claims_label.text = "[color=#%s]No claims yet.[/color]" % UiTheme.COLOR_FAINT.to_html(false)
+		return
+
+	var accent := UiTheme.COLOR_ACCENT.to_html(false)
+	var faint := UiTheme.COLOR_FAINT.to_html(false)
+	var blocks := PackedStringArray()
+
+	for player in 2:
+		var team: Dictionary = game.state["teams"][player]
+		var tint := _player_color(player).to_html(false)
+		var block := "[color=#%s]%s[/color]" % [tint, _player_name(player).to_upper()]
+
+		var recorded: Array = team.get("recorded_paddings", [])
+		if not recorded.is_empty():
+			var padding_text := PackedStringArray()
+			for padding in recorded:
+				padding_text.append("+%d" % int(padding))
+			block += "\n[color=#%s]On record: %s[/color]" % [accent, " ".join(padding_text)]
+
+		var history: Array = team["claim_history"]
+		if history.is_empty():
+			block += "\n[color=#%s]No claims yet.[/color]" % faint
+		else:
+			# Newest first, and capped: the panel is a read aid, not an archive.
+			var shown := 0
+			for index in range(history.size() - 1, -1, -1):
+				if shown >= 6:
+					break
+				var entry: Dictionary = history[index]
+				var padding := int(entry["padding"])
+				var padding_text := "honest" if padding == 0 else "+%d" % padding
+				block += "\n[color=#%s]%s claimed %d (rolled %d, %s)[/color]" % [
+					faint,
+					_character_name(player, str(entry["character_id"])),
+					int(entry["claim"]),
+					int(entry["true_roll"]),
+					padding_text,
+				]
+				shown += 1
+		blocks.append(block)
+
+	claims_label.text = "\n\n".join(blocks)
 
 
 func _render() -> void:
@@ -206,6 +271,7 @@ func _render() -> void:
 	_render_header()
 	_render_board()
 	_render_history()
+	_render_claim_record()
 	_render_prompt()
 
 
@@ -234,7 +300,7 @@ func _apply_layout_balance() -> void:
 	# Out of a match the board holds nothing worth showing, so it is hidden
 	# outright and the menu gets the whole play area.
 	board_scroll.visible = in_match
-	board_scroll.custom_minimum_size.y = 170 if in_match else 0
+	board_scroll.custom_minimum_size.y = 232 if in_match else 0
 	lower_row.size_flags_vertical = Control.SIZE_SHRINK_END if in_match else Control.SIZE_EXPAND_FILL
 
 
@@ -368,7 +434,7 @@ func _build_character_card(player: int, character: Dictionary, team_is_active: b
 	elif ready:
 		card_color = UiTheme.COLOR_PANEL_RAISED
 
-	var card := PanelContainer.new()
+	var card := RulesTooltip.new()
 	var spine := tint
 	var lit := ready
 	if is_actor:
@@ -387,7 +453,7 @@ func _build_character_card(player: int, character: Dictionary, team_is_active: b
 				_on_card_clicked(player, character_id)
 		)
 	var card_box := VBoxContainer.new()
-	card_box.add_theme_constant_override("separation", 4)
+	card_box.add_theme_constant_override("separation", 3)
 	card.add_child(card_box)
 
 	# Name row: position badge, name, and a state tag.
@@ -439,7 +505,90 @@ func _build_character_card(player: int, character: Dictionary, team_is_active: b
 
 	if character["effect_counters"].get("defensive_stance_active", false):
 		stats.add_child(_pill("STANCE +5", UiTheme.COLOR_PLAYER_ONE))
+
+	# Kit strip. Both effects are named on the card and spell themselves out on
+	# hover, because kits are public information every read depends on.
+	var kit_row := _build_kit_row(character, alive)
+	if kit_row != null:
+		kit_row.add_theme_constant_override("separation", 5)
+		card_box.add_child(kit_row)
+
+	card.tooltip_text = _character_tooltip(character)
 	return card
+
+
+## The named kit effects for a card, each a pill that explains itself on hover.
+## Returns null for a character whose kit has no effects.
+func _build_kit_row(character: Dictionary, alive: bool) -> HBoxContainer:
+	var descriptions: Array = Kits.effect_descriptions(str(character["id"]))
+	if descriptions.is_empty():
+		return null
+
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 6)
+	for description in descriptions:
+		var color := UiTheme.COLOR_ACCENT if alive else UiTheme.COLOR_FAINT
+		var pill := _pill(str(description["name"]).to_upper(), color, 9)
+		pill.tooltip_text = "%s\n%s" % [description["name"], description["text"]]
+		pill.mouse_filter = Control.MOUSE_FILTER_STOP
+		row.add_child(pill)
+
+	# Live kit state, so a player can see an armed or spent effect without doing
+	# the bookkeeping in their head.
+	var counters: Dictionary = character["effect_counters"]
+	if bool(counters.get(Kits.COUNTER_READ_THE_ROOM, false)):
+		var armed := _pill("ARMED", UiTheme.COLOR_SUCCESS)
+		armed.tooltip_text = "Read the Room is armed
+The Mirror's next challenge this round is free. It is correct if the claim was a bluff, and costs nothing if the claim was honest."
+		row.add_child(armed)
+	var cap := int(counters.get(Kits.COUNTER_AUDIT_CAP, 20))
+	if cap < 20:
+		var capped := _pill("CAP %d" % cap, UiTheme.COLOR_DANGER)
+		capped.tooltip_text = "Audited
+The Ledger caught this character bluffing, so their next claim this round cannot go above %d." % cap
+		row.add_child(capped)
+	var honest_turns := int(counters.get(Kits.COUNTER_COLD_STREAK, 0))
+	if honest_turns > 0:
+		var reduction := mini(honest_turns * Kits.COLD_STREAK_STEP, Kits.COLD_STREAK_MAX_REDUCTION)
+		var streak := _pill("STREAK %d" % honest_turns, UiTheme.COLOR_PLAYER_ONE)
+		streak.tooltip_text = "Cold Streak: %d honest claims in a row
+If this character's next bluff is caught, the padding damage is reduced by %d. One padded claim resets the count." % [honest_turns, reduction]
+		row.add_child(streak)
+	return row
+
+
+## The full card tooltip: stats on one line, then each kit effect in full.
+func _character_tooltip(character: Dictionary) -> String:
+	var lines: Array[String] = []
+	lines.append(str(character["display_name"]))
+	lines.append("HP %d/%d   ATK %+d   DEF %+d   DMG %d   INIT %d" % [
+		character["hp"],
+		character["max_hp"],
+		character["attack"],
+		character["defence"],
+		character["damage"],
+		character["initiative"],
+	])
+	lines.append("Position %d  (damage taken x%s)" % [
+		int(character["position"]),
+		_position_multiplier_text(int(character["position"])),
+	])
+	for description in Kits.effect_descriptions(str(character["id"])):
+		lines.append("")
+		lines.append("%s — %s" % [description["name"], description["text"]])
+	return "\n".join(lines)
+
+
+func _position_multiplier_text(position: int) -> String:
+	match position:
+		1:
+			return "0.7"
+		2:
+			return "0.85"
+		4:
+			return "1.2"
+		_:
+			return "1.0"
 
 
 ## The small numbered square marking a rank in the formation.
@@ -471,8 +620,10 @@ func _stat(caption: String, value: String, alive: bool) -> HBoxContainer:
 
 
 ## A compact rounded tag used for statuses like READY, ACTED, or DEFEATED.
-func _pill(text: String, color: Color) -> PanelContainer:
-	var pill := PanelContainer.new()
+func _pill(text: String, color: Color, font_size: int = 10) -> PanelContainer:
+	# RulesTooltip rather than a bare PanelContainer: Godot asks the hovered
+	# control itself for its tooltip node, so the builder has to live on the pill.
+	var pill := RulesTooltip.new()
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(color, 0.16)
 	style.set_corner_radius_all(9)
@@ -484,7 +635,7 @@ func _pill(text: String, color: Color) -> PanelContainer:
 	style.content_margin_bottom = 2
 	pill.add_theme_stylebox_override("panel", style)
 	pill.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	pill.add_child(_label(text, 10, color))
+	pill.add_child(_label(text, font_size, color))
 	return pill
 
 
@@ -1092,7 +1243,7 @@ func _render_challenge_prompt() -> void:
 	claims.add_child(_claim_tile("%s CLAIMED" % _player_name(opponent).to_upper(), opponent_claim, _player_color(opponent)))
 	claims.add_child(_claim_tile("YOU CLAIMED", own_claim, _player_color(decision_player)))
 
-	var hint := _label("Challenge if you think their claim is higher than their true roll.", 13, UiTheme.COLOR_MUTED)
+	var hint := _label("Challenge if you think their claim is higher than their true roll. Being right cancels their attack and damages them. Being wrong leaves their claim standing and punishes you.", 13, UiTheme.COLOR_MUTED)
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	prompt_box.add_child(hint)
 	var buttons := HBoxContainer.new()
@@ -1200,17 +1351,168 @@ func _format_resolution(resolution: Dictionary) -> String:
 	])
 	if resolution["miss_reason"] == "ATTACK_CAUGHT":
 		lines.append("The attack was cancelled.")
-	elif not resolution["hit"]:
-		lines.append("The attack missed with margin %d." % resolution["margin"])
 	else:
-		lines.append("Effective attack %d vs defence %d. Margin %d. The target took %d damage." % [
-			resolution["effective_attack"], resolution["effective_defence"], resolution["margin"], resolution["hit_damage"],
-		])
+		lines.append("")
+		lines.append_array(_damage_breakdown(resolution))
 	if int(resolution["attacker_self_damage"]) > 0:
 		lines.append("The attacker took %d padding damage." % resolution["attacker_self_damage"])
 	if int(resolution["defender_self_damage"]) > 0:
 		lines.append("The defender took %d padding damage." % resolution["defender_self_damage"])
+	if int(resolution.get("attacker_reflected_damage", 0)) > 0:
+		lines.append("The attacker took %d reflected damage." % resolution["attacker_reflected_damage"])
+	if int(resolution.get("defender_reflected_damage", 0)) > 0:
+		lines.append("The defender took %d reflected damage." % resolution["defender_reflected_damage"])
+
+	# Name every kit effect that fired, so a changed number is never unexplained.
+	for note in resolution.get("kit_effects", []):
+		lines.append("%s: %s" % [_effect_name(str(note["effect"])), _effect_detail_text(note)])
 	return "\n".join(lines)
+
+
+## The damage calculation written out step by step, each line showing the numbers
+## that went in as well as the result. A player who disagrees with a damage figure
+## should be able to find the exact step they disagree with.
+func _damage_breakdown(resolution: Dictionary) -> PackedStringArray:
+	var lines := PackedStringArray()
+	var attack: Dictionary = resolution["attack"]
+	var defence: Dictionary = resolution["defence"]
+	var defender := _character_name(int(resolution["defender_player"]), str(resolution["target_id"]))
+
+	# Step 1: the two effective values, each shown as its own sum.
+	var attack_terms := _terms([
+		["roll %d" % attack["resolved_value"], int(attack["resolved_value"])],
+		["Attack stat", int(resolution["effective_attack"]) - int(attack["resolved_value"]) - int(resolution.get("move_attack_modifier", 0))],
+		["move", int(resolution.get("move_attack_modifier", 0))],
+	])
+	lines.append("Attack:  %s = %d" % [attack_terms, resolution["effective_attack"]])
+
+	var stance := int(resolution.get("stance_defence_bonus", 0))
+	var defence_terms := _terms([
+		["roll %d" % defence["resolved_value"], int(defence["resolved_value"])],
+		["Defence stat", int(resolution["effective_defence"]) - int(defence["resolved_value"]) - stance],
+		["stance", stance],
+	])
+	lines.append("Defence: %s = %d" % [defence_terms, resolution["effective_defence"]])
+	lines.append("Margin:  %d - %d = %d" % [
+		resolution["effective_attack"], resolution["effective_defence"], resolution["margin"],
+	])
+
+	if not bool(resolution["hit"]):
+		lines.append("Margin is not above zero, so the attack missed.")
+		return lines
+
+	# Step 2: base damage, naming why the margin bonus is present or missing.
+	var damage_stat := int(resolution["unscaled_damage"]) - int(resolution["margin_bonus"])
+	if int(resolution["margin_bonus"]) > 0:
+		lines.append("Damage:  %d base + %d margin = %d" % [
+			damage_stat, resolution["margin_bonus"], resolution["unscaled_damage"],
+		])
+	else:
+		lines.append("Damage:  %d base, no margin bonus = %d" % [damage_stat, resolution["unscaled_damage"]])
+
+	# Step 3: position scaling, which is where the rounding happens.
+	lines.append("Position %d: %d x %d%% = %d" % [
+		_target_position(resolution),
+		resolution["unscaled_damage"],
+		resolution["position_damage_percent"],
+		resolution["scaled_damage"],
+	])
+
+	# Step 4 onward: every multiplier that moved the number after scaling.
+	var running := int(resolution["scaled_damage"])
+	if int(resolution.get("attack_damage_multiplier", 1)) != 1:
+		var doubled := running * int(resolution["attack_damage_multiplier"])
+		lines.append("Wrong call against an honest attack: %d x2 = %d" % [running, doubled])
+		running = doubled
+	if int(resolution.get("defence_damage_divisor", 1)) != 1:
+		var halved := floori(float(running) / float(int(resolution["defence_damage_divisor"])))
+		lines.append("Wrong call against an honest defence: %d / 2 = %d" % [running, halved])
+		running = halved
+	if int(resolution.get("kit_damage_multiplier", 1)) != 1:
+		var boosted := running * int(resolution["kit_damage_multiplier"])
+		lines.append("All In: %d x%d = %d" % [running, resolution["kit_damage_multiplier"], boosted])
+		running = boosted
+	if int(resolution.get("drag_extra_damage", 0)) > 0:
+		var dragged := running + int(resolution["drag_extra_damage"])
+		lines.append("Drag against a front target: %d + %d = %d" % [running, resolution["drag_extra_damage"], dragged])
+		running = dragged
+
+	lines.append("%s took %d damage." % [defender, resolution["hit_damage"]])
+	return lines
+
+
+## Joins named terms into "a + b - c", dropping the zeroes so a line only shows
+## the parts that actually contributed.
+func _terms(entries: Array) -> String:
+	var parts := PackedStringArray()
+	for entry in entries:
+		var caption := str(entry[0])
+		var value := int(entry[1])
+		if parts.is_empty():
+			parts.append(caption)
+			continue
+		if value == 0:
+			continue
+		parts.append("%s %d %s" % ["+" if value > 0 else "-", absi(value), caption])
+	return " ".join(parts)
+
+
+func _target_position(resolution: Dictionary) -> int:
+	var target: Dictionary = game.find_character(int(resolution["defender_player"]), str(resolution["target_id"]))
+	return int(target.get("position", 0))
+
+
+## The player-facing name of a kit effect, from the one source of kit text.
+func _effect_name(effect: String) -> String:
+	var entry: Dictionary = Kits.EFFECT_TEXT.get(effect, {})
+	return str(entry.get("name", effect.capitalize()))
+
+
+## A short sentence saying what one fired effect actually did this exchange.
+func _effect_detail_text(note: Dictionary) -> String:
+	match str(note["detail"]):
+		"PADDING_HALVED", "PADDING_REDUCED":
+			return "padding damage cut from %d to %d" % [note.get("amount_before", 0), note.get("amount_after", 0)]
+		"PADDING_DOUBLED":
+			return "padding damage raised from %d to %d" % [note.get("amount_before", 0), note.get("amount_after", 0)]
+		"POSITION_4_BONUS":
+			return "+%d damage from the front" % note.get("damage_modifier", 0)
+		"BACK_POSITION_PENALTY":
+			return "no margin damage bonus from the back"
+		"PADDING_REFLECTED":
+			return "%d damage dealt to the bluffer instead of self-damage" % note.get("amount", 0)
+		"WRONG_CALL_ABSORBED":
+			return "the wrong call cost nothing"
+		"ARMED":
+			return "armed for the next challenge this round"
+		"SPENT":
+			return "spent on this challenge"
+		"CLAIM_LOCKED_IN":
+			return "padding of %d was already on record, so the claim locked in unchallengeable" % note.get("padding", 0)
+		"PADDING_RECORDED":
+			return "padding of %d is now on record" % note.get("padding", 0)
+		"PADDING_CONSUMED":
+			return "padding of %d was spent and is off the record again" % note.get("padding", 0)
+		"CAP_IMPOSED":
+			return "the caught character's next claim is capped at %d" % note.get("cap", 20)
+		"CAP_EXPIRED":
+			return "the claim cap has expired"
+		"CLAIM_CAPPED":
+			return "this claim was capped at %d" % note.get("cap", 20)
+		"DAMAGE_DOUBLED":
+			return "a locked-in claim of %d doubled the damage" % note.get("claim", 0)
+		"EXTENDED":
+			return "%d consecutive honest claims" % note.get("honest_turns", 0)
+		"RESET":
+			return "the honest streak was broken"
+		"TARGET_PULLED":
+			return "the target was pulled forward from position %d" % note.get("from_position", 0)
+		"FRONT_TARGET_BONUS":
+			return "+%d damage against an already-front target" % note.get("extra_damage", 0)
+		"SWAPPED_INSTEAD_OF_DAMAGE":
+			return "swapped position instead of taking padding damage"
+		_:
+			return str(note["detail"]).replace("_", " ").to_lower()
 
 
 func _record_resolution() -> void:
@@ -1233,6 +1535,15 @@ func _record_resolution() -> void:
 		]
 	else:
 		entry += "[color=#%s]Attack missed[/color]" % muted
+
+	# Kit effects are named in the log too, so the reads survive scrolling back.
+	var fired: Array[String] = []
+	for note in resolution.get("kit_effects", []):
+		var effect_name := _effect_name(str(note["effect"]))
+		if effect_name not in fired:
+			fired.append(effect_name)
+	if not fired.is_empty():
+		entry += "\n[color=#%s]%s[/color]" % [accent, " · ".join(fired)]
 	outcome_history.push_front(entry)
 	if outcome_history.size() > 12:
 		outcome_history.resize(12)
@@ -1375,13 +1686,13 @@ func _character_name(player: int, character_id: String) -> String:
 func _outcome_name(outcome: String) -> String:
 	match outcome:
 		"HONEST_PASS":
-			return "honest, passed"
+			return "honest, unchallenged"
 		"PADDED_PASS":
-			return "bluff locked in"
+			return "bluff unchallenged, so it locked in and counts in full"
 		"CAUGHT":
-			return "bluff caught"
+			return "bluff challenged and caught"
 		"WRONG_CALL":
-			return "honest, wrongly challenged"
+			return "honest, but challenged anyway"
 	return outcome
 
 

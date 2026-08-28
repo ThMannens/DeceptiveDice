@@ -84,5 +84,9 @@ static func _create_team(player_id: String) -> Dictionary:
 		"characters": [],
 		"used_character_ids": [],
 		"claim_history": [],
+		# Paddings this player has on record for Bookkeeping. Distinct from
+		# claim_history, which is an append-only audit log: entries here are
+		# consumed when they grant immunity and must be earned again.
+		"recorded_paddings": [],
 		"effect_counters": {},
 	}

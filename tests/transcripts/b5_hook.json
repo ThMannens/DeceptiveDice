@@ -1,0 +1,137 @@
+{
+  "name": "B5 The Hook",
+  "initial_state": {
+    "match_id": "b5-hook",
+    "player_ids": ["alice", "bob"]
+  },
+  "setup_steps": [
+    {"event": {"type": "draft_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["hook", "bruiser", "mirror", "ledger"]}}},
+    {"event": {"type": "draft_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "DRAFT", "sender": 1, "payload": {"character_ids": ["hook", "bruiser", "mirror", "ledger"]}}}
+  ],
+  "cases": [
+    {
+      "name": "Drag pulls a hit target one position toward the front",
+      "steps": [
+        {"event": {"type": "formation_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["mirror", "ledger", "bruiser", "hook"]}}},
+        {"event": {"type": "formation_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["mirror", "ledger", "bruiser", "hook"]}}},
+        {"event": {"type": "action_selected", "match_id": "b5-hook", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "hook", "move_id": "light_attack", "target_id": "ledger"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
+        {"event": {"type": "claim_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 18}}},
+        {"event": {"type": "claim_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 5}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "b"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "b5-hook", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [18, 5]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.hit", "equals": true},
+        {"path": "last_resolution.drag_steps_forward", "equals": 1},
+        {"path": "last_resolution.drag_extra_damage", "equals": 0},
+        {"path": "last_resolution.kit_effects.0.effect", "equals": "DRAG"},
+        {"path": "last_resolution.kit_effects.0.detail", "equals": "TARGET_PULLED"},
+        {"path": "last_resolution.kit_effects.0.from_position", "equals": 2},
+        {"path": "teams.1.characters.3.position", "equals": 3},
+        {"path": "teams.1.characters.1.position", "equals": 2}
+      ]
+    },
+    {
+      "name": "Drag hits a position 4 target for extra damage instead of pulling",
+      "steps": [
+        {"event": {"type": "formation_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["mirror", "ledger", "bruiser", "hook"]}}},
+        {"event": {"type": "formation_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["mirror", "bruiser", "hook", "ledger"]}}},
+        {"event": {"type": "action_selected", "match_id": "b5-hook", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "hook", "move_id": "light_attack", "target_id": "ledger"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
+        {"event": {"type": "claim_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 18}}},
+        {"event": {"type": "claim_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 5}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "b"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "b5-hook", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [18, 5]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.hit", "equals": true},
+        {"path": "last_resolution.drag_steps_forward", "equals": 0},
+        {"path": "last_resolution.drag_extra_damage", "equals": 8},
+        {"path": "last_resolution.kit_effects.0.effect", "equals": "DRAG"},
+        {"path": "last_resolution.kit_effects.0.detail", "equals": "FRONT_TARGET_BONUS"},
+        {"path": "teams.1.characters.3.position", "equals": 4}
+      ]
+    },
+    {
+      "name": "Drag does not fire when the attack misses",
+      "steps": [
+        {"event": {"type": "formation_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["mirror", "ledger", "bruiser", "hook"]}}},
+        {"event": {"type": "formation_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["mirror", "ledger", "bruiser", "hook"]}}},
+        {"event": {"type": "action_selected", "match_id": "b5-hook", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "hook", "move_id": "light_attack", "target_id": "ledger"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
+        {"event": {"type": "claim_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 4}}},
+        {"event": {"type": "claim_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 18}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "b"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "b5-hook", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [4, 18]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.hit", "equals": false},
+        {"path": "last_resolution.drag_steps_forward", "equals": 0},
+        {"path": "last_resolution.drag_extra_damage", "equals": 0},
+        {"path": "teams.1.characters.3.position", "equals": 2}
+      ]
+    },
+    {
+      "name": "Slippery swaps the Hook instead of taking padding damage",
+      "steps": [
+        {"event": {"type": "formation_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["mirror", "ledger", "hook", "bruiser"]}}},
+        {"event": {"type": "formation_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["mirror", "ledger", "bruiser", "hook"]}}},
+        {"event": {"type": "action_selected", "match_id": "b5-hook", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "hook", "move_id": "light_attack", "target_id": "mirror"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
+        {"event": {"type": "claim_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 17}}},
+        {"event": {"type": "claim_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 5}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": true}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "b"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "b5-hook", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [10, 5]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.attack.outcome", "equals": "CAUGHT"},
+        {"path": "last_resolution.attack.padding", "equals": 7},
+        {"path": "last_resolution.attacker_self_damage", "equals": 0},
+        {"path": "last_resolution.kit_effects.0.effect", "equals": "SLIPPERY"},
+        {"path": "last_resolution.kit_effects.0.detail", "equals": "SWAPPED_INSTEAD_OF_DAMAGE"},
+        {"path": "teams.0.characters.0.hp", "equals": 60},
+        {"path": "teams.0.characters.0.position", "equals": 4},
+        {"path": "teams.0.characters.1.position", "equals": 3}
+      ]
+    },
+    {
+      "name": "Slippery does not fire when the Hook claims honestly",
+      "steps": [
+        {"event": {"type": "formation_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["mirror", "ledger", "hook", "bruiser"]}}},
+        {"event": {"type": "formation_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["mirror", "ledger", "bruiser", "hook"]}}},
+        {"event": {"type": "action_selected", "match_id": "b5-hook", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "hook", "move_id": "light_attack", "target_id": "mirror"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
+        {"event": {"type": "claim_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 10}}},
+        {"event": {"type": "claim_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 5}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": true}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "b"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "b5-hook", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [10, 5]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.attack.outcome", "equals": "WRONG_CALL"},
+        {"path": "last_resolution.attacker_self_damage", "equals": 0},
+        {"path": "teams.0.characters.0.position", "equals": 3}
+      ]
+    }
+  ]
+}

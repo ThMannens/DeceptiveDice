@@ -223,6 +223,42 @@ static func _style_misc(theme: Theme) -> void:
 	separator.thickness = 1
 	theme.set_stylebox("separator", "HSeparator", separator)
 
+	_style_tooltips(theme)
+
+
+## The tooltip background. Fully opaque, because a tooltip sits over character
+## cards and stat text: any transparency lets the wording underneath bleed
+## through, which is what makes the engine default unreadable here.
+static func tooltip_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = COLOR_PANEL_RAISED
+	style.set_corner_radius_all(RADIUS_PANEL)
+	style.set_border_width_all(1)
+	style.border_color = COLOR_ACCENT_DARK
+	style.content_margin_left = 12
+	style.content_margin_right = 12
+	style.content_margin_top = 9
+	style.content_margin_bottom = 9
+	style.shadow_color = Color(0, 0, 0, 0.55)
+	style.shadow_size = 8
+	style.shadow_offset = Vector2(0, 3)
+	return style
+
+
+## Tooltips carry the kit rules, so they have to be readable over the board
+## rather than the engine default, which is a near-transparent dark box.
+static func _style_tooltips(theme: Theme) -> void:
+	theme.set_stylebox("panel", "TooltipPanel", tooltip_style())
+
+	theme.set_color("font_color", "TooltipLabel", COLOR_TEXT)
+	theme.set_font_size("font_size", "TooltipLabel", 13)
+	# The engine draws tooltip text with an outline by default, which smears the
+	# small type. Turn it off now that the panel behind it is solid.
+	theme.set_color("font_shadow_color", "TooltipLabel", Color(0, 0, 0, 0))
+	theme.set_constant("shadow_outline_size", "TooltipLabel", 0)
+	theme.set_constant("shadow_offset_x", "TooltipLabel", 0)
+	theme.set_constant("shadow_offset_y", "TooltipLabel", 0)
+
 	theme.set_color("default_color", "RichTextLabel", COLOR_MUTED)
 	theme.set_font_size("normal_font_size", "RichTextLabel", 14)
 	theme.set_color("font_color", "Label", COLOR_TEXT)

@@ -27,9 +27,9 @@
       ],
       "assertions": [
         {"path": "last_resolution.position_damage_percent", "equals": 85},
-        {"path": "last_resolution.unscaled_damage", "equals": 30},
-        {"path": "last_resolution.hit_damage", "equals": 25},
-        {"path": "teams.1.characters.0.hp", "equals": 30}
+        {"path": "last_resolution.unscaled_damage", "equals": 36},
+        {"path": "last_resolution.hit_damage", "equals": 30},
+        {"path": "teams.1.characters.0.hp", "equals": 25}
       ]
     },
     {
@@ -50,9 +50,9 @@
       ],
       "assertions": [
         {"path": "last_resolution.position_damage_percent", "equals": 100},
-        {"path": "last_resolution.unscaled_damage", "equals": 30},
-        {"path": "last_resolution.hit_damage", "equals": 30},
-        {"path": "teams.1.characters.0.hp", "equals": 25}
+        {"path": "last_resolution.unscaled_damage", "equals": 36},
+        {"path": "last_resolution.hit_damage", "equals": 36},
+        {"path": "teams.1.characters.0.hp", "equals": 19}
       ]
     },
     {
@@ -73,9 +73,9 @@
       ],
       "assertions": [
         {"path": "last_resolution.position_damage_percent", "equals": 120},
-        {"path": "last_resolution.unscaled_damage", "equals": 30},
-        {"path": "last_resolution.hit_damage", "equals": 36},
-        {"path": "teams.1.characters.0.hp", "equals": 19}
+        {"path": "last_resolution.unscaled_damage", "equals": 36},
+        {"path": "last_resolution.hit_damage", "equals": 43},
+        {"path": "teams.1.characters.0.hp", "equals": 12}
       ]
     }
   ]

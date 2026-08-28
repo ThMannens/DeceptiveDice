@@ -5,6 +5,7 @@ const MatchState = preload("res://src/core/match_state.gd")
 const Roster = preload("res://src/core/roster.gd")
 const CombatResolver = preload("res://src/core/combat_resolver.gd")
 const Moves = preload("res://src/core/moves.gd")
+const Kits = preload("res://src/core/kits.gd")
 
 
 static func apply(state: Dictionary, event: Dictionary) -> Dictionary:
@@ -202,7 +203,29 @@ static func _apply_claim(state: Dictionary, event: Dictionary, effects: Array) -
 	var value := int(event["payload"]["value"])
 	if value < 1 or value > 20:
 		return "Claim value must be between 1 and 20"
+
+	# A kit may cap how high this character is allowed to claim.
+	var sender := int(event["sender"])
+	var claimant := _exchange_claimant(state, sender)
+	if not claimant.is_empty():
+		var ceiling := Kits.claim_ceiling(claimant)
+		if value > int(ceiling["ceiling"]):
+			return "Claim value is capped at %d this turn" % int(ceiling["ceiling"])
 	return _apply_barrier_submission(state, event, "claims", MatchState.PHASE_CLAIM, MatchState.PHASE_CHALLENGE, effects)
+
+
+## The character making this player's claim in the current exchange: the actor if
+## they are attacking, otherwise the target defending against it.
+static func _exchange_claimant(state: Dictionary, player: int) -> Dictionary:
+	var action: Dictionary = state["exchange"]["action"]
+	if action.is_empty():
+		return {}
+	var attacker_player := int(action["player"])
+	var character_id := str(action["actor_id"]) if player == attacker_player else str(action["target_id"])
+	var index := _find_character_index(state["teams"][player], character_id)
+	if index < 0:
+		return {}
+	return state["teams"][player]["characters"][index]
 
 
 static func _apply_challenge(state: Dictionary, event: Dictionary, effects: Array) -> String:
@@ -274,6 +297,52 @@ static func _apply_resolution(state: Dictionary, event: Dictionary, effects: Arr
 	var defender: Dictionary = state["teams"][defender_player]["characters"][defender_index]
 	var stance_defence_bonus := 5 if defender["effect_counters"].get("defensive_stance_active", false) else 0
 
+	var kit_notes: Array = []
+
+	# Bookkeeping immunity is decided before anything else, because an immune claim
+	# locks in automatically and the challenge against it never happens at all.
+	# Bookkeeping works on padding, so it needs the true rolls the reveal produced.
+	var attack_padding := attack_claim - int(true_rolls[attacker_player])
+	var defence_padding := defence_claim - int(true_rolls[defender_player])
+
+	var attack_immunity := Kits.claim_is_immune(
+		attacker,
+		attack_padding,
+		state["teams"][attacker_player]["recorded_paddings"],
+	)
+	if bool(attack_immunity["immune"]):
+		kit_notes.append_array(attack_immunity["notes"])
+		attack_challenged = false
+	var defence_immunity := Kits.claim_is_immune(
+		defender,
+		defence_padding,
+		state["teams"][defender_player]["recorded_paddings"],
+	)
+	if bool(defence_immunity["immune"]):
+		kit_notes.append_array(defence_immunity["notes"])
+		defence_challenged = false
+
+	var attack_damage_kit := Kits.attack_damage_modifier(attacker)
+	kit_notes.append_array(attack_damage_kit["notes"])
+	var margin_suppression := Kits.suppresses_margin_bonus(attacker)
+	kit_notes.append_array(margin_suppression["notes"])
+
+	# A wrong call is absorbed by the challenger's kit, so it is the defender who
+	# decides whether the attack claim's wrong-call bonus applies, and the attacker
+	# who decides the same for the defence claim.
+	var absorb_attack_wrong_call := false
+	if attack_challenged:
+		var attack_absorption := Kits.absorbs_wrong_call(defender)
+		absorb_attack_wrong_call = bool(attack_absorption["absorbed"])
+		if absorb_attack_wrong_call:
+			kit_notes.append_array(attack_absorption["notes"])
+	var absorb_defence_wrong_call := false
+	if defence_challenged:
+		var defence_absorption := Kits.absorbs_wrong_call(attacker)
+		absorb_defence_wrong_call = bool(defence_absorption["absorbed"])
+		if absorb_defence_wrong_call:
+			kit_notes.append_array(defence_absorption["notes"])
+
 	var resolution := CombatResolver.resolve_exchange(
 		attacker,
 		defender,
@@ -285,7 +354,10 @@ static func _apply_resolution(state: Dictionary, event: Dictionary, effects: Arr
 		defence_challenged,
 		int(move["attack_modifier"]),
 		int(move["defence_modifier"]) + stance_defence_bonus,
-		int(move["damage_modifier"]),
+		int(move["damage_modifier"]) + int(attack_damage_kit["modifier"]),
+		bool(margin_suppression["suppressed"]),
+		absorb_attack_wrong_call,
+		absorb_defence_wrong_call,
 	)
 	if not resolution["ok"]:
 		return str(resolution["error"])
@@ -297,15 +369,93 @@ static func _apply_resolution(state: Dictionary, event: Dictionary, effects: Arr
 	resolution["target_id"] = action["target_id"]
 	resolution["move_id"] = move_id
 	resolution["stance_defence_bonus"] = stance_defence_bonus
-	state["exchange"]["resolution"] = resolution.duplicate(true)
-	state["last_resolution"] = resolution.duplicate(true)
+	# Kept so the interface can show the calculation term by term rather than
+	# only its totals.
+	resolution["move_attack_modifier"] = int(move["attack_modifier"])
+	resolution["move_defence_modifier"] = int(move["defence_modifier"])
+	resolution["move_damage_modifier"] = int(move["damage_modifier"])
+	resolution["kit_damage_modifier"] = int(attack_damage_kit["modifier"])
+
+	# A landed hit can be multiplied by the attacker's kit, and can drag the target
+	# forward or hit an already-front target harder.
+	resolution["kit_damage_multiplier"] = 1
+	resolution["drag_extra_damage"] = 0
+	resolution["drag_steps_forward"] = 0
+	if bool(resolution["hit"]):
+		var damage_kit := Kits.hit_damage_multiplier(attacker, resolution["attack"])
+		var multiplier := int(damage_kit["multiplier"])
+		if multiplier != 1:
+			kit_notes.append_array(damage_kit["notes"])
+			resolution["kit_damage_multiplier"] = multiplier
+			resolution["hit_damage"] = int(resolution["hit_damage"]) * multiplier
+		var hit_kit := Kits.on_hit(attacker, defender)
+		if int(hit_kit["extra_damage"]) > 0 or int(hit_kit["steps_forward"]) > 0:
+			kit_notes.append_array(hit_kit["notes"])
+			resolution["drag_extra_damage"] = int(hit_kit["extra_damage"])
+			resolution["drag_steps_forward"] = int(hit_kit["steps_forward"])
+			resolution["hit_damage"] = int(resolution["hit_damage"]) + int(hit_kit["extra_damage"])
+
+	# Kit hooks settle the caught-bluff damage before any of it lands. The attacker's
+	# padding is resolved first, then the defender's, so the note order is stable.
+	var attack_bluff := _settle_caught_bluff(
+		attacker,
+		defender,
+		int(resolution["attacker_self_damage"]),
+		kit_notes,
+	)
+	var defence_bluff := _settle_caught_bluff(
+		defender,
+		attacker,
+		int(resolution["defender_self_damage"]),
+		kit_notes,
+	)
+	resolution["attacker_self_damage"] = 0 if attack_bluff["redirected"] else int(attack_bluff["amount"])
+	resolution["defender_self_damage"] = 0 if defence_bluff["redirected"] else int(defence_bluff["amount"])
+	resolution["attacker_reflected_damage"] = int(attack_bluff["amount"]) if attack_bluff["redirected"] else 0
+	resolution["defender_reflected_damage"] = int(defence_bluff["amount"]) if defence_bluff["redirected"] else 0
+	_update_recorded_paddings(state, attacker_player, attacker, attack_padding, attack_immunity, kit_notes, effects)
+	_update_recorded_paddings(state, defender_player, defender, defence_padding, defence_immunity, kit_notes, effects)
 
 	_append_claim_history(state, attacker_player, str(action["actor_id"]), resolution["attack"])
 	_append_claim_history(state, defender_player, str(action["target_id"]), resolution["defence"])
 	_apply_damage(state, attacker_player, attacker_index, int(resolution["attacker_self_damage"]), "CAUGHT_ATTACK_BLUFF", effects)
 	_apply_damage(state, defender_player, defender_index, int(resolution["defender_self_damage"]), "CAUGHT_DEFENCE_BLUFF", effects)
+	# Reflected padding is dealt by the challenger, so it lands on the bluffer as a
+	# separate source that position scaling does not touch.
+	_apply_damage(state, attacker_player, attacker_index, int(resolution["attacker_reflected_damage"]), "REFLECTED_ATTACK_BLUFF", effects)
+	_apply_damage(state, defender_player, defender_index, int(resolution["defender_reflected_damage"]), "REFLECTED_DEFENCE_BLUFF", effects)
 	_apply_damage(state, defender_player, defender_index, int(resolution["hit_damage"]), "ATTACK", effects)
 
+	# Board movement caused by kits, after damage so a lethal hit still kills in
+	# place rather than shuffling a corpse up the formation.
+	if bool(attack_bluff["evaded"]):
+		_swap_with_nearest_ally(state, attacker_player, attacker_index, effects)
+	if bool(defence_bluff["evaded"]):
+		_swap_with_nearest_ally(state, defender_player, defender_index, effects)
+	if int(resolution["drag_steps_forward"]) > 0:
+		_pull_toward_front(state, defender_player, defender_index, int(resolution["drag_steps_forward"]), effects)
+
+	# Bookkeeping runs before the new cap is imposed, so an expiring cap from a
+	# previous exchange clears without wiping the one this exchange just earned.
+	_run_after_exchange_hooks(state, resolution, effects)
+
+	# A correct challenge may cap the caught character's next claim.
+	if str(resolution["attack"]["outcome"]) == CombatResolver.OUTCOME_CAUGHT:
+		_impose_claim_cap(state, defender, attacker_player, attacker_index, resolution["attack"], kit_notes, effects)
+	if str(resolution["defence"]["outcome"]) == CombatResolver.OUTCOME_CAUGHT:
+		_impose_claim_cap(state, attacker, defender_player, defender_index, resolution["defence"], kit_notes, effects)
+
+	resolution["kit_effects"] = kit_notes.duplicate(true)
+	state["exchange"]["resolution"] = resolution.duplicate(true)
+	state["last_resolution"] = resolution.duplicate(true)
+
+	for note in kit_notes:
+		effects.append({
+			"type": "kit_effect_fired",
+			"character_id": note["character_id"],
+			"effect": note["effect"],
+			"detail": note["detail"],
+		})
 	effects.append({
 		"type": "exchange_resolved",
 		"exchange_number": state["exchange_number"],
@@ -313,6 +463,68 @@ static func _apply_resolution(state: Dictionary, event: Dictionary, effects: Arr
 	})
 	_complete_exchange(state, effects)
 	return ""
+
+
+## Settles one caught bluff through the kit hooks: the bluffer's kit may reduce the
+## padding damage, then the challenger's kit may redirect what remains.
+static func _settle_caught_bluff(
+	bluffer: Dictionary,
+	challenger: Dictionary,
+	amount: int,
+	kit_notes: Array,
+) -> Dictionary:
+	if amount <= 0:
+		return {"amount": 0, "redirected": false, "evaded": false}
+
+	# A kit may sidestep the damage entirely by moving instead. That happens before
+	# any reduction, because nothing is taken and nothing is left to reflect.
+	var evasion := Kits.evades_padding_by_swapping(bluffer)
+	if bool(evasion["evades"]):
+		kit_notes.append_array(evasion["notes"])
+		return {"amount": 0, "redirected": false, "evaded": true}
+
+	var modified := Kits.modify_self_damage(bluffer, amount)
+	kit_notes.append_array(modified["notes"])
+	var settled := int(modified["amount"])
+
+	var redirection := Kits.redirect_self_damage(challenger, settled)
+	kit_notes.append_array(redirection["notes"])
+	return {"amount": settled, "redirected": bool(redirection["redirect"]), "evaded": false}
+
+
+## Runs the after_exchange hook for both characters in the exchange. Kits may only
+## set counters on their own character, so the reducer writes them back one by one.
+static func _run_after_exchange_hooks(state: Dictionary, resolution: Dictionary, effects: Array) -> void:
+	var attacker_player := int(resolution["attacker_player"])
+	var defender_player := int(resolution["defender_player"])
+	var participants := [
+		[attacker_player, str(resolution["actor_id"]), resolution["attack"], resolution["defence"]],
+		[defender_player, str(resolution["target_id"]), resolution["defence"], resolution["attack"]],
+	]
+
+	for participant in participants:
+		var player := int(participant[0])
+		var character_id := str(participant[1])
+		var own_claim: Dictionary = participant[2]
+		var opposing_claim: Dictionary = participant[3]
+		var index := _find_character_index(state["teams"][player], character_id)
+		if index < 0:
+			continue
+		var character: Dictionary = state["teams"][player]["characters"][index]
+		var hook := Kits.after_exchange(character, own_claim, opposing_claim)
+		var counters: Dictionary = hook["counters"]
+		if counters.is_empty():
+			continue
+		for key in counters:
+			character["effect_counters"][key] = counters[key]
+		state["teams"][player]["characters"][index] = character
+		for note in hook["notes"]:
+			effects.append({
+				"type": "kit_effect_fired",
+				"character_id": note["character_id"],
+				"effect": note["effect"],
+				"detail": note["detail"],
+			})
 
 
 static func _apply_non_attack_resolution(
@@ -412,6 +624,7 @@ static func _complete_exchange(state: Dictionary, effects: Array) -> void:
 		state["round_number"] = int(state["round_number"]) + 1
 		state["teams"][0]["used_character_ids"] = []
 		state["teams"][1]["used_character_ids"] = []
+		_clear_round_scoped_counters(state)
 		state["starting_player"] = _determine_starting_player(state)
 		state["active_player"] = state["starting_player"]
 		effects.append({"type": "round_started", "round_number": state["round_number"], "starting_player": state["starting_player"]})
@@ -423,6 +636,169 @@ static func _complete_exchange(state: Dictionary, effects: Array) -> void:
 	state["exchange_number"] = int(state["exchange_number"]) + 1
 	state["exchange"] = MatchState.create_empty_exchange(state["exchange_number"])
 	_change_phase(state, MatchState.PHASE_SELECT, effects)
+
+
+## Maintains one player's Bookkeeping ledger for the claim they just made.
+##
+## A claim that consumed an entry spends it and records nothing, so the same padding
+## has to be earned again before it protects another claim. Any other recording claim
+## puts its padding on the ledger, once: a padding already listed stays listed rather
+## than stacking a duplicate that would grant two immunities.
+static func _update_recorded_paddings(
+	state: Dictionary,
+	player: int,
+	character: Dictionary,
+	padding: int,
+	immunity: Dictionary,
+	kit_notes: Array,
+	effects: Array,
+) -> void:
+	if not Kits.records_padding(character):
+		return
+	var recorded: Array = state["teams"][player]["recorded_paddings"]
+
+	if bool(immunity.get("immune", false)):
+		var consumed := int(immunity["consumes_padding"])
+		recorded.erase(consumed)
+		state["teams"][player]["recorded_paddings"] = recorded
+		kit_notes.append({
+			"character_id": str(character["id"]),
+			"effect": Kits.EFFECT_BOOKKEEPING,
+			"detail": "PADDING_CONSUMED",
+			"padding": consumed,
+		})
+		effects.append({
+			"type": "padding_consumed",
+			"player": player,
+			"character_id": character["id"],
+			"padding": consumed,
+		})
+		return
+
+	if padding in recorded:
+		return
+	recorded.append(padding)
+	recorded.sort()
+	state["teams"][player]["recorded_paddings"] = recorded
+	kit_notes.append({
+		"character_id": str(character["id"]),
+		"effect": Kits.EFFECT_BOOKKEEPING,
+		"detail": "PADDING_RECORDED",
+		"padding": padding,
+	})
+	effects.append({
+		"type": "padding_recorded",
+		"player": player,
+		"character_id": character["id"],
+		"padding": padding,
+	})
+
+
+## Swaps a character with the living ally directly in front of them, falling back to
+## the one behind when they are already at the front. Does nothing with no ally left.
+static func _swap_with_nearest_ally(state: Dictionary, player: int, character_index: int, effects: Array) -> void:
+	var characters: Array = state["teams"][player]["characters"]
+	var character: Dictionary = characters[character_index]
+	if not bool(character["is_alive"]):
+		return
+	var position := int(character["position"])
+
+	var ally_index := -1
+	for candidate_position in [position + 1, position - 1]:
+		for index in characters.size():
+			var candidate: Dictionary = characters[index]
+			if index != character_index and bool(candidate["is_alive"]) and int(candidate["position"]) == candidate_position:
+				ally_index = index
+				break
+		if ally_index >= 0:
+			break
+	if ally_index < 0:
+		return
+
+	var ally: Dictionary = characters[ally_index]
+	character["position"] = int(ally["position"])
+	ally["position"] = position
+	characters[character_index] = character
+	characters[ally_index] = ally
+	state["teams"][player]["characters"] = characters
+	effects.append({
+		"type": "positions_swapped",
+		"player": player,
+		"character_id": character["id"],
+		"ally_id": ally["id"],
+	})
+
+
+## Moves a character toward the front, swapping with whoever occupies each position
+## it passes through so no two characters ever share a rank.
+static func _pull_toward_front(state: Dictionary, player: int, character_index: int, steps: int, effects: Array) -> void:
+	var characters: Array = state["teams"][player]["characters"]
+	var character: Dictionary = characters[character_index]
+	if not bool(character["is_alive"]):
+		return
+
+	for _step in steps:
+		var position := int(character["position"])
+		if position >= 4:
+			break
+		var occupant_index := -1
+		for index in characters.size():
+			if index != character_index and int(characters[index]["position"]) == position + 1:
+				occupant_index = index
+				break
+		character["position"] = position + 1
+		if occupant_index >= 0:
+			var occupant: Dictionary = characters[occupant_index]
+			occupant["position"] = position
+			characters[occupant_index] = occupant
+		characters[character_index] = character
+		effects.append({
+			"type": "position_changed",
+			"player": player,
+			"character_id": character["id"],
+			"from_position": position,
+			"to_position": position + 1,
+		})
+	state["teams"][player]["characters"] = characters
+
+
+## Lets the challenger's kit cap the caught character's next claim.
+static func _impose_claim_cap(
+	state: Dictionary,
+	challenger: Dictionary,
+	caught_player: int,
+	caught_index: int,
+	caught_claim: Dictionary,
+	kit_notes: Array,
+	effects: Array,
+) -> void:
+	var cap_hook := Kits.imposes_claim_cap(challenger, caught_claim)
+	var cap := int(cap_hook["cap"])
+	if cap >= 20:
+		return
+	kit_notes.append_array(cap_hook["notes"])
+	var character: Dictionary = state["teams"][caught_player]["characters"][caught_index]
+	character["effect_counters"][Kits.COUNTER_AUDIT_CAP] = cap
+	state["teams"][caught_player]["characters"][caught_index] = character
+	effects.append({
+		"type": "claim_cap_imposed",
+		"player": caught_player,
+		"character_id": character["id"],
+		"cap": cap,
+	})
+
+
+## Kit state scoped to "this round" is dropped when the round rolls over.
+static func _clear_round_scoped_counters(state: Dictionary) -> void:
+	var round_scoped: Array = Kits.round_scoped_counters()
+	for player in 2:
+		var characters: Array = state["teams"][player]["characters"]
+		for index in characters.size():
+			var character: Dictionary = characters[index]
+			for key in round_scoped:
+				character["effect_counters"].erase(key)
+			characters[index] = character
+		state["teams"][player]["characters"] = characters
 
 
 static func _claim_value(claim: Dictionary, true_roll: int) -> int:

@@ -25,6 +25,9 @@ static func resolve_exchange(
 	attack_modifier: int = 0,
 	defence_modifier: int = 0,
 	damage_modifier: int = 0,
+	suppress_margin_bonus: bool = false,
+	absorb_attack_wrong_call: bool = false,
+	absorb_defence_wrong_call: bool = false,
 ) -> Dictionary:
 	var attack_result := _resolve_claim(attack_roll, attack_claim, attack_challenged, true)
 	if not attack_result["ok"]:
@@ -47,6 +50,7 @@ static func resolve_exchange(
 		"margin": 0,
 		"hit": false,
 		"miss_reason": "",
+		"margin_bonus": 0,
 		"unscaled_damage": 0,
 		"position_damage_percent": POSITION_DAMAGE_PERCENT[position],
 		"scaled_damage": 0,
@@ -69,14 +73,19 @@ static func resolve_exchange(
 		return result
 
 	result["hit"] = true
-	result["unscaled_damage"] = maxi(0, int(attacker["damage"]) + damage_modifier + int(result["margin"]))
+	# A kit may suppress the margin bonus without touching the Damage stat itself.
+	var margin_bonus := 0 if suppress_margin_bonus else int(result["margin"])
+	result["margin_bonus"] = margin_bonus
+	result["unscaled_damage"] = maxi(0, int(attacker["damage"]) + damage_modifier + margin_bonus)
 	result["scaled_damage"] = floori(float(int(result["unscaled_damage"]) * int(result["position_damage_percent"])) / 100.0)
 
+	# An absorbed wrong call costs the challenger nothing, so the bonus the claimant
+	# would have received never applies. The outcome still reads as a wrong call.
 	var modified_damage := int(result["scaled_damage"])
-	if attack_result["outcome"] == OUTCOME_WRONG_CALL:
+	if attack_result["outcome"] == OUTCOME_WRONG_CALL and not absorb_attack_wrong_call:
 		result["attack_damage_multiplier"] = 2
 		modified_damage *= 2
-	if defence_result["outcome"] == OUTCOME_WRONG_CALL:
+	if defence_result["outcome"] == OUTCOME_WRONG_CALL and not absorb_defence_wrong_call:
 		result["defence_damage_divisor"] = 2
 		modified_damage = floori(float(modified_damage) / 2.0)
 	result["hit_damage"] = modified_damage

@@ -29,19 +29,15 @@
         {"path": "last_resolution.move_id", "equals": "heavy_attack"},
         {"path": "last_resolution.effective_attack", "equals": 11},
         {"path": "last_resolution.margin", "equals": 2},
-        {"path": "last_resolution.unscaled_damage", "equals": 34},
-        {"path": "last_resolution.hit_damage", "equals": 23},
-        {"path": "teams.1.characters.0.hp", "equals": 32}
+        {"path": "last_resolution.unscaled_damage", "equals": 40},
+        {"path": "last_resolution.hit_damage", "equals": 28},
+        {"path": "teams.1.characters.0.hp", "equals": 27}
       ]
     },
     {
       "name": "heavy attack is rejected from position 1",
       "steps": [
-        {
-          "event": {"type": "action_selected", "match_id": "a3-moves", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "ledger", "move_id": "heavy_attack", "target_id": "ledger"}},
-          "expect_ok": false,
-          "error_contains": "position 3 or 4"
-        }
+        {"event": {"type": "action_selected", "match_id": "a3-moves", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "ledger", "move_id": "heavy_attack", "target_id": "ledger"}}, "expect_ok": false, "error_contains": "position 3 or 4"}
       ],
       "assertions": [
         {"path": "phase", "equals": "SELECT"},
@@ -67,8 +63,8 @@
       "assertions": [
         {"path": "last_resolution.stance_defence_bonus", "equals": 5},
         {"path": "last_resolution.margin", "equals": 1},
-        {"path": "last_resolution.hit_damage", "equals": 17},
-        {"path": "teams.0.characters.0.hp", "equals": 38},
+        {"path": "last_resolution.hit_damage", "equals": 21},
+        {"path": "teams.0.characters.0.hp", "equals": 34},
         {"path": "teams.0.characters.0.effect_counters.defensive_stance_active", "equals": true}
       ]
     },
@@ -88,11 +84,7 @@
     {
       "name": "swap rejects a non-adjacent ally",
       "steps": [
-        {
-          "event": {"type": "action_selected", "match_id": "a3-moves", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "ledger", "move_id": "swap", "target_id": "hook"}},
-          "expect_ok": false,
-          "error_contains": "adjacent ally"
-        }
+        {"event": {"type": "action_selected", "match_id": "a3-moves", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "ledger", "move_id": "swap", "target_id": "hook"}}, "expect_ok": false, "error_contains": "adjacent ally"}
       ],
       "assertions": [
         {"path": "phase", "equals": "SELECT"},

@@ -5,27 +5,13 @@
     "player_ids": ["alice", "bob"]
   },
   "setup_steps": [
-    {
-      "event": {"type": "draft_submitted", "match_id": "a2-rows", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}
-    },
-    {
-      "event": {"type": "draft_submitted", "match_id": "a2-rows", "exchange_number": 0, "phase": "DRAFT", "sender": 1, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}
-    },
-    {
-      "event": {"type": "formation_submitted", "match_id": "a2-rows", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["ledger", "gambler", "hook", "bruiser"]}}
-    },
-    {
-      "event": {"type": "formation_submitted", "match_id": "a2-rows", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}
-    },
-    {
-      "event": {"type": "action_selected", "match_id": "a2-rows", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "bruiser", "move_id": "light_attack", "target_id": "ledger"}}
-    },
-    {
-      "event": {"type": "commit_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "alice-commit", "observer_secret": "bob-observer-secret"}}
-    },
-    {
-      "event": {"type": "commit_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "bob-commit", "observer_secret": "alice-observer-secret"}}
-    }
+    {"event": {"type": "draft_submitted", "match_id": "a2-rows", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}},
+    {"event": {"type": "draft_submitted", "match_id": "a2-rows", "exchange_number": 0, "phase": "DRAFT", "sender": 1, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}},
+    {"event": {"type": "formation_submitted", "match_id": "a2-rows", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["ledger", "gambler", "hook", "bruiser"]}}},
+    {"event": {"type": "formation_submitted", "match_id": "a2-rows", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}},
+    {"event": {"type": "action_selected", "match_id": "a2-rows", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "bruiser", "move_id": "light_attack", "target_id": "ledger"}}},
+    {"event": {"type": "commit_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "alice-commit", "observer_secret": "bob-observer-secret"}}},
+    {"event": {"type": "commit_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "bob-commit", "observer_secret": "alice-observer-secret"}}}
   ],
   "cases": [
     {
@@ -43,8 +29,8 @@
         {"path": "last_resolution.attack.outcome", "equals": "HONEST_PASS"},
         {"path": "last_resolution.attack.locked_in", "equals": true},
         {"path": "last_resolution.margin", "equals": 6},
-        {"path": "last_resolution.hit_damage", "equals": 21},
-        {"path": "teams.1.characters.0.hp", "equals": 34}
+        {"path": "last_resolution.hit_damage", "equals": 25},
+        {"path": "teams.1.characters.0.hp", "equals": 30}
       ]
     },
     {
@@ -63,8 +49,8 @@
         {"path": "last_resolution.attack.padding", "equals": 2},
         {"path": "last_resolution.attack.locked_in", "equals": true},
         {"path": "last_resolution.attack.bluff_effects_fire", "equals": true},
-        {"path": "last_resolution.hit_damage", "equals": 21},
-        {"path": "teams.1.characters.0.hp", "equals": 34}
+        {"path": "last_resolution.hit_damage", "equals": 25},
+        {"path": "teams.1.characters.0.hp", "equals": 30}
       ]
     },
     {
@@ -81,10 +67,10 @@
       "assertions": [
         {"path": "last_resolution.attack.outcome", "equals": "CAUGHT"},
         {"path": "last_resolution.attack.locked_in", "equals": false},
-        {"path": "last_resolution.attacker_self_damage", "equals": 2},
+        {"path": "last_resolution.attacker_self_damage", "equals": 1},
         {"path": "last_resolution.hit", "equals": false},
         {"path": "last_resolution.miss_reason", "equals": "ATTACK_CAUGHT"},
-        {"path": "teams.0.characters.1.hp", "equals": 68},
+        {"path": "teams.0.characters.1.hp", "equals": 69},
         {"path": "teams.1.characters.0.hp", "equals": 55}
       ]
     },
@@ -103,8 +89,8 @@
         {"path": "last_resolution.attack.outcome", "equals": "WRONG_CALL"},
         {"path": "last_resolution.attack.locked_in", "equals": true},
         {"path": "last_resolution.attack_damage_multiplier", "equals": 2},
-        {"path": "last_resolution.hit_damage", "equals": 42},
-        {"path": "teams.1.characters.0.hp", "equals": 13}
+        {"path": "last_resolution.hit_damage", "equals": 50},
+        {"path": "teams.1.characters.0.hp", "equals": 5}
       ]
     },
     {
@@ -121,8 +107,8 @@
       "assertions": [
         {"path": "last_resolution.defence.outcome", "equals": "HONEST_PASS"},
         {"path": "last_resolution.defence.resolved_value", "equals": 8},
-        {"path": "last_resolution.hit_damage", "equals": 21},
-        {"path": "teams.1.characters.0.hp", "equals": 34}
+        {"path": "last_resolution.hit_damage", "equals": 25},
+        {"path": "teams.1.characters.0.hp", "equals": 30}
       ]
     },
     {
@@ -141,8 +127,8 @@
         {"path": "last_resolution.defence.padding", "equals": 3},
         {"path": "last_resolution.defence.resolved_value", "equals": 8},
         {"path": "last_resolution.defence.bluff_effects_fire", "equals": true},
-        {"path": "last_resolution.hit_damage", "equals": 21},
-        {"path": "teams.1.characters.0.hp", "equals": 34}
+        {"path": "last_resolution.hit_damage", "equals": 25},
+        {"path": "teams.1.characters.0.hp", "equals": 30}
       ]
     },
     {
@@ -161,8 +147,8 @@
         {"path": "last_resolution.defence.resolved_value", "equals": 5},
         {"path": "last_resolution.defender_self_damage", "equals": 3},
         {"path": "last_resolution.margin", "equals": 9},
-        {"path": "last_resolution.hit_damage", "equals": 23},
-        {"path": "teams.1.characters.0.hp", "equals": 29}
+        {"path": "last_resolution.hit_damage", "equals": 27},
+        {"path": "teams.1.characters.0.hp", "equals": 25}
       ]
     },
     {
@@ -180,8 +166,8 @@
         {"path": "last_resolution.defence.outcome", "equals": "WRONG_CALL"},
         {"path": "last_resolution.defence.locked_in", "equals": true},
         {"path": "last_resolution.defence_damage_divisor", "equals": 2},
-        {"path": "last_resolution.hit_damage", "equals": 10},
-        {"path": "teams.1.characters.0.hp", "equals": 45}
+        {"path": "last_resolution.hit_damage", "equals": 12},
+        {"path": "teams.1.characters.0.hp", "equals": 43}
       ]
     },
     {
@@ -198,8 +184,8 @@
       "assertions": [
         {"path": "last_resolution.attack.outcome", "equals": "WRONG_CALL"},
         {"path": "last_resolution.defence.outcome", "equals": "WRONG_CALL"},
-        {"path": "last_resolution.hit_damage", "equals": 21},
-        {"path": "teams.1.characters.0.hp", "equals": 34}
+        {"path": "last_resolution.hit_damage", "equals": 25},
+        {"path": "teams.1.characters.0.hp", "equals": 30}
       ]
     },
     {

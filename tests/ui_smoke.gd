@@ -56,9 +56,64 @@ func _run() -> void:
 	_check(not main.game.state["last_resolution"].is_empty(), "The UI flow produced no resolution")
 	_check(main.outcome_history.size() == 1, "The UI flow did not add an exchange log entry")
 
+	await _check_rules_tooltips(main)
+
 	if not _failed:
 		print("PASS: playable interface smoke test")
 	_finish(1 if _failed else 0)
+
+
+## Godot asks the hovered control itself for its tooltip node, so a builder that
+## lives anywhere else is silently ignored and the player sees a plain default
+## tooltip. That failure is invisible without an explicit check, so it gets one:
+## the kit pills and character cards must carry the builder, and the tooltip it
+## produces must actually define the rules vocabulary its text uses.
+func _check_rules_tooltips(main) -> void:
+	main.ui_stage = "SELECT"
+	main._render()
+	await process_frame
+
+	var pill: Control = _find_tooltipped(main, "Bookkeeping")
+	_check(pill != null, "No kit pill carrying kit text was found on the board")
+	var card: Control = _find_tooltipped(main, "The Ledger")
+	_check(card != null, "No character card carrying a stat tooltip was found on the board")
+	if pill == null or card == null:
+		return
+
+	for control: Control in [pill, card]:
+		_check(
+			control.has_method("_make_custom_tooltip"),
+			"A tooltipped control cannot build its own tooltip, so Godot falls back to the plain default",
+		)
+		if not control.has_method("_make_custom_tooltip"):
+			continue
+		var tooltip: Variant = control.call("_make_custom_tooltip", control.tooltip_text)
+		_check(tooltip is Control, "The custom tooltip builder returned no node")
+		if tooltip is Control:
+			_check(
+				"Locked in:" in _collect_text(tooltip),
+				"The tooltip did not define the rules vocabulary its text uses",
+			)
+			(tooltip as Control).queue_free()
+
+
+func _find_tooltipped(node: Node, prefix: String) -> Control:
+	if node is Control and (node as Control).tooltip_text.begins_with(prefix):
+		return node
+	for child in node.get_children():
+		var found := _find_tooltipped(child, prefix)
+		if found != null:
+			return found
+	return null
+
+
+func _collect_text(node: Node) -> String:
+	var text := ""
+	if node is Label:
+		text += (node as Label).text + "\n"
+	for child in node.get_children():
+		text += _collect_text(child)
+	return text
 
 
 func _check(condition: bool, message: String) -> void:

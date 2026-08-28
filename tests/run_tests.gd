@@ -103,8 +103,43 @@ func _run_assertions(state: Dictionary, assertions: Array, context: String) -> v
 		var lookup := _read_path(state, path_expression)
 		if not lookup["found"]:
 			_fail("%s assertion path was not found: %s" % [context, path_expression])
-		elif lookup["value"] != assertion.get("equals"):
+		elif not _values_match(lookup["value"], assertion.get("equals")):
 			_fail("%s expected %s = %s, got %s" % [context, path_expression, assertion.get("equals"), lookup["value"]])
+
+
+## Compares a state value against a transcript expectation.
+##
+## JSON parsing gives every number as a float, while the reducer holds ints. A bare
+## `!=` is fine for scalars, because 5.0 == 5, but arrays and dictionaries compare
+## element by element and there [5.0] != [5]. Recursing keeps transcripts free of
+## the distinction, which is not a rule anyone is trying to express.
+func _values_match(actual: Variant, expected: Variant) -> bool:
+	var actual_type := typeof(actual)
+	var expected_type := typeof(expected)
+
+	if actual_type == TYPE_ARRAY and expected_type == TYPE_ARRAY:
+		var actual_array: Array = actual
+		var expected_array: Array = expected
+		if actual_array.size() != expected_array.size():
+			return false
+		for index in actual_array.size():
+			if not _values_match(actual_array[index], expected_array[index]):
+				return false
+		return true
+
+	if actual_type == TYPE_DICTIONARY and expected_type == TYPE_DICTIONARY:
+		var actual_dict: Dictionary = actual
+		var expected_dict: Dictionary = expected
+		if actual_dict.size() != expected_dict.size():
+			return false
+		for key in expected_dict:
+			if not actual_dict.has(key):
+				return false
+			if not _values_match(actual_dict[key], expected_dict[key]):
+				return false
+		return true
+
+	return actual == expected
 
 
 func _run_hotseat_smoke() -> void:
