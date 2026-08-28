@@ -781,12 +781,11 @@ func _render_start_prompt() -> void:
 	start_button.pressed.connect(_start_match)
 	prompt_box.add_child(start_button)
 
-	prompt_box.add_child(_section_heading("Play against another window or machine"))
+	prompt_box.add_child(_section_heading("Same machine or same network"))
 	var host_button := _button("Host a match", false)
 	host_button.pressed.connect(_host_address)
 	prompt_box.add_child(host_button)
 
-	prompt_box.add_child(_label("To join, enter the address the host shows you.", 12, UiTheme.COLOR_FAINT))
 	var address_row := HBoxContainer.new()
 	address_row.add_theme_constant_override("separation", 8)
 	prompt_box.add_child(address_row)
@@ -800,7 +799,23 @@ func _render_start_prompt() -> void:
 	# Enter in the address field joins, which is the common case.
 	address_input.text_submitted.connect(func(text: String): _join_address(text))
 
-	prompt_box.add_child(_label("On one machine use 127.0.0.1:8910. On the same network use the LAN address the host shows. Over the internet the host must forward this port on their router.", 11, UiTheme.COLOR_FAINT))
+	prompt_box.add_child(_label("Use 127.0.0.1:8910 on one machine, or the LAN address the host shows. This route needs port forwarding to work over the internet.", 11, UiTheme.COLOR_FAINT))
+
+	# The peer-to-peer path. It needs no port forwarding because the two clients
+	# discover a route themselves, at the cost of the players passing two codes
+	# back and forth by hand. That is the trade for having no server at all.
+	prompt_box.add_child(_section_heading("Play over the internet"))
+	prompt_box.add_child(_label("No port forwarding. Send the codes to each other over chat.", 12, UiTheme.COLOR_FAINT))
+
+	var offer_button := _button("Create host offer", false)
+	offer_button.pressed.connect(_host_online)
+	prompt_box.add_child(offer_button)
+
+	var offer_input := _code_input("Paste the host's offer code", 44)
+	prompt_box.add_child(offer_input)
+	var join_offer_button := _button("Join with offer", false)
+	join_offer_button.pressed.connect(func(): _join_online(offer_input.text))
+	prompt_box.add_child(join_offer_button)
 
 
 ## Shown to the hosting player while they wait for an opponent. It lists the
@@ -935,10 +950,10 @@ func _banner(text: String, tint: Color) -> PanelContainer:
 	return banner
 
 
-func _code_input(placeholder: String) -> TextEdit:
+func _code_input(placeholder: String, height: int = 72) -> TextEdit:
 	var input := TextEdit.new()
 	input.placeholder_text = placeholder
-	input.custom_minimum_size.y = 72
+	input.custom_minimum_size.y = height
 	input.wrap_mode = TextEdit.LINE_WRAPPING_BOUNDARY
 	return input
 

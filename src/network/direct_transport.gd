@@ -18,11 +18,19 @@ signal transport_failed(message: String)
 
 const DEFAULT_PORT := 8910
 const CHANNEL := 0
+## How long a joiner waits for the host to answer before giving up. ENet sits in
+## CONNECTING indefinitely when nothing is listening, so without this the player
+## waits forever with no message.
+const CONNECT_TIMEOUT_SECONDS := 8.0
 
 var peer: ENetMultiplayerPeer
 var is_host := false
 var is_connected := false
 var _failure_emitted := false
+## Set once the link is over, either side, for any reason. Polling an ENet peer
+## after that point asserts, so every path that ends the link raises this.
+var _link_finished := false
+var _connect_deadline_ms := 0
 
 
 func host(port: int = DEFAULT_PORT) -> Error:
@@ -47,20 +55,48 @@ func join(address: String, port: int = DEFAULT_PORT) -> Error:
 		peer = null
 		transport_failed.emit("Could not reach %s on port %d" % [address, port])
 		return error
+	_connect_deadline_ms = Time.get_ticks_msec() + int(CONNECT_TIMEOUT_SECONDS * 1000.0)
 	return OK
 
 
 func poll() -> void:
 	if peer == null:
 		return
+	# A closed or dropped peer stays assigned but stops being active, and polling
+	# one asserts inside ENet. The caller polls every frame, so without this the
+	# first drop turns into an error every frame for the rest of the session.
+	if _link_finished:
+		return
 	peer.poll()
+	# Handlers run synchronously from the signals emitted below, and a handler
+	# that closes this transport nulls `peer` underneath us. Every step after an
+	# emit therefore re-checks rather than assuming the peer is still there.
+	if peer == null:
+		return
 
 	# A listening host reports DISCONNECTED until someone arrives, so only the
 	# joining side treats that status as a failure. The host learns about the
 	# opponent arriving and leaving through peer_connected/peer_disconnected.
 	var status := peer.get_connection_status()
+
+	# ENet reports CONNECTING forever when nothing answers, so the wait is bounded
+	# here rather than left to the player to notice.
+	if (
+		not is_host
+		and not is_connected
+		and not _failure_emitted
+		and status == MultiplayerPeer.CONNECTION_CONNECTING
+		and _connect_deadline_ms > 0
+		and Time.get_ticks_msec() > _connect_deadline_ms
+	):
+		_failure_emitted = true
+		_link_finished = true
+		transport_failed.emit("The host did not answer. Check the address and that they are hosting.")
+		return
+
 	if not is_host and status == MultiplayerPeer.CONNECTION_DISCONNECTED and not _failure_emitted:
 		_failure_emitted = true
+		_link_finished = true
 		if is_connected:
 			is_connected = false
 			disconnected.emit("The other player disconnected")
@@ -68,7 +104,7 @@ func poll() -> void:
 			transport_failed.emit("Could not reach the host. Check the address and that they are hosting.")
 		return
 
-	while peer.get_available_packet_count() > 0:
+	while peer != null and peer.get_available_packet_count() > 0:
 		var packet := peer.get_packet()
 		# A peer connecting or dropping surfaces as an ENet event rather than a
 		# packet, so connection state is tracked from the status transitions
@@ -84,7 +120,7 @@ func poll() -> void:
 
 	# The client knows it is connected as soon as ENet reports the link is up.
 	# The host is told through peer_connected instead.
-	if not is_connected and not is_host and status == MultiplayerPeer.CONNECTION_CONNECTED:
+	if peer != null and not is_connected and not is_host and status == MultiplayerPeer.CONNECTION_CONNECTED:
 		_send_hello()
 		_mark_connected()
 
@@ -103,6 +139,7 @@ func close() -> void:
 		peer.close()
 	peer = null
 	is_connected = false
+	_link_finished = true
 
 
 ## Every address this machine can be reached on, best first, so the hosting
@@ -131,6 +168,7 @@ func _on_peer_connected(_id: int) -> void:
 
 
 func _on_peer_disconnected(_id: int) -> void:
+	_link_finished = true
 	if is_connected:
 		is_connected = false
 		disconnected.emit("The other player disconnected")

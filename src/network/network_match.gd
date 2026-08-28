@@ -168,6 +168,12 @@ func poll() -> void:
 		transport.poll()
 		if _manual_mode and not _address_mode:
 			_poll_manual_code()
+	# A failed match keeps no live link. Releasing it here rather than leaving it
+	# assigned stops the interface polling a peer that the engine has already
+	# torn down, which asserts once per frame for the rest of the session.
+	if failed and transport != null:
+		transport.close()
+		transport = null
 
 
 func shutdown() -> void:
@@ -619,6 +625,11 @@ func _on_transport_disconnected(_message: String) -> void:
 	if connected and not failed:
 		connected = false
 		_apply_peer_forfeit("peer connection lost")
+	# The link is over either way, so stop holding a transport that can only be
+	# polled into an error from here on.
+	if transport != null:
+		transport.close()
+		transport = null
 
 func _validate_gameplay_envelope(message: Dictionary) -> String:
 	for field in ["match_id", "exchange_number", "sender"]:

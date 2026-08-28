@@ -16,6 +16,8 @@ $extensionListPath = Join-Path $godotDataPath "extension_list.cfg"
 $networkSmokeLogPath = Join-Path $godotDataPath "network-match-smoke.log"
 $networkSmokeResultPath = Join-Path $projectPath "tests\network-match-smoke-result.tmp"
 $directSmokeLogPath = Join-Path $godotDataPath "direct-match-smoke.log"
+$disconnectSmokeLogPath = Join-Path $godotDataPath "direct-disconnect-smoke.log"
+$disconnectSmokeResultPath = Join-Path $projectPath "tests\direct-disconnect-result.tmp"
 $directSmokeResultPath = Join-Path $projectPath "tests\direct-match-smoke-result.tmp"
 [System.IO.Directory]::CreateDirectory($godotDataPath) | Out-Null
 
@@ -127,6 +129,25 @@ if ($networkGodotExitCode -ne 0) {
 }
 if ($networkSmokeExitCode -ne 0) {
     exit $networkSmokeExitCode
+}
+
+if (Test-Path -LiteralPath $disconnectSmokeResultPath) {
+    Remove-Item -LiteralPath $disconnectSmokeResultPath
+}
+
+& $GodotPath --headless --path $projectPath --log-file $disconnectSmokeLogPath --script "res://tests/direct_disconnect_smoke.gd"
+$disconnectGodotExitCode = $LASTEXITCODE
+
+if (-not (Test-Path -LiteralPath $disconnectSmokeResultPath)) {
+    throw "The disconnect smoke test did not produce a result. Godot exit code: $disconnectGodotExitCode"
+}
+
+$disconnectSmokeExitCode = [int](Get-Content -Raw -LiteralPath $disconnectSmokeResultPath)
+if ($disconnectGodotExitCode -ne 0) {
+    exit $disconnectGodotExitCode
+}
+if ($disconnectSmokeExitCode -ne 0) {
+    exit $disconnectSmokeExitCode
 }
 
 if (Test-Path -LiteralPath $directSmokeResultPath) {
