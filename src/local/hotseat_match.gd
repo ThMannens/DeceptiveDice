@@ -13,24 +13,42 @@ var last_error := ""
 var _rng := RandomNumberGenerator.new()
 
 
+## Starts a match at the draft, leaving both teams for the players to pick.
 func start_new_match() -> Dictionary:
 	_rng.randomize()
 	last_error = ""
 	true_rolls = [0, 0]
 	state = MatchState.create("local-hotseat", PLAYER_NAMES)
+	return {"ok": true, "state": state, "effects": [], "error": ""}
 
+
+## Starts a match with both teams already chosen, skipping draft and placement.
+##
+## Kept for the tests and for the quick-play path, which have no interest in the
+## draft screens but still need a match that is ready to take a turn.
+func start_preset_match() -> Dictionary:
+	var result := start_new_match()
+	if not result["ok"]:
+		return result
 	var setup_events := [
 		[MatchEvent.DRAFT_SUBMITTED, 0, {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}],
 		[MatchEvent.DRAFT_SUBMITTED, 1, {"character_ids": ["mirror", "bruiser", "gambler", "hook"]}],
 		[MatchEvent.FORMATION_SUBMITTED, 0, {"character_ids": ["ledger", "gambler", "hook", "bruiser"]}],
 		[MatchEvent.FORMATION_SUBMITTED, 1, {"character_ids": ["bruiser", "hook", "gambler", "mirror"]}],
 	]
-	var result := {"ok": true, "state": state, "effects": [], "error": ""}
 	for setup_event in setup_events:
 		result = _apply(str(setup_event[0]), int(setup_event[1]), setup_event[2])
 		if not result["ok"]:
 			return result
 	return result
+
+
+func submit_draft(player: int, character_ids: Array) -> Dictionary:
+	return _apply(MatchEvent.DRAFT_SUBMITTED, player, {"character_ids": character_ids.duplicate()})
+
+
+func submit_formation(player: int, character_ids: Array) -> Dictionary:
+	return _apply(MatchEvent.FORMATION_SUBMITTED, player, {"character_ids": character_ids.duplicate()})
 
 
 func select_action(actor_id: String, move_id: String, target_id: String) -> Dictionary:

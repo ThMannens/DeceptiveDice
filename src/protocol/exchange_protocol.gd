@@ -9,6 +9,9 @@ signal claims_ready(claims: Array)
 signal challenges_ready(challenges: Array)
 signal reveals_ready(true_rolls: Array, reveals: Array)
 signal protocol_failed(message: String)
+## Emitted when a peer's reveal cannot be verified. The exchange still resolves;
+## this exists so the interface can name what happened.
+signal reveal_failed(player: int, reason: String)
 
 const KIND_COMMIT := "commit"
 const KIND_CLAIM_COMMIT := "claim_commit"
@@ -239,14 +242,31 @@ func _receive_roll_reveal(payload: Dictionary) -> void:
 		_fail("Duplicate roll reveal")
 		return
 	var secret := str(payload.get("secret", ""))
+	# A bad reveal is not a protocol abort. The spec requires it to resolve as
+	# caught, because aborting the match would let a player who is about to lose an
+	# exchange escape it by sending garbage or by pulling the cable. The reveal is
+	# recorded as failed and the reducer resolves it at the worst possible roll.
 	if not CommitReveal.verify_secret(secret, str(commits[remote_player]["roll_commit"])):
-		_fail("Roll reveal did not match its commitment")
+		_record_failed_reveal("Roll reveal did not match its commitment")
 		return
 	var remote_roll := CommitReveal.derive_roll(secret, _observer_secret)
 	if int(claim_reveals[remote_player]["value"]) < remote_roll:
-		_fail("Remote claim was below its true roll")
+		_record_failed_reveal("Remote claim was below its true roll")
 		return
 	roll_reveals[remote_player] = {"secret": secret, "roll": remote_roll}
+	_maybe_emit_reveals()
+
+
+## Marks the remote reveal unusable and lets the exchange resolve anyway.
+##
+## The roll is reported as 1 so the claim carries the maximum padding it could
+## have had. The reducer reads the empty secret and forces the caught outcome, so
+## the number here only decides how much padding damage is owed.
+func _record_failed_reveal(reason: String) -> void:
+	if roll_reveals[remote_player] != null:
+		return
+	reveal_failed.emit(remote_player, reason)
+	roll_reveals[remote_player] = {"secret": "", "roll": 1, "failed": true, "reason": reason}
 	_maybe_emit_reveals()
 
 

@@ -48,7 +48,10 @@ static func build_tooltip(for_text: String) -> Control:
 		var label := _tooltip_label(
 			line,
 			14 if is_heading else 13,
-			UiTheme.COLOR_ACCENT if is_heading else UiTheme.COLOR_TEXT,
+			# The heading is ink on parchment like the body, one size larger.
+			# Orange on cream is the one accent pairing that fails the contrast
+			# floor, and a tooltip is where the rules text actually lives.
+			UiTheme.COLOR_INK,
 		)
 		if line.length() > WRAP_THRESHOLD:
 			label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -69,7 +72,7 @@ static func _append_glossary(box: VBoxContainer, for_text: String) -> void:
 	var rule := PanelContainer.new()
 	rule.custom_minimum_size.y = 1
 	var rule_style := StyleBoxFlat.new()
-	rule_style.bg_color = UiTheme.COLOR_FELT_EDGE
+	rule_style.bg_color = UiTheme.COLOR_CANVAS_DARK
 	rule.add_theme_stylebox_override("panel", rule_style)
 	box.add_child(rule)
 
@@ -77,7 +80,7 @@ static func _append_glossary(box: VBoxContainer, for_text: String) -> void:
 		var definition := _tooltip_label(
 			"%s: %s" % [entry["label"], entry["text"]],
 			12,
-			UiTheme.COLOR_MUTED,
+			UiTheme.COLOR_INK_MUTED,
 		)
 		definition.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		definition.custom_minimum_size.x = WRAP_WIDTH

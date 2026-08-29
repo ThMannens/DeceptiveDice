@@ -1,0 +1,905 @@
+{
+  "name": "C4 phase timeouts",
+  "initial_state": {
+    "match_id": "c4-timeouts",
+    "player_ids": [
+      "alice",
+      "bob"
+    ]
+  },
+  "setup_steps": [
+    {
+      "event": {
+        "type": "draft_submitted",
+        "match_id": "c4-timeouts",
+        "exchange_number": 0,
+        "phase": "DRAFT",
+        "sender": 0,
+        "payload": {
+          "character_ids": [
+            "mirror",
+            "bruiser",
+            "gambler",
+            "hook"
+          ]
+        }
+      }
+    },
+    {
+      "event": {
+        "type": "draft_submitted",
+        "match_id": "c4-timeouts",
+        "exchange_number": 0,
+        "phase": "DRAFT",
+        "sender": 1,
+        "payload": {
+          "character_ids": [
+            "ledger",
+            "bruiser",
+            "gambler",
+            "hook"
+          ]
+        }
+      }
+    },
+    {
+      "event": {
+        "type": "formation_submitted",
+        "match_id": "c4-timeouts",
+        "exchange_number": 0,
+        "phase": "PLACEMENT",
+        "sender": 0,
+        "payload": {
+          "character_ids": [
+            "mirror",
+            "gambler",
+            "hook",
+            "bruiser"
+          ]
+        }
+      }
+    },
+    {
+      "event": {
+        "type": "formation_submitted",
+        "match_id": "c4-timeouts",
+        "exchange_number": 0,
+        "phase": "PLACEMENT",
+        "sender": 1,
+        "payload": {
+          "character_ids": [
+            "ledger",
+            "gambler",
+            "hook",
+            "bruiser"
+          ]
+        }
+      }
+    }
+  ],
+  "cases": [
+    {
+      "name": "a claim that never arrives resolves as honest",
+      "steps": [
+        {
+          "event": {
+            "type": "action_selected",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "SELECT",
+            "sender": 0,
+            "payload": {
+              "actor_id": "gambler",
+              "move_id": "light_attack",
+              "target_id": "gambler"
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "commit_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "COMMIT",
+            "sender": 0,
+            "payload": {
+              "roll_commit": "a",
+              "observer_secret": "b"
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "commit_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "COMMIT",
+            "sender": 1,
+            "payload": {
+              "roll_commit": "a",
+              "observer_secret": "b"
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "claim_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "CLAIM",
+            "sender": 0,
+            "payload": {
+              "value": 18
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "phase_timeout",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "CLAIM",
+            "sender": -1,
+            "payload": {
+              "timed_out_sender": 1
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "challenge_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "CHALLENGE",
+            "sender": 0,
+            "payload": {
+              "challenge": false
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "challenge_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "CHALLENGE",
+            "sender": 1,
+            "payload": {
+              "challenge": false
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "reveal_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "REVEAL",
+            "sender": 0,
+            "payload": {
+              "secret": "a"
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "reveal_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "REVEAL",
+            "sender": 1,
+            "payload": {
+              "secret": "a"
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "exchange_resolved",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "RESOLVE",
+            "sender": -1,
+            "payload": {
+              "true_rolls": [
+                18,
+                12
+              ]
+            }
+          }
+        }
+      ],
+      "assertions": [
+        {
+          "path": "last_resolution.defence.claim",
+          "equals": 12
+        },
+        {
+          "path": "last_resolution.defence.padding",
+          "equals": 0
+        },
+        {
+          "path": "last_resolution.defence.outcome",
+          "equals": "HONEST_PASS"
+        },
+        {
+          "path": "exchange_number",
+          "equals": 2
+        }
+      ]
+    },
+    {
+      "name": "a challenge that never arrives resolves as a pass",
+      "steps": [
+        {
+          "event": {
+            "type": "action_selected",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "SELECT",
+            "sender": 0,
+            "payload": {
+              "actor_id": "gambler",
+              "move_id": "light_attack",
+              "target_id": "gambler"
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "commit_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "COMMIT",
+            "sender": 0,
+            "payload": {
+              "roll_commit": "a",
+              "observer_secret": "b"
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "commit_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "COMMIT",
+            "sender": 1,
+            "payload": {
+              "roll_commit": "a",
+              "observer_secret": "b"
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "claim_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "CLAIM",
+            "sender": 0,
+            "payload": {
+              "value": 20
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "claim_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "CLAIM",
+            "sender": 1,
+            "payload": {
+              "value": 10
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "phase_timeout",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "CHALLENGE",
+            "sender": -1,
+            "payload": {
+              "timed_out_sender": 1
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "challenge_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "CHALLENGE",
+            "sender": 0,
+            "payload": {
+              "challenge": false
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "reveal_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "REVEAL",
+            "sender": 0,
+            "payload": {
+              "secret": "a"
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "reveal_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "REVEAL",
+            "sender": 1,
+            "payload": {
+              "secret": "a"
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "exchange_resolved",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "RESOLVE",
+            "sender": -1,
+            "payload": {
+              "true_rolls": [
+                5,
+                10
+              ]
+            }
+          }
+        }
+      ],
+      "assertions": [
+        {
+          "path": "last_resolution.attack.outcome",
+          "equals": "PADDED_PASS"
+        },
+        {
+          "path": "last_resolution.attack.locked_in",
+          "equals": true
+        },
+        {
+          "path": "last_resolution.attack.resolved_value",
+          "equals": 20
+        }
+      ]
+    },
+    {
+      "name": "a reveal that never arrives is caught at the worst possible roll",
+      "steps": [
+        {
+          "event": {
+            "type": "action_selected",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "SELECT",
+            "sender": 0,
+            "payload": {
+              "actor_id": "gambler",
+              "move_id": "light_attack",
+              "target_id": "gambler"
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "commit_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "COMMIT",
+            "sender": 0,
+            "payload": {
+              "roll_commit": "a",
+              "observer_secret": "b"
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "commit_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "COMMIT",
+            "sender": 1,
+            "payload": {
+              "roll_commit": "a",
+              "observer_secret": "b"
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "claim_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "CLAIM",
+            "sender": 0,
+            "payload": {
+              "value": 15
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "claim_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "CLAIM",
+            "sender": 1,
+            "payload": {
+              "value": 10
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "challenge_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "CHALLENGE",
+            "sender": 0,
+            "payload": {
+              "challenge": false
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "challenge_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "CHALLENGE",
+            "sender": 1,
+            "payload": {
+              "challenge": false
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "phase_timeout",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "REVEAL",
+            "sender": -1,
+            "payload": {
+              "timed_out_sender": 0
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "reveal_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "REVEAL",
+            "sender": 1,
+            "payload": {
+              "secret": "a"
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "exchange_resolved",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "RESOLVE",
+            "sender": -1,
+            "payload": {
+              "true_rolls": [
+                15,
+                10
+              ]
+            }
+          }
+        }
+      ],
+      "assertions": [
+        {
+          "path": "last_resolution.attack.outcome",
+          "equals": "CAUGHT"
+        },
+        {
+          "path": "last_resolution.attack.true_roll",
+          "equals": 1
+        },
+        {
+          "path": "last_resolution.attack.padding",
+          "equals": 14
+        },
+        {
+          "path": "last_resolution.hit",
+          "equals": false
+        },
+        {
+          "path": "last_resolution.miss_reason",
+          "equals": "ATTACK_CAUGHT"
+        }
+      ]
+    },
+    {
+      "name": "refusing to reveal an honest claim is still caught, not a wrong call",
+      "steps": [
+        {
+          "event": {
+            "type": "action_selected",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "SELECT",
+            "sender": 0,
+            "payload": {
+              "actor_id": "gambler",
+              "move_id": "light_attack",
+              "target_id": "gambler"
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "commit_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "COMMIT",
+            "sender": 0,
+            "payload": {
+              "roll_commit": "a",
+              "observer_secret": "b"
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "commit_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "COMMIT",
+            "sender": 1,
+            "payload": {
+              "roll_commit": "a",
+              "observer_secret": "b"
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "claim_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "CLAIM",
+            "sender": 0,
+            "payload": {
+              "value": 1
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "claim_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "CLAIM",
+            "sender": 1,
+            "payload": {
+              "value": 10
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "challenge_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "CHALLENGE",
+            "sender": 0,
+            "payload": {
+              "challenge": false
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "challenge_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "CHALLENGE",
+            "sender": 1,
+            "payload": {
+              "challenge": true
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "phase_timeout",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "REVEAL",
+            "sender": -1,
+            "payload": {
+              "timed_out_sender": 0
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "reveal_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "REVEAL",
+            "sender": 1,
+            "payload": {
+              "secret": "a"
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "exchange_resolved",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "RESOLVE",
+            "sender": -1,
+            "payload": {
+              "true_rolls": [
+                1,
+                10
+              ]
+            }
+          }
+        }
+      ],
+      "assertions": [
+        {
+          "path": "last_resolution.attack.outcome",
+          "equals": "CAUGHT"
+        },
+        {
+          "path": "last_resolution.attack.padding",
+          "equals": 0
+        },
+        {
+          "path": "last_resolution.attack_damage_multiplier",
+          "equals": 1
+        },
+        {
+          "path": "last_resolution.hit_damage",
+          "equals": 0
+        }
+      ]
+    },
+    {
+      "name": "an unverifiable reveal is treated exactly as a missing one",
+      "steps": [
+        {
+          "event": {
+            "type": "action_selected",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "SELECT",
+            "sender": 0,
+            "payload": {
+              "actor_id": "gambler",
+              "move_id": "light_attack",
+              "target_id": "gambler"
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "commit_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "COMMIT",
+            "sender": 0,
+            "payload": {
+              "roll_commit": "a",
+              "observer_secret": "b"
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "commit_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "COMMIT",
+            "sender": 1,
+            "payload": {
+              "roll_commit": "a",
+              "observer_secret": "b"
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "claim_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "CLAIM",
+            "sender": 0,
+            "payload": {
+              "value": 12
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "claim_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "CLAIM",
+            "sender": 1,
+            "payload": {
+              "value": 10
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "challenge_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "CHALLENGE",
+            "sender": 0,
+            "payload": {
+              "challenge": false
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "challenge_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "CHALLENGE",
+            "sender": 1,
+            "payload": {
+              "challenge": false
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "reveal_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "REVEAL",
+            "sender": 0,
+            "payload": {
+              "secret": ""
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "reveal_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "REVEAL",
+            "sender": 1,
+            "payload": {
+              "secret": "a"
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "exchange_resolved",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "RESOLVE",
+            "sender": -1,
+            "payload": {
+              "true_rolls": [
+                12,
+                10
+              ]
+            }
+          }
+        }
+      ],
+      "assertions": [
+        {
+          "path": "last_resolution.attack.outcome",
+          "equals": "CAUGHT"
+        },
+        {
+          "path": "last_resolution.attack.true_roll",
+          "equals": 1
+        },
+        {
+          "path": "last_resolution.attack.padding",
+          "equals": 11
+        }
+      ]
+    },
+    {
+      "name": "a timeout is rejected once the player has already submitted",
+      "steps": [
+        {
+          "event": {
+            "type": "action_selected",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "SELECT",
+            "sender": 0,
+            "payload": {
+              "actor_id": "gambler",
+              "move_id": "light_attack",
+              "target_id": "gambler"
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "commit_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "COMMIT",
+            "sender": 0,
+            "payload": {
+              "roll_commit": "a",
+              "observer_secret": "b"
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "commit_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "COMMIT",
+            "sender": 1,
+            "payload": {
+              "roll_commit": "a",
+              "observer_secret": "b"
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "claim_submitted",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "CLAIM",
+            "sender": 0,
+            "payload": {
+              "value": 12
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "phase_timeout",
+            "match_id": "c4-timeouts",
+            "exchange_number": 1,
+            "phase": "CLAIM",
+            "sender": -1,
+            "payload": {
+              "timed_out_sender": 0
+            }
+          },
+          "expect_ok": false,
+          "error_contains": "already submitted"
+        }
+      ],
+      "assertions": [
+        {
+          "path": "phase",
+          "equals": "CLAIM"
+        }
+      ]
+    }
+  ]
+}

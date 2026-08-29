@@ -38,6 +38,8 @@ The exchange record contains:
 - phase timeout records;
 - the computed resolution summary.
 
+A timed-out claim is stored as `{"timed_out": true}` and resolves at the true roll; a timed-out challenge as `{"challenge": false, "timed_out": true}`; a timed-out reveal as `{"secret": "", "timed_out": true}`. The resolution summary carries `failed_reveal_players`, listing anyone whose reveal was unusable.
+
 The rules core owns the canonical full state. The interface may receive a filtered view while a blind submission phase is open.
 
 ## Events
@@ -63,9 +65,9 @@ The reducer accepts these event kinds:
 | `commit_submitted` | `COMMIT` | player | `roll_commit`, `observer_secret` |
 | `claim_submitted` | `CLAIM` | player | `value`, from 1 through 20 |
 | `challenge_submitted` | `CHALLENGE` | player | `challenge`, boolean |
-| `reveal_submitted` | `REVEAL` | player | `secret` |
+| `reveal_submitted` | `REVEAL` | player | `secret`. An empty secret marks a reveal the protocol could not verify, which resolves as caught rather than aborting. |
 | `phase_timeout` | current phase | system | `timed_out_sender` |
-| `exchange_resolved` | `RESOLVE` | system | Attack moves require `true_rolls`, one protocol-verified roll per player. Non-attack moves use an empty payload. |
+| `exchange_resolved` | `RESOLVE` | system | Attack moves require `true_rolls`, one protocol-verified roll per player. Non-attack moves use an empty payload. A roll belonging to a player whose reveal failed or timed out is ignored and substituted with 1, since no peer can know it. |
 | `player_forfeited` | any live phase | player | optional `reason` |
 
 Events are append-only. A peer records accepted events in order outside the state, then can replay them from a fresh initial state. The reducer does not read a clock, network socket, random source, or scene tree.
@@ -100,3 +102,7 @@ Damage resolves in this order:
 7. Halve damage for a wrong call against an honest defence claim and round down.
 
 If both players make a wrong call, the attack doubling and defence halving cancel each other. Padding self-damage ignores position scaling.
+
+When the attack deals no damage, a challenge that would otherwise settle for nothing sets the `exposed_after_wrong_call` counter instead: on a wrong call it lands on the challenger, and on a caught defence it lands on the caught bluffer. The counter costs 5 defence on that character's next defence and clears when it is spent.
+
+After damage and any kit board movement, each team's formation is compacted: living characters keep their relative order and take the front-most positions, and the dead fill the remaining ranks from the back.

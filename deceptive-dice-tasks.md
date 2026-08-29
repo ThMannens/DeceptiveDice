@@ -62,7 +62,7 @@ One person. Runs alongside A without touching it.
 
 **C3 — Blind simultaneous submission.** Claims held until both are in, challenges held until both are in. This is the mechanic, so it gets its own task. *Depends on: C2.*
 
-**C4 — Timeout handling.** No claim means honest, no challenge means pass, no reveal means caught. Timers start on local receipt, not on remote send. *Depends on: C2.*
+**C4 — Timeout handling.** *Done.* 60s select, 45s claim, 30s challenge, started on local receipt. The default is submitted through the ordinary path so both reducers stay in step. A failed or missing reveal resolves as caught at a true roll of 1 and never aborts the match. Covered by `tests/transcripts/c4_phase_timeouts.json`.
 
 **C5 — In-process two-peer harness.** Two protocol instances in one process, no sockets. Everything in C is tested through this. *Depends on: C2.* Done when: workstream D can be developed against it without a real connection.
 
@@ -74,17 +74,17 @@ One person. Runs alongside A without touching it.
 
 One person. The riskiest schedule item, so start it early even though it lands late.
 
-**D1 — Signalling server.** Lobby codes, peer matching, offer and answer and ICE relay. Small and separate from the game. *Depends on: nothing.*
+**D1 — ~~Signalling server~~ Manual signalling.** *Cut, replaced.* No server: the host emits an offer code, the joiner pastes it and returns an answer code, and players move the codes themselves. A plain ENet address transport covers LAN play and the headless tests. See the Connection section of the spec for the reasoning and what it costs.
 
-**D2 — WebRTC peer.** Godot side, reliable ordered channel, connect through D1. *Depends on: D1.*
+**D2 — WebRTC peer.** *Done.* Godot side, reliable ordered channel, connected through pasted codes rather than a server. Both waits are bounded, because WebRTC reports no error when two peers simply cannot reach each other.
 
 **D3 — Protocol over transport.** Swap C5's in-process harness for the real channel. If C was built properly this is a small change. *Depends on: D2, C5.*
 
 **D4 — Two-network test.** Two people, two physical networks, one full match. Not two windows on one machine. *Depends on: D3.* Run this the day D3 lands. NAT failures do not reproduce locally and this is what breaks at the demo.
 
-**D5 — TURN fallback.** For connections STUN cannot punch. *Depends on: D4, and on whether D4 fails.*
+**D5 — ~~TURN fallback~~.** *Cut.* A relay is infrastructure, and this build ships none. Connections STUN cannot punch through fail with a message saying so and an offer of the same-network path.
 
-**D6 — Reconnection window.** Thirty seconds, exchange number and state hash compared on resume. *Depends on: D3, A7.*
+**D6 — Reconnection window.** *Done.* Thirty seconds, exchange number and state hash compared on resume, phase clock stopped while the window is open. Address transport only; the manual-code path cannot be waited out. Covered by `tests/reconnect_smoke.gd`.
 
 ---
 
@@ -100,15 +100,15 @@ One person. Can start as soon as task 0 lands, using fake state.
 
 **E4 — Claim entry.** Private roll display, claim slider or input constrained between the true roll and 20. *Depends on: 0.*
 
-**E5 — Challenge prompt.** Opponent's claim, challenge or pass, visible countdown. *Depends on: E4, C4.*
+**E5 — Challenge prompt.** *Done.* Both claims with the totals they resolve to, the margin between them, challenge or pass, and a countdown online. Hot-seat has no countdown by design.
 
 **E6 — Reveal and resolution.** Both true rolls, both claims, every damage source itemised, kit effects named as they fire. *Depends on: E5, A2.*
 
 **E7 — Claim history panel.** Every claim the opponent has made this match. Cheap to build and it is where the reads come from. *Depends on: E6.*
 
-**E8 — Draft and placement.** Pick four, arrange in positions 1 to 4. *Depends on: E2.*
+**E8 — Draft and placement.** *Done for hot-seat.* Pick four of five with full stats and kit text on the cards, then order them back to front. Online play still uses preset teams. Covered by `tests/transcripts/e8_draft_and_placement.json` and the UI smoke.
 
-**E9 — Lobby.** Host, get a code, join by code, connection failure messages. *Depends on: D2.*
+**E9 — Lobby.** *Done.* Host and get a code to paste, join by pasting one, or connect by address on a shared network. Connection failures say which wait expired and offer the same-network path.
 
 ---
 
@@ -131,9 +131,9 @@ Shared. Everyone writes transcripts for their own work. One person owns the harn
 
 **G2 — Single command runner.** Full suite, headless, no editor, no display. *Depends on: G1.* Done on day one of workstream A, not later.
 
-**G3 — Scripted bots.** Policies that consume state and emit intents. Two of them: one that always claims honestly, one that always pads to 20. Both are useful as sanity baselines. *Depends on: A5, G1.*
+**G3 — Scripted bots.** *Done.* `src/bots/bot_policy.gd`, seeded rather than random so a failing match is reproducible.
 
-**G4 — Full-match test.** Two bots play to a win. Assert termination, no hash mismatch, HP stays within bounds. *Depends on: G3, A7.*
+**G4 — Full-match test.** *Done.* Twelve seeded matches per run, asserting termination, HP bounds, and hash stability. Current lengths: 21 to 33 exchanges, median 26.
 
 ---
 
@@ -162,3 +162,5 @@ After A3 and E3, play a match with no kits and no lying, just moves and rolls. C
 After B1 and B2, play the Bruiser against the Mirror, hot-seat, on paper if needed. This is the design test. If it does not produce interesting decisions, the kit system needs changing and you want to know now.
 
 After G4, run twenty bot matches and check the length. Twenty successful hits to win may be too long. Damage numbers are the easiest thing to change and the last thing anyone remembers to check.
+
+*Done:* twelve matches per suite run, 21 to 33 exchanges, median 26. Length is fine. The single-exchange damage spike is still unchecked, because neither bot policy chooses its padding and so neither sets up the case that worry is about.

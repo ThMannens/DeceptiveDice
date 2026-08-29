@@ -168,7 +168,10 @@ func _on_peer_connected(_id: int) -> void:
 
 
 func _on_peer_disconnected(_id: int) -> void:
-	_link_finished = true
+	# A host keeps its socket listening so a dropped player can come back inside
+	# the reconnection window. Marking the link finished here would close it and
+	# turn every brief drop into a lost match.
+	_link_finished = not is_host
 	if is_connected:
 		is_connected = false
 		disconnected.emit("The other player disconnected")

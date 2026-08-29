@@ -11,9 +11,43 @@ const DirectTransport = preload("res://src/network/direct_transport.gd")
 const WebRTCTransport = preload("res://src/network/webrtc_transport.gd")
 
 const PLAYER_NAMES := ["Player 1", "Player 2"]
+## Several STUN servers rather than one: a single unreachable lookup otherwise
+## stalls candidate gathering with no way for a player to tell why.
 const DEFAULT_ICE_SERVERS := [
-	{"urls": ["stun:stun.l.google.com:19302"]},
+	{"urls": [
+		"stun:stun.l.google.com:19302",
+		"stun:stun1.l.google.com:19302",
+		"stun:stun.cloudflare.com:3478",
+	]},
 ]
+
+## How long the peer channel may take to open after both codes are in. WebRTC
+## reports no error when the two peers simply cannot reach each other, so the
+## wait is bounded here instead of leaving the player on a dead screen.
+const CHANNEL_OPEN_TIMEOUT_SECONDS := 30.0
+## How long candidate gathering may take before the code is emitted regardless.
+const GATHERING_TIMEOUT_SECONDS := 10.0
+
+## How long a player has to act in each timed phase. Generous enough for a 200ms
+## round trip plus a human decision, per the latency section of the spec. The
+## clock starts when this client enters the phase, never when the peer sent it,
+## so a slow link cannot eat into the opponent's thinking time.
+const PHASE_TIMEOUT_SECONDS := {
+	"SELECT": 60.0,
+	"CLAIM": 45.0,
+	"CHALLENGE": 30.0,
+}
+## How long a dropped peer has to come back before the match is awarded to the
+## player who stayed. A brief wifi drop should not cost a match; a player who
+## leaves for good must still lose, or quitting would beat losing.
+const RECONNECT_WINDOW_SECONDS := 30.0
+
+## Stages that carry a deadline, mapped to the stage's timed phase name.
+const TIMED_STAGES := {
+	"SELECT": "SELECT",
+	"CLAIM": "CLAIM",
+	"CHALLENGE": "CHALLENGE",
+}
 
 signal connection_code_ready(code: String, kind: String)
 signal status_changed(message: String)
@@ -21,6 +55,17 @@ signal state_changed()
 signal stage_changed(stage: String)
 signal resolution_ready()
 signal match_failed(message: String)
+## Seconds left in the current timed phase, emitted once per whole second so the
+## interface can show a countdown without polling.
+signal phase_countdown(seconds_left: int)
+## Emitted when the local player ran out of time and the default was submitted
+## for them, so the interface can say what happened rather than silently moving on.
+signal phase_timed_out(phase: String)
+## Emitted while a dropped peer may still return, once per second, so the
+## interface can show the window closing rather than freezing.
+signal reconnect_pending(seconds_left: int)
+## Emitted when a dropped peer came back and both sides agreed on the state.
+signal reconnected()
 
 var state: Dictionary = {}
 var true_rolls := [0, 0]
@@ -42,9 +87,21 @@ var _manual_kind := ""
 var _manual_description: Dictionary = {}
 var _manual_candidates: Array = []
 var _manual_code_emitted := false
+## When gathering started, and when both codes were in, so each wait can be
+## bounded and reported rather than hanging on a screen with no information.
+var _gathering_since_ms := 0
+var _connecting_since_ms := 0
 ## Set when the match runs over the plain address-based transport rather than
 ## the WebRTC signalling-code path.
 var _address_mode := false
+## When the current timed phase ends, and the last whole second reported, so the
+## countdown signal fires once per second rather than once per frame.
+var _phase_deadline_ms := 0
+var _last_countdown_second := -1
+## When the reconnection window closes, and the last whole second reported. Zero
+## while the link is healthy.
+var _reconnect_deadline_ms := 0
+var _last_reconnect_second := -1
 
 
 ## Listens for an opponent on this machine. The hosting player shares the
@@ -79,6 +136,7 @@ func join_address(address_text: String) -> Error:
 	if error != OK:
 		return error
 	status_changed.emit("Connecting to %s" % address_text.strip_edges())
+	_connecting_since_ms = Time.get_ticks_msec()
 	_set_stage("DIRECT_CONNECTING")
 	return OK
 
@@ -158,6 +216,7 @@ func accept_direct_answer(answer_code: String) -> Error:
 		last_error = "This answer belongs to a different connection offer"
 		return ERR_INVALID_DATA
 	status_changed.emit("Connecting directly to the other player")
+	_connecting_since_ms = Time.get_ticks_msec()
 	_set_stage("DIRECT_CONNECTING")
 	_apply_manual_bundle(decoded["payload"])
 	return OK
@@ -168,12 +227,28 @@ func poll() -> void:
 		transport.poll()
 		if _manual_mode and not _address_mode:
 			_poll_manual_code()
+		_poll_connect_timeout()
 	# A failed match keeps no live link. Releasing it here rather than leaving it
 	# assigned stops the interface polling a peer that the engine has already
 	# torn down, which asserts once per frame for the rest of the session.
 	if failed and transport != null:
 		transport.close()
 		transport = null
+		return
+	_poll_phase_deadline()
+	_poll_reconnect_window()
+
+
+## Bounds the wait after both codes are exchanged. WebRTC stays in CONNECTING
+## with no error when the two peers cannot find a route to each other, which
+## otherwise leaves the player on a screen that never changes.
+func _poll_connect_timeout() -> void:
+	if connected or failed or _connecting_since_ms == 0:
+		return
+	if Time.get_ticks_msec() - _connecting_since_ms < int(CHANNEL_OPEN_TIMEOUT_SECONDS * 1000.0):
+		return
+	_connecting_since_ms = 0
+	_fail("The direct connection could not be established. Your networks may both block direct peer connections, which needs a relay this build does not have. Try the same-network option instead.")
 
 
 func shutdown() -> void:
@@ -313,6 +388,10 @@ func _reset() -> void:
 	_manual_candidates.clear()
 	_manual_code_emitted = false
 	_address_mode = false
+	_reconnect_deadline_ms = 0
+	_last_reconnect_second = -1
+	_phase_deadline_ms = 0
+	_last_countdown_second = -1
 
 
 func _create_direct_transport(host_peer: bool) -> Error:
@@ -343,8 +422,16 @@ func _collect_manual_signal(payload: Dictionary) -> void:
 func _poll_manual_code() -> void:
 	if _manual_code_emitted or _manual_kind.is_empty() or _manual_description.is_empty():
 		return
-	if not transport.is_gathering_complete():
+	if _gathering_since_ms == 0:
+		_gathering_since_ms = Time.get_ticks_msec()
+	# A blocked or slow STUN lookup can leave gathering incomplete indefinitely.
+	# The candidates already found are usually enough for a local network, so
+	# emit the code anyway rather than waiting forever.
+	var gathering_expired := Time.get_ticks_msec() - _gathering_since_ms > int(GATHERING_TIMEOUT_SECONDS * 1000.0)
+	if not transport.is_gathering_complete() and not gathering_expired:
 		return
+	if gathering_expired and not transport.is_gathering_complete():
+		status_changed.emit("Some network lookups timed out. The code may only work on your local network.")
 	_manual_code_emitted = true
 	manual_code = ManualSignalCode.encode(_manual_kind, _match_id, _manual_description, _manual_candidates)
 	if _manual_kind == "offer":
@@ -372,6 +459,12 @@ func _apply_manual_bundle(bundle: Dictionary) -> void:
 
 
 func _on_transport_connected() -> void:
+	# A connection arriving while the window is open is the dropped peer coming
+	# back, not a new match starting, so the state must be compared rather than
+	# rebuilt from scratch.
+	if _reconnect_deadline_ms != 0:
+		_on_peer_reconnected()
+		return
 	connected = true
 	if _address_mode and local_player == 0:
 		# The joiner has no match id yet, so the host sends it before play.
@@ -437,6 +530,8 @@ func _on_transport_message(message: Dictionary) -> void:
 				exchange_protocol.receive(message)
 		"state_hash":
 			_receive_state_hash(message)
+		"resume_check":
+			_receive_resume_check(message)
 		"forfeit":
 			_receive_forfeit(message)
 		_:
@@ -622,14 +717,98 @@ func _apply_peer_forfeit(reason: String) -> void:
 
 
 func _on_transport_disconnected(_message: String) -> void:
-	if connected and not failed:
-		connected = false
-		_apply_peer_forfeit("peer connection lost")
-	# The link is over either way, so stop holding a transport that can only be
-	# polled into an error from here on.
+	if not connected or failed:
+		return
+	connected = false
+	# A drop mid-match opens the reconnection window rather than ending the match.
+	# Only the address transport can accept a peer back: the manual-code path needs
+	# both players to trade codes by hand again, which no timer can wait out.
+	if _address_mode and not state.is_empty() and str(state["status"]) == MatchState.STATUS_ACTIVE:
+		_reconnect_deadline_ms = Time.get_ticks_msec() + int(RECONNECT_WINDOW_SECONDS * 1000.0)
+		_last_reconnect_second = -1
+		# The phase clock stops while nobody can act, so a player is not timed out
+		# for a phase they could not have submitted.
+		_phase_deadline_ms = 0
+		status_changed.emit("The other player dropped. Waiting for them to reconnect")
+		_set_stage("RECONNECTING")
+		return
+
+	_apply_peer_forfeit("peer connection lost")
 	if transport != null:
 		transport.close()
 		transport = null
+
+
+## Closes the reconnection window, awarding the match to the player who stayed.
+##
+## A long drop is a loss for the peer that dropped, per the spec: exceeding the
+## window must not be better for them than playing the match out.
+func _poll_reconnect_window() -> void:
+	if _reconnect_deadline_ms == 0 or failed:
+		return
+	var remaining_ms := _reconnect_deadline_ms - Time.get_ticks_msec()
+	var seconds_left := maxi(0, int(ceil(float(remaining_ms) / 1000.0)))
+	if seconds_left != _last_reconnect_second:
+		_last_reconnect_second = seconds_left
+		reconnect_pending.emit(seconds_left)
+	if remaining_ms > 0:
+		return
+
+	_reconnect_deadline_ms = 0
+	_apply_peer_forfeit("the other player did not reconnect")
+	if transport != null:
+		transport.close()
+		transport = null
+
+
+## Handles a peer that came back inside the window.
+##
+## Both peers hold the full event stream, so there is no state to send: they
+## either agree or they are desynced. The spec is explicit that there is no
+## useful third case, so this compares and either resumes or aborts.
+func _on_peer_reconnected() -> void:
+	if _reconnect_deadline_ms == 0:
+		return
+	_reconnect_deadline_ms = 0
+	connected = true
+	var digest := StateHash.hash_state(state)
+	var send_error: Error = transport.send_message({
+		"type": "resume_check",
+		"match_id": state["match_id"],
+		"exchange_number": int(state["exchange_number"]),
+		"sender": local_player,
+		"hash": digest,
+	})
+	if send_error != OK:
+		_fail("Could not send the resume check")
+		return
+	status_changed.emit("Reconnected. Checking both sides agree on the match")
+
+
+## The other side's exchange number and state hash, compared against ours.
+func _receive_resume_check(message: Dictionary) -> void:
+	if str(message.get("match_id", "")) != str(state.get("match_id", "")):
+		_fail("Resume check targets the wrong match")
+		return
+	if int(message.get("exchange_number", -1)) != int(state["exchange_number"]):
+		_fail("The match cannot resume: the two sides are on different exchanges")
+		return
+	if str(message.get("hash", "")) != StateHash.hash_state(state):
+		_fail("The match cannot resume: the two sides disagree on the match state")
+		return
+	status_changed.emit("Both sides agree. The match continues")
+	reconnected.emit()
+	_resume_current_stage()
+
+
+## Puts the interface back on whichever screen the match was on when it dropped.
+func _resume_current_stage() -> void:
+	if str(state["status"]) == MatchState.STATUS_FINISHED:
+		_set_stage("FINISHED")
+	elif int(state["active_player"]) == local_player:
+		_set_stage("SELECT")
+	else:
+		_set_stage("WAIT_ACTION")
 
 func _validate_gameplay_envelope(message: Dictionary) -> String:
 	for field in ["match_id", "exchange_number", "sender"]:
@@ -685,7 +864,68 @@ func _local_error(message: String) -> Dictionary:
 
 func _set_stage(stage: String) -> void:
 	_current_stage = stage
+	_start_phase_deadline(stage)
 	stage_changed.emit(stage)
+
+
+## Arms the countdown when this client enters a timed phase, and disarms it
+## otherwise. Entering the stage locally is the trigger, so a peer that took a
+## second to deliver the phase does not shorten this player's clock.
+func _start_phase_deadline(stage: String) -> void:
+	if not TIMED_STAGES.has(stage):
+		_phase_deadline_ms = 0
+		_last_countdown_second = -1
+		return
+	var seconds: float = PHASE_TIMEOUT_SECONDS[TIMED_STAGES[stage]]
+	_phase_deadline_ms = Time.get_ticks_msec() + int(seconds * 1000.0)
+	_last_countdown_second = -1
+
+
+## Reports the countdown and submits the phase default when it runs out.
+##
+## The defaults are the ones the spec fixes: no claim means honest, no challenge
+## means pass. They go through the ordinary submit path rather than a special
+## one, so the peer receives a normal message and both reducers stay in step
+## without either side having to trust a timeout the other side claims happened.
+func _poll_phase_deadline() -> void:
+	if _phase_deadline_ms == 0 or failed or not connected:
+		return
+	var remaining_ms := _phase_deadline_ms - Time.get_ticks_msec()
+	var seconds_left := maxi(0, int(ceil(float(remaining_ms) / 1000.0)))
+	if seconds_left != _last_countdown_second:
+		_last_countdown_second = seconds_left
+		phase_countdown.emit(seconds_left)
+	if remaining_ms > 0:
+		return
+
+	var timed_out_stage := _current_stage
+	_phase_deadline_ms = 0
+	match timed_out_stage:
+		"SELECT":
+			_submit_default_action()
+		"CLAIM":
+			# An honest claim is the true roll, which is what the player would have
+			# claimed by doing nothing.
+			submit_claim(local_player, int(true_rolls[local_player]))
+		"CHALLENGE":
+			submit_challenge(local_player, false)
+		_:
+			return
+	phase_timed_out.emit(timed_out_stage)
+
+
+## The fallback action for a player who never selected one: the first legal light
+## attack. A turn that is simply skipped would stall the round, because the phase
+## only advances once the active player has acted.
+func _submit_default_action() -> void:
+	var actors := available_actors(local_player)
+	if actors.is_empty():
+		return
+	var actor: Dictionary = actors[0]
+	var targets := valid_targets(local_player, str(actor["id"]), "light_attack")
+	if targets.is_empty():
+		return
+	select_action(str(actor["id"]), "light_attack", str(targets[0]["id"]))
 
 
 func _fail(message: String) -> void:

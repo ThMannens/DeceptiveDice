@@ -1,0 +1,418 @@
+{
+  "name": "E8 draft and placement",
+  "initial_state": {
+    "match_id": "e8-draft",
+    "player_ids": [
+      "alice",
+      "bob"
+    ]
+  },
+  "cases": [
+    {
+      "name": "both drafts and formations start the match",
+      "steps": [
+        {
+          "event": {
+            "type": "draft_submitted",
+            "match_id": "e8-draft",
+            "exchange_number": 0,
+            "phase": "DRAFT",
+            "sender": 0,
+            "payload": {
+              "character_ids": [
+                "ledger",
+                "bruiser",
+                "gambler",
+                "hook"
+              ]
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "draft_submitted",
+            "match_id": "e8-draft",
+            "exchange_number": 0,
+            "phase": "DRAFT",
+            "sender": 1,
+            "payload": {
+              "character_ids": [
+                "mirror",
+                "bruiser",
+                "gambler",
+                "hook"
+              ]
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "formation_submitted",
+            "match_id": "e8-draft",
+            "exchange_number": 0,
+            "phase": "PLACEMENT",
+            "sender": 0,
+            "payload": {
+              "character_ids": [
+                "ledger",
+                "gambler",
+                "hook",
+                "bruiser"
+              ]
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "formation_submitted",
+            "match_id": "e8-draft",
+            "exchange_number": 0,
+            "phase": "PLACEMENT",
+            "sender": 1,
+            "payload": {
+              "character_ids": [
+                "bruiser",
+                "hook",
+                "gambler",
+                "mirror"
+              ]
+            }
+          }
+        }
+      ],
+      "assertions": [
+        {
+          "path": "phase",
+          "equals": "SELECT"
+        },
+        {
+          "path": "status",
+          "equals": "ACTIVE"
+        },
+        {
+          "path": "exchange_number",
+          "equals": 1
+        },
+        {
+          "path": "round_number",
+          "equals": 1
+        },
+        {
+          "path": "teams.0.characters.0.position",
+          "equals": 1
+        },
+        {
+          "path": "teams.0.characters.1.position",
+          "equals": 4
+        },
+        {
+          "path": "teams.0.characters.2.position",
+          "equals": 2
+        },
+        {
+          "path": "teams.0.characters.3.position",
+          "equals": 3
+        }
+      ]
+    },
+    {
+      "name": "a draft of the wrong size is rejected",
+      "steps": [
+        {
+          "event": {
+            "type": "draft_submitted",
+            "match_id": "e8-draft",
+            "exchange_number": 0,
+            "phase": "DRAFT",
+            "sender": 0,
+            "payload": {
+              "character_ids": [
+                "ledger",
+                "bruiser",
+                "gambler"
+              ]
+            }
+          },
+          "expect_ok": false,
+          "error_contains": "exactly four"
+        }
+      ],
+      "assertions": [
+        {
+          "path": "phase",
+          "equals": "DRAFT"
+        }
+      ]
+    },
+    {
+      "name": "a draft with a duplicate character is rejected",
+      "steps": [
+        {
+          "event": {
+            "type": "draft_submitted",
+            "match_id": "e8-draft",
+            "exchange_number": 0,
+            "phase": "DRAFT",
+            "sender": 0,
+            "payload": {
+              "character_ids": [
+                "ledger",
+                "ledger",
+                "gambler",
+                "hook"
+              ]
+            }
+          },
+          "expect_ok": false,
+          "error_contains": "unique"
+        }
+      ],
+      "assertions": [
+        {
+          "path": "phase",
+          "equals": "DRAFT"
+        }
+      ]
+    },
+    {
+      "name": "a draft naming a character outside the roster is rejected",
+      "steps": [
+        {
+          "event": {
+            "type": "draft_submitted",
+            "match_id": "e8-draft",
+            "exchange_number": 0,
+            "phase": "DRAFT",
+            "sender": 0,
+            "payload": {
+              "character_ids": [
+                "ledger",
+                "bruiser",
+                "gambler",
+                "wizard"
+              ]
+            }
+          },
+          "expect_ok": false,
+          "error_contains": "unknown character"
+        }
+      ],
+      "assertions": [
+        {
+          "path": "phase",
+          "equals": "DRAFT"
+        }
+      ]
+    },
+    {
+      "name": "a player cannot draft twice",
+      "steps": [
+        {
+          "event": {
+            "type": "draft_submitted",
+            "match_id": "e8-draft",
+            "exchange_number": 0,
+            "phase": "DRAFT",
+            "sender": 0,
+            "payload": {
+              "character_ids": [
+                "ledger",
+                "bruiser",
+                "gambler",
+                "hook"
+              ]
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "draft_submitted",
+            "match_id": "e8-draft",
+            "exchange_number": 0,
+            "phase": "DRAFT",
+            "sender": 0,
+            "payload": {
+              "character_ids": [
+                "mirror",
+                "bruiser",
+                "gambler",
+                "hook"
+              ]
+            }
+          },
+          "expect_ok": false,
+          "error_contains": "already submitted"
+        }
+      ],
+      "assertions": [
+        {
+          "path": "teams.0.drafted_character_ids.0",
+          "equals": "ledger"
+        }
+      ]
+    },
+    {
+      "name": "a formation must contain exactly the drafted four",
+      "steps": [
+        {
+          "event": {
+            "type": "draft_submitted",
+            "match_id": "e8-draft",
+            "exchange_number": 0,
+            "phase": "DRAFT",
+            "sender": 0,
+            "payload": {
+              "character_ids": [
+                "ledger",
+                "bruiser",
+                "gambler",
+                "hook"
+              ]
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "draft_submitted",
+            "match_id": "e8-draft",
+            "exchange_number": 0,
+            "phase": "DRAFT",
+            "sender": 1,
+            "payload": {
+              "character_ids": [
+                "mirror",
+                "bruiser",
+                "gambler",
+                "hook"
+              ]
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "formation_submitted",
+            "match_id": "e8-draft",
+            "exchange_number": 0,
+            "phase": "PLACEMENT",
+            "sender": 0,
+            "payload": {
+              "character_ids": [
+                "ledger",
+                "gambler",
+                "hook",
+                "mirror"
+              ]
+            }
+          },
+          "expect_ok": false,
+          "error_contains": "every drafted character"
+        }
+      ],
+      "assertions": [
+        {
+          "path": "phase",
+          "equals": "PLACEMENT"
+        }
+      ]
+    },
+    {
+      "name": "placement decides the order, and initiative decides who starts",
+      "steps": [
+        {
+          "event": {
+            "type": "draft_submitted",
+            "match_id": "e8-draft",
+            "exchange_number": 0,
+            "phase": "DRAFT",
+            "sender": 0,
+            "payload": {
+              "character_ids": [
+                "ledger",
+                "bruiser",
+                "gambler",
+                "hook"
+              ]
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "draft_submitted",
+            "match_id": "e8-draft",
+            "exchange_number": 0,
+            "phase": "DRAFT",
+            "sender": 1,
+            "payload": {
+              "character_ids": [
+                "mirror",
+                "bruiser",
+                "gambler",
+                "hook"
+              ]
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "formation_submitted",
+            "match_id": "e8-draft",
+            "exchange_number": 0,
+            "phase": "PLACEMENT",
+            "sender": 0,
+            "payload": {
+              "character_ids": [
+                "hook",
+                "bruiser",
+                "ledger",
+                "gambler"
+              ]
+            }
+          }
+        },
+        {
+          "event": {
+            "type": "formation_submitted",
+            "match_id": "e8-draft",
+            "exchange_number": 0,
+            "phase": "PLACEMENT",
+            "sender": 1,
+            "payload": {
+              "character_ids": [
+                "bruiser",
+                "hook",
+                "gambler",
+                "mirror"
+              ]
+            }
+          }
+        }
+      ],
+      "assertions": [
+        {
+          "path": "teams.0.characters.3.position",
+          "equals": 1
+        },
+        {
+          "path": "teams.0.characters.1.position",
+          "equals": 2
+        },
+        {
+          "path": "teams.0.characters.0.position",
+          "equals": 3
+        },
+        {
+          "path": "teams.0.characters.2.position",
+          "equals": 4
+        },
+        {
+          "path": "active_player",
+          "equals": 1
+        },
+        {
+          "path": "starting_player",
+          "equals": 1
+        }
+      ]
+    }
+  ]
+}

@@ -28,11 +28,13 @@ static func resolve_exchange(
 	suppress_margin_bonus: bool = false,
 	absorb_attack_wrong_call: bool = false,
 	absorb_defence_wrong_call: bool = false,
+	attack_reveal_failed: bool = false,
+	defence_reveal_failed: bool = false,
 ) -> Dictionary:
-	var attack_result := _resolve_claim(attack_roll, attack_claim, attack_challenged, true)
+	var attack_result := _resolve_claim(attack_roll, attack_claim, attack_challenged, true, attack_reveal_failed)
 	if not attack_result["ok"]:
 		return attack_result
-	var defence_result := _resolve_claim(defence_roll, defence_claim, defence_challenged, false)
+	var defence_result := _resolve_claim(defence_roll, defence_claim, defence_challenged, false, defence_reveal_failed)
 	if not defence_result["ok"]:
 		return defence_result
 
@@ -92,7 +94,7 @@ static func resolve_exchange(
 	return result
 
 
-static func _resolve_claim(roll: int, claim: int, challenged: bool, is_attack: bool) -> Dictionary:
+static func _resolve_claim(roll: int, claim: int, challenged: bool, is_attack: bool, reveal_failed: bool = false) -> Dictionary:
 	if roll < 1 or roll > 20:
 		return {"ok": false, "error": "True roll must be between 1 and 20"}
 	if claim < roll or claim > 20:
@@ -101,7 +103,12 @@ static func _resolve_claim(roll: int, claim: int, challenged: bool, is_attack: b
 	var padding := claim - roll
 	var is_padded := padding > 0
 	var outcome := OUTCOME_HONEST_PASS
-	if challenged:
+	if reveal_failed:
+		# An unverifiable claim is always caught, never a wrong call. Without this
+		# a claim of 1 would resolve as honest-and-wrongly-challenged and pay the
+		# non-revealer a damage bonus for refusing to reveal.
+		outcome = OUTCOME_CAUGHT
+	elif challenged:
 		outcome = OUTCOME_CAUGHT if is_padded else OUTCOME_WRONG_CALL
 	elif is_padded:
 		outcome = OUTCOME_PADDED_PASS

@@ -9,6 +9,10 @@ $headlessLogPath = Join-Path $godotDataPath "headless-tests.log"
 $testResultPath = Join-Path $projectPath "tests\headless-test-result.tmp"
 $uiSmokeLogPath = Join-Path $godotDataPath "ui-smoke.log"
 $uiSmokeResultPath = Join-Path $projectPath "tests\ui-smoke-result.tmp"
+$fullMatchLogPath = Join-Path $godotDataPath "full-match-smoke.log"
+$fullMatchResultPath = Join-Path $projectPath "tests\full-match-smoke-result.tmp"
+$reconnectLogPath = Join-Path $godotDataPath "reconnect-smoke.log"
+$reconnectResultPath = Join-Path $projectPath "tests\reconnect-smoke-result.tmp"
 $webRtcSmokeLogPath = Join-Path $godotDataPath "webrtc-smoke.log"
 $webRtcSmokeResultPath = Join-Path $projectPath "tests\webrtc-smoke-result.tmp"
 $importLogPath = Join-Path $godotDataPath "import.log"
@@ -18,6 +22,8 @@ $networkSmokeResultPath = Join-Path $projectPath "tests\network-match-smoke-resu
 $directSmokeLogPath = Join-Path $godotDataPath "direct-match-smoke.log"
 $disconnectSmokeLogPath = Join-Path $godotDataPath "direct-disconnect-smoke.log"
 $disconnectSmokeResultPath = Join-Path $projectPath "tests\direct-disconnect-result.tmp"
+$webRtcTimeoutLogPath = Join-Path $godotDataPath "webrtc-timeout-smoke.log"
+$webRtcTimeoutResultPath = Join-Path $projectPath "tests\webrtc-timeout-result.tmp"
 $directSmokeResultPath = Join-Path $projectPath "tests\direct-match-smoke-result.tmp"
 [System.IO.Directory]::CreateDirectory($godotDataPath) | Out-Null
 
@@ -72,6 +78,25 @@ if ($godotExitCode -ne 0) {
 }
 if ($testExitCode -ne 0) {
     exit $testExitCode
+}
+
+if (Test-Path -LiteralPath $fullMatchResultPath) {
+    Remove-Item -LiteralPath $fullMatchResultPath
+}
+
+& $GodotPath --headless --path $projectPath --log-file $fullMatchLogPath --script "res://tests/full_match_smoke.gd"
+$fullMatchGodotExitCode = $LASTEXITCODE
+
+if (-not (Test-Path -LiteralPath $fullMatchResultPath)) {
+    throw "The full-match bot test did not produce a result. Godot exit code: $fullMatchGodotExitCode"
+}
+
+$fullMatchExitCode = [int](Get-Content -Raw -LiteralPath $fullMatchResultPath)
+if ($fullMatchGodotExitCode -ne 0) {
+    exit $fullMatchGodotExitCode
+}
+if ($fullMatchExitCode -ne 0) {
+    exit $fullMatchExitCode
 }
 
 if (Test-Path -LiteralPath $uiSmokeResultPath) {
@@ -131,6 +156,25 @@ if ($networkSmokeExitCode -ne 0) {
     exit $networkSmokeExitCode
 }
 
+if (Test-Path -LiteralPath $webRtcTimeoutResultPath) {
+    Remove-Item -LiteralPath $webRtcTimeoutResultPath
+}
+
+& $GodotPath --headless --path $projectPath --log-file $webRtcTimeoutLogPath --script "res://tests/webrtc_timeout_smoke.gd"
+$webRtcTimeoutGodotExitCode = $LASTEXITCODE
+
+if (-not (Test-Path -LiteralPath $webRtcTimeoutResultPath)) {
+    throw "The WebRTC timeout smoke test did not produce a result. Godot exit code: $webRtcTimeoutGodotExitCode"
+}
+
+$webRtcTimeoutExitCode = [int](Get-Content -Raw -LiteralPath $webRtcTimeoutResultPath)
+if ($webRtcTimeoutGodotExitCode -ne 0) {
+    exit $webRtcTimeoutGodotExitCode
+}
+if ($webRtcTimeoutExitCode -ne 0) {
+    exit $webRtcTimeoutExitCode
+}
+
 if (Test-Path -LiteralPath $disconnectSmokeResultPath) {
     Remove-Item -LiteralPath $disconnectSmokeResultPath
 }
@@ -165,4 +209,23 @@ $directSmokeExitCode = [int](Get-Content -Raw -LiteralPath $directSmokeResultPat
 if ($directGodotExitCode -ne 0) {
     exit $directGodotExitCode
 }
-exit $directSmokeExitCode
+if ($directSmokeExitCode -ne 0) {
+    exit $directSmokeExitCode
+}
+
+if (Test-Path -LiteralPath $reconnectResultPath) {
+    Remove-Item -LiteralPath $reconnectResultPath
+}
+
+& $GodotPath --headless --path $projectPath --log-file $reconnectLogPath --script "res://tests/reconnect_smoke.gd"
+$reconnectGodotExitCode = $LASTEXITCODE
+
+if (-not (Test-Path -LiteralPath $reconnectResultPath)) {
+    throw "The reconnection smoke test did not produce a result. Godot exit code: $reconnectGodotExitCode"
+}
+
+$reconnectExitCode = [int](Get-Content -Raw -LiteralPath $reconnectResultPath)
+if ($reconnectGodotExitCode -ne 0) {
+    exit $reconnectGodotExitCode
+}
+exit $reconnectExitCode

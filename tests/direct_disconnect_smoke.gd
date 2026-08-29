@@ -54,7 +54,11 @@ func _run() -> void:
 		host.poll()
 		await process_frame
 	_check(not host.connected, "The host still reports a live link after the opponent left")
-	_check(host.transport == null, "The host is still holding a transport it can only poll into an error")
+	# The host now holds the socket open through the reconnection window (D6), so
+	# it keeps its transport rather than dropping it the instant the peer goes.
+	# What this test still guards is that polling it stays quiet: reaching here
+	# without the engine erroring is the assertion.
+	_check(host.current_stage() == "RECONNECTING", "A drop did not open the reconnection window")
 
 	# A joiner that never reaches a host must give up rather than hang forever.
 	var orphan: Variant = NetworkMatch.new()

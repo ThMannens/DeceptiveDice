@@ -1,0 +1,134 @@
+{
+  "name": "A5 wrong calls that cost nothing",
+  "initial_state": {
+    "match_id": "a5-wrongcall",
+    "player_ids": ["alice", "bob"]
+  },
+  "setup_steps": [
+    {"event": {"type": "draft_submitted", "match_id": "a5-wrongcall", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["mirror", "bruiser", "gambler", "hook"]}}},
+    {"event": {"type": "draft_submitted", "match_id": "a5-wrongcall", "exchange_number": 0, "phase": "DRAFT", "sender": 1, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}},
+    {"event": {"type": "formation_submitted", "match_id": "a5-wrongcall", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["mirror", "gambler", "hook", "bruiser"]}}},
+    {"event": {"type": "formation_submitted", "match_id": "a5-wrongcall", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["ledger", "gambler", "hook", "bruiser"]}}}
+  ],
+  "cases": [
+    {
+      "name": "a wrong call that costs nothing still exposes the challenger",
+      "steps": [
+        {"event": {"type": "action_selected", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "gambler", "move_id": "light_attack", "target_id": "gambler"}}},
+        {"event": {"type": "commit_submitted", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "claim_submitted", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 8}}},
+        {"event": {"type": "claim_submitted", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 15}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": true}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "a"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [8, 15]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.attack.outcome", "equals": "WRONG_CALL"},
+        {"path": "last_resolution.hit", "equals": false},
+        {"path": "last_resolution.hit_damage", "equals": 0},
+        {"path": "teams.1.characters.2.effect_counters.exposed_after_wrong_call", "equals": true}
+      ]
+    },
+    {
+      "name": "the exposure penalty applies to the next defence and is then spent",
+      "steps": [
+        {"event": {"type": "action_selected", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "gambler", "move_id": "light_attack", "target_id": "gambler"}}},
+        {"event": {"type": "commit_submitted", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "claim_submitted", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 8}}},
+        {"event": {"type": "claim_submitted", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 15}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": true}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "a"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [8, 15]}}},
+        {"event": {"type": "action_selected", "match_id": "a5-wrongcall", "exchange_number": 2, "phase": "SELECT", "sender": 1, "payload": {"actor_id": "hook", "move_id": "light_attack", "target_id": "hook"}}},
+        {"event": {"type": "commit_submitted", "match_id": "a5-wrongcall", "exchange_number": 2, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "a5-wrongcall", "exchange_number": 2, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "claim_submitted", "match_id": "a5-wrongcall", "exchange_number": 2, "phase": "CLAIM", "sender": 0, "payload": {"value": 10}}},
+        {"event": {"type": "claim_submitted", "match_id": "a5-wrongcall", "exchange_number": 2, "phase": "CLAIM", "sender": 1, "payload": {"value": 10}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a5-wrongcall", "exchange_number": 2, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a5-wrongcall", "exchange_number": 2, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a5-wrongcall", "exchange_number": 2, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a5-wrongcall", "exchange_number": 2, "phase": "REVEAL", "sender": 1, "payload": {"secret": "a"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "a5-wrongcall", "exchange_number": 2, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [10, 10]}}},
+        {"event": {"type": "action_selected", "match_id": "a5-wrongcall", "exchange_number": 3, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "mirror", "move_id": "light_attack", "target_id": "gambler"}}},
+        {"event": {"type": "commit_submitted", "match_id": "a5-wrongcall", "exchange_number": 3, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "a5-wrongcall", "exchange_number": 3, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "claim_submitted", "match_id": "a5-wrongcall", "exchange_number": 3, "phase": "CLAIM", "sender": 0, "payload": {"value": 14}}},
+        {"event": {"type": "claim_submitted", "match_id": "a5-wrongcall", "exchange_number": 3, "phase": "CLAIM", "sender": 1, "payload": {"value": 10}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a5-wrongcall", "exchange_number": 3, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a5-wrongcall", "exchange_number": 3, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a5-wrongcall", "exchange_number": 3, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a5-wrongcall", "exchange_number": 3, "phase": "REVEAL", "sender": 1, "payload": {"secret": "a"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "a5-wrongcall", "exchange_number": 3, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [14, 10]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.exposure_penalty", "equals": 5},
+        {"path": "teams.1.characters.2.effect_counters.exposed_after_wrong_call", "equals": false}
+      ]
+    },
+    {
+      "name": "a wrong call that already doubled damage does not also expose",
+      "steps": [
+        {"event": {"type": "action_selected", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "gambler", "move_id": "light_attack", "target_id": "gambler"}}},
+        {"event": {"type": "commit_submitted", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "claim_submitted", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 15}}},
+        {"event": {"type": "claim_submitted", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 8}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": true}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "a"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [15, 8]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.attack.outcome", "equals": "WRONG_CALL"},
+        {"path": "last_resolution.hit", "equals": true},
+        {"path": "last_resolution.attack_damage_multiplier", "equals": 2},
+        {"path": "teams.1.characters.2.effect_counters.cold_streak_honest_turns", "equals": 1}
+      ]
+    },
+    {
+      "name": "a wrong call that already cost damage leaves no penalty on the next defence",
+      "steps": [
+        {"event": {"type": "action_selected", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "gambler", "move_id": "light_attack", "target_id": "gambler"}}},
+        {"event": {"type": "commit_submitted", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "claim_submitted", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 11}}},
+        {"event": {"type": "claim_submitted", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 10}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": true}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "a"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "a5-wrongcall", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [11, 10]}}},
+        {"event": {"type": "action_selected", "match_id": "a5-wrongcall", "exchange_number": 2, "phase": "SELECT", "sender": 1, "payload": {"actor_id": "hook", "move_id": "light_attack", "target_id": "hook"}}},
+        {"event": {"type": "commit_submitted", "match_id": "a5-wrongcall", "exchange_number": 2, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "a5-wrongcall", "exchange_number": 2, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "claim_submitted", "match_id": "a5-wrongcall", "exchange_number": 2, "phase": "CLAIM", "sender": 0, "payload": {"value": 10}}},
+        {"event": {"type": "claim_submitted", "match_id": "a5-wrongcall", "exchange_number": 2, "phase": "CLAIM", "sender": 1, "payload": {"value": 10}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a5-wrongcall", "exchange_number": 2, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a5-wrongcall", "exchange_number": 2, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a5-wrongcall", "exchange_number": 2, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a5-wrongcall", "exchange_number": 2, "phase": "REVEAL", "sender": 1, "payload": {"secret": "a"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "a5-wrongcall", "exchange_number": 2, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [10, 10]}}},
+        {"event": {"type": "action_selected", "match_id": "a5-wrongcall", "exchange_number": 3, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "mirror", "move_id": "light_attack", "target_id": "gambler"}}},
+        {"event": {"type": "commit_submitted", "match_id": "a5-wrongcall", "exchange_number": 3, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "a5-wrongcall", "exchange_number": 3, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "claim_submitted", "match_id": "a5-wrongcall", "exchange_number": 3, "phase": "CLAIM", "sender": 0, "payload": {"value": 14}}},
+        {"event": {"type": "claim_submitted", "match_id": "a5-wrongcall", "exchange_number": 3, "phase": "CLAIM", "sender": 1, "payload": {"value": 10}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a5-wrongcall", "exchange_number": 3, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "a5-wrongcall", "exchange_number": 3, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a5-wrongcall", "exchange_number": 3, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "a5-wrongcall", "exchange_number": 3, "phase": "REVEAL", "sender": 1, "payload": {"secret": "a"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "a5-wrongcall", "exchange_number": 3, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [14, 10]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.exposure_penalty", "equals": 0}
+      ]
+    }
+  ]
+}

@@ -18,7 +18,7 @@ The value of a die is derived from two secrets, one per peer, so neither peer co
 
 On top of that sits a deterministic combat reducer that both peers run against the same event stream. Neither peer is authoritative. Divergence means someone cheated or something broke, and the match aborts.
 
-For connection, a small signalling server introduces the two peers and then drops out of the match. It never sees a secret, never sees a roll, and holds no game state. Gameplay traffic goes directly between peers, with a relay fallback for the connections that cannot be punched through.
+For connection, the two peers introduce themselves to each other by hand: the host generates a connection code, the joiner pastes it back, and the WebRTC channel opens directly between them. There is no signalling server and no game server of any kind. On a shared network, players can skip codes entirely and connect by address.
 
 ## Vocabulary
 
@@ -50,7 +50,8 @@ Properties this buys, all of which should be stated as tests:
 - R cannot steer the roll, because R commits to `secret_R` before seeing `secret_O`.
 - O cannot learn the roll before the challenge decision, because O never has `secret_R` until step 6.
 - R cannot change the roll after seeing the challenge decision, because the hash pins it.
-- A malformed or non-matching reveal is not a draw and not an error. Treat it as caught: the claim is discarded and the claimant takes the maximum possible padding for that claim as damage.
+- A malformed or non-matching reveal is not a draw and not an error. Treat it as caught: the claim is discarded and the claimant takes the maximum possible padding for that claim as damage. As built, the reducer substitutes a true roll of 1 for the unverifiable side, which is exactly "the maximum padding that claim could have hidden", and forces the caught outcome regardless of what was claimed. Forcing it matters: a claim of 1 has no padding, so without that the claim would read as honest-and-wrongly-challenged and *pay* the non-revealer a damage bonus for refusing to reveal. Substituting the roll rather than adding a separate damage path also keeps the whole caught pipeline — kit hooks, exposure, claim history — identical to being caught honestly.
+- A bad reveal must never abort the match, for the same reason. Aborting is a way out for a player who is about to lose an exchange, so the protocol records the reveal as failed and lets the exchange resolve.
 - Failure to reveal within the timeout resolves the same way. Quitting rather than revealing must never be better than being caught.
 
 Simultaneous exchanges run two instances of this protocol, one in each direction, interleaved. Attacker is R for the attack die; defender is R for the defence die.
@@ -97,6 +98,17 @@ Defence side is symmetric:
 
 Claims are capped at 20 by the die itself, so no separate padding cap is needed. A claim of 20 is legal from anyone and maximally suspicious.
 
+### Exposure: no challenge outcome settles for nothing
+
+Both sides of the challenge decision have an outcome that can otherwise cost or win nothing at all, which makes the decision free and drains the tension out of it. A character left in that position is **exposed**: their next defence roll takes a 5 point penalty.
+
+Exposure applies in two cases, both only when the attack dealt no damage:
+
+- **A wrong call that cost nothing.** The doubling and halving above both scale a damage figure. When the attack deals nothing either way, a defender who expects to win the roll can challenge every exchange for free. The challenger is exposed.
+- **A correct call that won nothing.** Catching a padded defence pays out by dropping the claim to the true roll, letting an attack through that the bluff would have stopped. When the attack deals nothing regardless, that payout does not exist. The caught bluffer is exposed.
+
+The second case cannot rest on the padding damage instead, because kits are allowed to reduce that figure to zero: Thick Skull halves a padding of 1 to nothing, and Cold Streak can wipe a doubled padding entirely. Those kits keeping that power is the point of them, so the guarantee sits outside the damage figure rather than as a floor under it.
+
 ## Positions
 
 Four positions per side, 1 at the back, 4 closest to the enemy. Targeting is free unless a kit restricts it.
@@ -104,6 +116,8 @@ Four positions per side, 1 at the back, 4 closest to the enemy. Targeting is fre
 Damage taken multiplier by target position: 1 gives x0.7, 2 gives x0.85, 3 gives x1.0, 4 gives x1.2. Round down.
 
 Heavy attack requires position 3 or 4. This is what stops the whole formation from hiding at the back.
+
+The dead do not hold a rank. When a character dies, the living close up toward the front keeping their relative order, and the dead fill the remaining positions from the back. A body left in place otherwise walls off everyone behind it, because both the swap move and Drag step through the next position up and neither can step onto or past a corpse.
 
 ## Basic moves
 
@@ -158,8 +172,9 @@ Sets up the Bruiser, gets shut down by the Ledger's Audit.
 
 ## User stories
 
-1. As a player, I want to host a match and get a short lobby code, so that I can send it to an opponent anywhere.
-2. As a player, I want to join by entering a lobby code, so that I can start playing without knowing anyone's address.
+1. As a player, I want to host a match and get a connection code I can paste to an opponent anywhere, so that we can play without either of us running a server.
+2. As a player, I want to join by pasting the code my opponent sent me, so that I can start playing without configuring anything.
+2a. As a player on the same network as my opponent, I want to connect by address instead, so that a local game needs no codes at all.
 3. As a player, I want a clear message when the connection cannot be established, so that I know to retry rather than wait.
 4. As a player, I want a short window to reconnect after a brief network drop, so that a dropped wifi packet does not cost me the match.
 5. As a player, I want an opponent who disconnects for good to forfeit, so that leaving is never better than losing.
@@ -191,7 +206,7 @@ Sets up the Bruiser, gets shut down by the Ledger's Audit.
 
 **Protocol.** Commit-reveal, message schema, phase enforcement, verification, timeouts. Produces events for the rules core. Knows nothing about combat.
 
-**Transport.** WebRTC data channels through Godot's WebRTCMultiplayerPeer, with a signalling server over WebSocket. Reliable ordered channel only; nothing here needs unreliable delivery. Knows nothing about the game.
+**Transport.** WebRTC data channels through Godot's WebRTCMultiplayerPeer, signalled by hand rather than by a server. Reliable ordered channel only; nothing here needs unreliable delivery. Knows nothing about the game. A plain ENet address transport sits behind the same interface for LAN play and for the headless tests, which cannot paste codes.
 
 **Presentation.** Godot scenes. Reads state, emits intents. Contains no rules.
 
@@ -214,6 +229,10 @@ RESOLVE     -> reducer applies the exchange, effects fire
 
 A phase advances only when both peers have submitted. Timeouts resolve as: no claim submitted means an honest claim, no challenge submitted means pass, no reveal means caught.
 
+Durations as built: 60 seconds to select an action, 45 to claim, 30 to challenge. Each is generous enough for a 200ms round trip plus a human decision. When one expires, the client submits that player's default through the ordinary path, so the peer receives a normal message and both reducers stay in step — neither side has to trust a timeout the other side claims happened. A player who never selects an action gets a light attack taken for them, because a skipped turn would stall the round rather than passing it.
+
+Only online play has these clocks. Hot-seat passes the device by hand, where a timer would punish a player for reading their own kit rather than for stalling an opponent.
+
 ### Determinism and desync
 
 Both peers run the same reducer over the same event stream. After each RESOLVE, peers exchange a hash of the resulting state. A mismatch aborts the match with a desync message naming the exchange number. Build this in the first working version, not later. Retrofitting a desync check into a game that has already diverged in twelve places is much worse than having it from the start.
@@ -226,17 +245,20 @@ Every message carries a match id, an exchange number, a phase, and a sender. A m
 
 ### Connection
 
-The signalling server is the smallest piece that can do the job. It does three things and nothing else:
+**Decided: manual signalling, no server.** The spec originally called for a small signalling server issuing lobby codes. It was cut, and the reasoning is worth keeping because it is the one place this game trades convenience for having no infrastructure at all.
 
-1. Issues a short lobby code to a hosting peer.
-2. Matches a joining peer to that code.
-3. Relays WebRTC offers, answers, and ICE candidates between the two until the data channel opens.
+A signalling server is small, but it is not free: it has to be written, hosted, kept up, and paid for, and it is the single piece whose downtime stops new matches from starting. For a two-player game with no matchmaking, it exists only to carry two SDP blobs between people who are already talking to each other on Discord or in the same room. So the players carry them instead.
 
-Once the channel is open the server is out of the match. It never receives a secret, a claim, or a state hash. If it goes down mid-match, running matches continue.
+There are two connection paths, both serverless:
 
-STUN handles most NAT traversal. A meaningful share of connections will still fail, mostly symmetric NAT, so a TURN relay is needed for those. Traffic through TURN is still end to end from the game's perspective; the relay forwards bytes and holds no state. Budget for a public STUN server and either a hosted TURN service or a small self-run one.
+1. **Manual codes, for play over the internet.** The host generates an offer code that packs its SDP description and gathered ICE candidates into one base64 string. The joiner pastes it in and gets an answer code back. The host pastes that, and the data channel opens. Players move the codes themselves, by whatever channel they are already using.
+2. **Direct address, for a shared network.** The host listens on a port, the joiner types `address:port`. No codes at all. This is also the path the headless tests use, because they cannot paste anything.
 
-The alternative, if the jam ships on Steam, is Steam Networking Sockets. It solves NAT traversal, relay, and identity in one dependency and removes the signalling server entirely. It costs a Steam dependency and makes headless testing harder.
+Public STUN servers still do the NAT reflection, since asking for a public address needs no infrastructure of ours. Several are tried rather than one, so a single unreachable lookup does not stall candidate gathering with nothing to show the player.
+
+**What this costs.** There is no TURN relay, so two players who are both behind symmetric NAT cannot connect at all. This is a real and permanent limitation, not a gap to be filled later: adding a relay means hosting one, which is the infrastructure this design exists to avoid. The failure is reported plainly — the channel-open wait is bounded, and the player is told their networks both block direct connections and offered the same-network path instead — rather than left as a screen that never changes.
+
+Both waits are bounded explicitly, because WebRTC reports no error when two peers simply cannot reach each other. Candidate gathering gets 10 seconds before the code is emitted regardless; the channel has 30 seconds to open once both codes are in.
 
 ### Latency and disconnection
 
@@ -244,7 +266,7 @@ Online play adds a clock that LAN did not have. Every phase timeout must be gene
 
 Timeouts already have defined outcomes in the phase section. Add:
 
-- **Brief drop.** A peer that loses the data channel gets a reconnection window of about 30 seconds. The signalling server keeps the lobby code alive for that window so the peer can re-establish. On reconnect, both peers exchange their current exchange number and state hash. Matching hashes resume the match. Mismatched hashes abort it.
+- **Brief drop.** A peer that loses the link gets a reconnection window of 30 seconds. The peer that stayed holds its socket open for that window and keeps the match state frozen exactly where it stopped, including stopping the phase clock, so nobody is timed out for a phase they could not have submitted. On reconnect, both peers exchange their current exchange number and state hash. Matching hashes resume the match. Mismatched hashes abort it. With no signalling server to keep a lobby alive, this works on the address transport, where the host is still listening; the manual-code path needs both players to trade codes again, which no timer can wait out.
 - **Long drop.** Exceeding the window ends the match as a loss for the peer that dropped.
 - **Drop during REVEAL.** Resolves as caught, per the protocol section. A player losing an exchange must never be able to improve their position by pulling their network cable.
 
@@ -270,10 +292,23 @@ The rules core is the seam. Test there, not below it.
 
 **One command.** The whole suite runs headless in a single command with no editor and no display. Agentic work depends on a fast red loop more than on anything else in this document.
 
+## State of the build
+
+What exists, as of the reconciliation pass. This section records divergence between the spec and the code so the rest of the document can be read as describing the thing that was built.
+
+**Built and covered by tests.** The rules core in full (reducer, damage resolution, moves, turns and rounds, win and loss, kit hook API, state hashing); all five kits, each with transcripts for firing, not firing, and interacting with a challenge; the commit-reveal protocol, phase machine, blind simultaneous submission, in-process two-peer harness, and adversarial peer; phase timeouts with the durations above; the reveal-failure rule; WebRTC transport with manual codes, the ENet address transport, and the reconnection window; draft and placement, both in the reducer and on screen; the transcript harness and single-command runner; scripted bots and full-match bot tests.
+
+**Deliberately not built.** The signalling server and TURN relay, replaced by manual signalling — see the Connection section. Workstream F in its entirety: no character art, no dice or reveal animation, no sound, no tension pass. F was always the first thing to cut and nothing depends on it.
+
+**Not yet run.** The two-network test (D4). It needs two people on two physical networks and cannot be reproduced locally or in CI. Until it has run, internet play is unproven: NAT traversal failures do not show up between two windows on one machine, and this build has no relay to fall back on when they do.
+
+**Online play still uses preset teams.** The draft and placement screens are hot-seat only. The reducer accepts draft events from either player, so wiring the online path is a presentation and message-ordering job rather than a rules one.
+
 ## Out of scope
 
-- Matchmaking, accounts, ranking, persistence between matches. Connection is by lobby code only.
-- Any server-side game logic. The signalling server introduces peers and holds no state.
+- Matchmaking, accounts, ranking, persistence between matches. Connection is by pasted code or by address.
+- Any server at all, game logic or otherwise. There is no signalling server and no relay.
+- TURN relaying. Two players both behind symmetric NAT cannot connect; see the Connection section.
 - More than two players.
 - Spectators and replay playback UI. The event stream is recorded, but nothing plays it back.
 - The special moves from the original brainstorm that no kit uses: guard, bleed, poison, heal, AOE, stun, generic parry. They are folded into kits or dropped.
@@ -283,15 +318,17 @@ The rules core is the seam. Test there, not below it.
 
 **Draft format.** Five characters, four drafted, means near-mirror matches. Alternatives: expand the roster to seven and draft four, or allow duplicates, or use fixed asymmetric teams. Blocked on nothing but roster authoring time. Default to draft four of five for the jam.
 
-**Transport stack.** WebRTC plus a self-run signalling server is the default above. Steam Networking Sockets removes the server and the TURN problem at the cost of a Steam dependency and harder headless testing. Decide before step 5 of the build order, because everything before it is transport-agnostic.
+~~**Transport stack.**~~ **Settled:** WebRTC with manual signalling, plus an ENet address transport for LAN and tests. No signalling server, no Steam dependency. See the Connection section for the reasoning and for what it costs.
 
-**TURN hosting.** A relay is needed for the connections STUN cannot punch through. Hosted service or self-run is unresolved and depends on jam budget. Blocked on nothing but a decision.
+~~**TURN hosting.**~~ **Settled: not shipping one.** A relay is infrastructure, and this build has none. Connections STUN cannot punch through fail with a message saying so.
 
 **Challenge limits.** Challenges are unlimited. The costs on both sides are steep enough that this may hold, but if playtests show both players challenging every claim, cap challenges at three or four per match. Blocked on playtest data.
 
 **Turn order.** The alternating-with-free-choice rule above is a default, not a settled decision. The alternative is a strict initiative order across both teams, which makes Initiative a much stronger stat and removes a layer of choice. Blocked on playtest data.
 
-**Damage numbers.** Every stat and modifier in this document is a first pass. Check specifically whether a natural 20 plus a large padding plus a heavy attack can remove a third of a health bar in one exchange. If it can, matches will turn on single rolls rather than on reads. Blocked on playtest data.
+**Damage numbers.** Every stat and modifier in this document is a first pass. Check specifically whether a natural 20 plus a large padding plus a heavy attack can remove a third of a health bar in one exchange. If it can, matches will turn on single rolls rather than on reads.
+
+*First data (G4):* twelve bot matches, an always-honest policy against an always-pad-to-20 policy, run to a win. Matches take 21 to 33 exchanges, median 26. That is a sane length — long enough that one exchange does not decide it, short enough to finish. Still blocked on human playtest data for the single-exchange spike question, which the bots do not probe: neither policy chooses its padding, so neither ever sets up the large-padding heavy attack that the worry is actually about.
 
 **Kit effect edge cases.** Bookkeeping and Read the Room can interact in ways not yet enumerated: a Mirror challenge against a Ledger claim that is already immune, for example. Enumerate these while writing the transcripts, and record the resolution here as it is decided.
 
@@ -303,7 +340,7 @@ Build order that keeps the red loop live throughout:
 2. Transcript test harness and the first transcripts.
 3. Commit-reveal protocol with two in-process peers.
 4. Desync detection.
-5. Signalling server, lobby codes, WebRTC transport.
+5. WebRTC transport with manual connection codes, and the ENet address transport the tests run on.
 6. Minimal UI: roster, positions, claim entry, challenge button, outcome log.
 7. Kits, one at a time, each with its transcripts before it is considered done.
 8. Reconnection window and forfeit handling.

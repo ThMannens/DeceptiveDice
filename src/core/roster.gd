@@ -44,6 +44,20 @@ const DEFINITIONS := {
 }
 
 
+## Every draftable character id, in a fixed order so the draft screen and any
+## replay of a draft event list the roster the same way on both peers.
+static func character_ids() -> Array:
+	return DEFINITIONS.keys()
+
+
+## The stat block for one character, without the per-match fields that only a
+## character in play has.
+static func definition(character_id: String) -> Dictionary:
+	if not has_character(character_id):
+		return {}
+	return DEFINITIONS[character_id].duplicate(true)
+
+
 static func has_character(character_id: String) -> bool:
 	return DEFINITIONS.has(character_id)
 

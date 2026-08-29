@@ -7,6 +7,15 @@ const CombatResolver = preload("res://src/core/combat_resolver.gd")
 const Moves = preload("res://src/core/moves.gd")
 const Kits = preload("res://src/core/kits.gd")
 
+## A challenge outcome that would otherwise settle for nothing is paid on the
+## character's next defence instead, weakened by this much. It covers both a wrong
+## call that cost the challenger nothing and a correct call that won the challenger
+## nothing, so neither side of the challenge decision is ever free.
+const EXPOSED_DEFENCE_PENALTY := 5
+## Kept under its original key because the interface and the transcripts read it
+## by name; it now marks exposure from either side of a challenge.
+const COUNTER_EXPOSED := "exposed_after_wrong_call"
+
 
 static func apply(state: Dictionary, event: Dictionary) -> Dictionary:
 	var validation_error := MatchEvent.validate(event)
@@ -277,9 +286,23 @@ static func _apply_resolution(state: Dictionary, event: Dictionary, effects: Arr
 	var raw_true_rolls = event["payload"]["true_rolls"]
 	if typeof(raw_true_rolls) != TYPE_ARRAY or raw_true_rolls.size() != 2:
 		return "Resolution true_rolls must contain one roll per player"
-	var true_rolls: Array = raw_true_rolls
-	for roll in true_rolls:
-		if int(roll) < 1 or int(roll) > 20:
+	var true_rolls: Array = raw_true_rolls.duplicate()
+
+	# A player who never produced a valid reveal is treated as caught at the worst
+	# roll the claim allows, which is 1. Substituting the roll rather than adding a
+	# separate damage path keeps the whole caught pipeline — kit hooks, exposure,
+	# claim history — identical to being caught honestly. Refusing to reveal must
+	# never beat being caught, so it resolves as the worst possible catch.
+	var failed_reveals := _failed_reveal_players(state)
+	for player in failed_reveals:
+		# The opponent cannot know this roll, so whatever the payload carried for
+		# it is not trusted and not required to be in range.
+		true_rolls[player] = 1
+
+	for player in [0, 1]:
+		if player in failed_reveals:
+			continue
+		if int(true_rolls[player]) < 1 or int(true_rolls[player]) > 20:
 			return "Resolution true rolls must be between 1 and 20"
 
 	var attacker_player := int(action["player"])
@@ -291,11 +314,26 @@ static func _apply_resolution(state: Dictionary, event: Dictionary, effects: Arr
 
 	var attack_claim := _claim_value(state["exchange"]["claims"][attacker_player], int(true_rolls[attacker_player]))
 	var defence_claim := _claim_value(state["exchange"]["claims"][defender_player], int(true_rolls[defender_player]))
-	var attack_challenged := bool(state["exchange"]["challenges"][defender_player].get("challenge", false))
-	var defence_challenged := bool(state["exchange"]["challenges"][attacker_player].get("challenge", false))
+	# A failed reveal counts as challenged whether or not the opponent called it,
+	# so the claim is discarded rather than standing on an unverifiable roll.
+	var attack_challenged := bool(state["exchange"]["challenges"][defender_player].get("challenge", false)) or attacker_player in failed_reveals
+	var defence_challenged := bool(state["exchange"]["challenges"][attacker_player].get("challenge", false)) or defender_player in failed_reveals
 	var attacker: Dictionary = state["teams"][attacker_player]["characters"][attacker_index]
 	var defender: Dictionary = state["teams"][defender_player]["characters"][defender_index]
 	var stance_defence_bonus := 5 if defender["effect_counters"].get("defensive_stance_active", false) else 0
+	# A wrong call the defender made on a previous exchange leaves them exposed
+	# on this one. Applied as a defence penalty so it uses the same path as the
+	# stance bonus and shows up in the calculation breakdown.
+	var exposure_penalty := EXPOSED_DEFENCE_PENALTY if defender["effect_counters"].get(COUNTER_EXPOSED, false) else 0
+	if exposure_penalty > 0:
+		defender["effect_counters"][COUNTER_EXPOSED] = false
+		state["teams"][defender_player]["characters"][defender_index] = defender
+		effects.append({
+			"type": "status_expired",
+			"player": defender_player,
+			"character_id": defender["id"],
+			"status": "EXPOSED",
+		})
 
 	var kit_notes: Array = []
 
@@ -353,22 +391,26 @@ static func _apply_resolution(state: Dictionary, event: Dictionary, effects: Arr
 		defence_claim,
 		defence_challenged,
 		int(move["attack_modifier"]),
-		int(move["defence_modifier"]) + stance_defence_bonus,
+		int(move["defence_modifier"]) + stance_defence_bonus - exposure_penalty,
 		int(move["damage_modifier"]) + int(attack_damage_kit["modifier"]),
 		bool(margin_suppression["suppressed"]),
 		absorb_attack_wrong_call,
 		absorb_defence_wrong_call,
+		attacker_player in failed_reveals,
+		defender_player in failed_reveals,
 	)
 	if not resolution["ok"]:
 		return str(resolution["error"])
 
 	resolution["exchange_number"] = state["exchange_number"]
+	resolution["failed_reveal_players"] = failed_reveals.duplicate()
 	resolution["attacker_player"] = attacker_player
 	resolution["defender_player"] = defender_player
 	resolution["actor_id"] = action["actor_id"]
 	resolution["target_id"] = action["target_id"]
 	resolution["move_id"] = move_id
 	resolution["stance_defence_bonus"] = stance_defence_bonus
+	resolution["exposure_penalty"] = exposure_penalty
 	# Kept so the interface can show the calculation term by term rather than
 	# only its totals.
 	resolution["move_attack_modifier"] = int(move["attack_modifier"])
@@ -413,6 +455,8 @@ static func _apply_resolution(state: Dictionary, event: Dictionary, effects: Arr
 	resolution["defender_self_damage"] = 0 if defence_bluff["redirected"] else int(defence_bluff["amount"])
 	resolution["attacker_reflected_damage"] = int(attack_bluff["amount"]) if attack_bluff["redirected"] else 0
 	resolution["defender_reflected_damage"] = int(defence_bluff["amount"]) if defence_bluff["redirected"] else 0
+	_apply_wrong_call_exposure(state, resolution, attacker_player, attacker_index, defender_player, defender_index, effects)
+
 	_update_recorded_paddings(state, attacker_player, attacker, attack_padding, attack_immunity, kit_notes, effects)
 	_update_recorded_paddings(state, defender_player, defender, defence_padding, defence_immunity, kit_notes, effects)
 
@@ -604,6 +648,12 @@ static func _complete_exchange(state: Dictionary, effects: Array) -> void:
 	if actor_id not in state["teams"][acting_player]["used_character_ids"]:
 		state["teams"][acting_player]["used_character_ids"].append(actor_id)
 
+	# Deaths are cleared off the formation once everything else has settled. Damage
+	# and kit movement both run before this, so a lethal hit still kills in place
+	# and only then is the body moved out of the rank it was holding.
+	for player in 2:
+		_compact_formation(state, player, effects)
+
 	var player_zero_defeated := _all_characters_dead(state["teams"][0])
 	var player_one_defeated := _all_characters_dead(state["teams"][1])
 	if player_zero_defeated or player_one_defeated:
@@ -636,6 +686,100 @@ static func _complete_exchange(state: Dictionary, effects: Array) -> void:
 	state["exchange_number"] = int(state["exchange_number"]) + 1
 	state["exchange"] = MatchState.create_empty_exchange(state["exchange_number"])
 	_change_phase(state, MatchState.PHASE_SELECT, effects)
+
+
+## Moves the dead to the back so they never hold a rank the living need. A body
+## left at position 3 otherwise walls off everyone behind it: Drag and the swap
+## move both step through the next position up, and neither can step onto or past
+## a corpse. The living keep their relative order and close up toward the front,
+## then the dead fill the remaining ranks from the back.
+static func _compact_formation(state: Dictionary, player: int, effects: Array) -> void:
+	var characters: Array = state["teams"][player]["characters"]
+
+	var living_indices: Array = []
+	var dead_indices: Array = []
+	for index in characters.size():
+		if bool(characters[index]["is_alive"]):
+			living_indices.append(index)
+		else:
+			dead_indices.append(index)
+	if dead_indices.is_empty():
+		return
+
+	# Front-most first, so the living end up at the highest positions with their
+	# order among themselves unchanged.
+	living_indices.sort_custom(func(left, right): return int(characters[left]["position"]) > int(characters[right]["position"]))
+	dead_indices.sort_custom(func(left, right): return int(characters[left]["position"]) > int(characters[right]["position"]))
+
+	var next_position := characters.size()
+	var ordered: Array = living_indices + dead_indices
+	for index in ordered:
+		var character: Dictionary = characters[index]
+		var previous_position := int(character["position"])
+		if previous_position != next_position:
+			character["position"] = next_position
+			characters[index] = character
+			effects.append({
+				"type": "position_changed",
+				"player": player,
+				"character_id": character["id"],
+				"from_position": previous_position,
+				"to_position": next_position,
+				"reason": "FORMATION_COMPACTED",
+			})
+		next_position -= 1
+
+	state["teams"][player]["characters"] = characters
+
+
+## A wrong call normally punishes the challenger through the damage figure: an
+## attacker wrongly challenged deals double, a defender wrongly challenged takes
+## half. Neither applies when the attack produced no damage at all, which used to
+## make challenging free for a defender who expected to win the roll. In that case
+## the cost is deferred instead: the challenger defends at a penalty next time.
+static func _apply_wrong_call_exposure(
+	state: Dictionary,
+	resolution: Dictionary,
+	attacker_player: int,
+	attacker_index: int,
+	defender_player: int,
+	defender_index: int,
+	effects: Array,
+) -> void:
+	if int(resolution["hit_damage"]) > 0:
+		return
+
+	# The defender challenged an honest attacker.
+	if str(resolution["attack"]["outcome"]) == CombatResolver.OUTCOME_WRONG_CALL:
+		_expose_character(state, defender_player, defender_index, effects)
+	# The attacker challenged an honest defender. Their wrong call halves damage
+	# that never existed, so it is equally free without this.
+	if str(resolution["defence"]["outcome"]) == CombatResolver.OUTCOME_WRONG_CALL:
+		_expose_character(state, attacker_player, attacker_index, effects)
+
+	# Catching a padded defence normally pays out by dropping the claim to the true
+	# roll, which lets an attack through that the bluff would have stopped. When the
+	# attack deals nothing regardless, that payout does not exist and the read was
+	# free for the bluffer. Kits are allowed to wipe the padding damage on top of
+	# that, so the reward cannot rest on it either: the caught defender is exposed
+	# instead, and pays on their next defence.
+	if str(resolution["defence"]["outcome"]) == CombatResolver.OUTCOME_CAUGHT:
+		_expose_character(state, defender_player, defender_index, effects)
+
+
+static func _expose_character(state: Dictionary, player: int, character_index: int, effects: Array) -> void:
+	var character: Dictionary = state["teams"][player]["characters"][character_index]
+	if not bool(character["is_alive"]):
+		return
+	character["effect_counters"][COUNTER_EXPOSED] = true
+	state["teams"][player]["characters"][character_index] = character
+	effects.append({
+		"type": "status_applied",
+		"player": player,
+		"character_id": character["id"],
+		"status": "EXPOSED",
+		"defence_penalty": EXPOSED_DEFENCE_PENALTY,
+	})
 
 
 ## Maintains one player's Bookkeeping ledger for the claim they just made.
@@ -799,6 +943,23 @@ static func _clear_round_scoped_counters(state: Dictionary) -> void:
 				character["effect_counters"].erase(key)
 			characters[index] = character
 		state["teams"][player]["characters"] = characters
+
+
+## The players whose reveal never arrived or arrived unusable.
+##
+## Covers both the timeout fallback written by _apply_timeout and a reveal whose
+## secret failed verification at the protocol layer, which forwards an empty
+## secret rather than aborting: the spec requires a bad reveal to resolve as
+## caught, because aborting would let a losing player escape by disconnecting.
+static func _failed_reveal_players(state: Dictionary) -> Array:
+	var players: Array = []
+	for player in [0, 1]:
+		var reveal = state["exchange"]["reveals"][player]
+		if reveal == null:
+			continue
+		if bool(reveal.get("timed_out", false)) or str(reveal.get("secret", "")).is_empty():
+			players.append(player)
+	return players
 
 
 static func _claim_value(claim: Dictionary, true_roll: int) -> int:

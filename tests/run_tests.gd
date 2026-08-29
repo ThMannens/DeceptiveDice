@@ -146,7 +146,7 @@ func _run_hotseat_smoke() -> void:
 	_tests_run += 1
 	var failures_before := _failures
 	var local_match := HotseatMatch.new()
-	var result := local_match.start_new_match()
+	var result := local_match.start_preset_match()
 	if not result["ok"]:
 		_fail("Hot-seat smoke setup failed: %s" % result["error"])
 		return
@@ -339,7 +339,7 @@ func _run_victory_smoke() -> void:
 	_tests_run += 1
 	var failures_before := _failures
 	var local_match := HotseatMatch.new()
-	var result := local_match.start_new_match()
+	var result := local_match.start_preset_match()
 	if not result["ok"]:
 		_fail("Victory smoke setup failed: %s" % result["error"])
 		return
