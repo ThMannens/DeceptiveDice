@@ -67,7 +67,17 @@ Phases: `SELECT → COMMIT → CLAIM → CHALLENGE → REVEAL → RESOLVE`. A ph
 
 ### `src/presentation` — Godot scene, no rules
 
-[main.gd](src/presentation/main.gd) builds the whole UI in code (no scene-tree editing beyond `main.tscn`) and holds `game` as either a `HotseatMatch` or a `NetworkMatch`. It reads state and emits intents only.
+[main.gd](src/presentation/main.gd) builds the whole UI in code (no scene-tree editing beyond `main.tscn`) and holds `game` as either a `HotseatMatch` or a `NetworkMatch`. It reads state and emits intents only. It owns stage routing, the layout shell, and intent orchestration; the reusable pieces live beside it.
+
+The look is specified in [docs/larp-ui-visual-overhaul.md](docs/larp-ui-visual-overhaul.md): a weekend LARP tournament assembled from real craft materials. Resolve visual questions against that document rather than inventing a second language.
+
+- [theme.gd](src/presentation/theme.gd) — the whole palette and every reusable style. Presentation code must not introduce colour literals; ask for a paper stock (`paper_style`), a card state (`team_card_style`), a patch, or a prop button instead. `UiTheme.reduced_motion` is the presentation-only motion switch every animated sequence checks.
+- `ui/` — [widgets.gd](src/presentation/ui/widgets.gd) (labels, patches, prop buttons), [character_card.gd](src/presentation/ui/character_card.gd), [team_roster.gd](src/presentation/ui/team_roster.gd), [phase_ribbon.gd](src/presentation/ui/phase_ribbon.gd), [claim_sheet.gd](src/presentation/ui/claim_sheet.gd), [portrait.gd](src/presentation/ui/portrait.gd). Each accepts state and reports clicks; none queries the reducer.
+- `animation/` — [resolution_sequence.gd](src/presentation/animation/resolution_sequence.gd) plays the reveal from `last_resolution` fields only. It never infers a rule: if a beat cannot be derived from an existing field, add a presentation effect to the reducer's `effects` output rather than recomputing it here.
+
+The layout has three size tiers (compact below 1180px wide, roomy at 1600x900 and above). Every column bounds its own contents so the pinned decision footer can never fall below the fold; that is what the `1024x640` assertion in the UI smoke test protects.
+
+Character portraits load from `src/presentation/assets/portraits/<id>.png` when present and fall back to a styled placeholder otherwise. A missing export is a visual state, never an error.
 
 ## Tests
 

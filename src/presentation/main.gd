@@ -396,14 +396,16 @@ func _validate_selection() -> void:
 func _apply_layout_balance() -> void:
 	if board_container == null or lower_row == null:
 		return
-	var in_match := not state_is_empty()
+	var in_match := _board_is_meaningful()
 	board_container.visible = in_match
+	# The ribbon still names draft and placement, so it stays up through them;
+	# only a completely empty session hides it.
 	if phase_ribbon != null:
-		phase_ribbon.visible = in_match
+		phase_ribbon.visible = not state_is_empty()
 
 	if not in_match:
 		lower_row.custom_minimum_size.y = 0
-		lower_row.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		lower_row.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 		return
 
 	# The challenge screen carries both risk branches and both actions, which is
@@ -453,6 +455,17 @@ func _apply_frame_margins(compact: bool) -> void:
 	style.content_margin_bottom = pad - 2
 	table_frame.add_theme_stylebox_override("panel", style)
 	page_box.add_theme_constant_override("separation", 5 if compact else 8)
+
+
+## True once there are crews on the field to draw.
+##
+## Draft and placement happen before that: the characters are still on the sheet,
+## so those screens get the whole page instead of a board that would show two
+## empty canvases and an exchange log with nothing in it.
+func _board_is_meaningful() -> bool:
+	if state_is_empty():
+		return false
+	return str(game.state["phase"]) not in [MatchState.PHASE_DRAFT, MatchState.PHASE_PLACEMENT]
 
 
 ## True at the smaller supported window size, where the roster columns narrow
@@ -546,9 +559,10 @@ func _render_board() -> void:
 	log_panel = null
 
 	prompt_footer = null
-	if game.state.is_empty():
-		# Before a match there is nothing to lay out. The prompt takes the full
-		# page rather than sitting beside an empty board and an empty log.
+	if not _board_is_meaningful():
+		# Before the crews are on the field there is nothing to lay out. The
+		# prompt takes the full page rather than sitting beside an empty board
+		# and an empty log.
 		prompt_box = _build_stage_column(lower_row, false)
 		return
 
@@ -655,6 +669,8 @@ func _build_stage_column(parent: Control, bounded: bool) -> VBoxContainer:
 	box.add_theme_constant_override("separation", 7)
 	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
+	if not bounded:
+		panel.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	if bounded:
 		# The prompt scrolls, but the footer beneath it does not: a primary
 		# action parented there can never end up below a scroll boundary.
