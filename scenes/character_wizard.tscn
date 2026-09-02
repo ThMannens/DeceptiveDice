@@ -1,0 +1,2237 @@
+[gd_scene format=3 uid="uid://cu8dcqjfkj4pt"]
+
+[ext_resource type="Texture2D" uid="uid://c4qgqc77u0v6i" path="res://sprites/wizard/Head 1.PNG" id="1_br2nk"]
+[ext_resource type="Texture2D" uid="uid://c3ec275hjneiw" path="res://sprites/wizard/Neck 1.PNG" id="2_k1xhg"]
+[ext_resource type="Texture2D" uid="uid://8x3kj5hgpixj" path="res://sprites/wizard/Body no belt.PNG" id="3_1x7nm"]
+[ext_resource type="Texture2D" uid="uid://l4r7pe6d2i6d" path="res://sprites/wizard/Staf.PNG" id="3_pgfvk"]
+[ext_resource type="Texture2D" uid="uid://cl35lywmhs00" path="res://sprites/wizard/Belt.PNG" id="4_631rr"]
+[ext_resource type="Texture2D" uid="uid://cw4fqprr565jp" path="res://sprites/wizard/Upper arm front.PNG" id="5_c712k"]
+[ext_resource type="Texture2D" uid="uid://c5n0xoslnm7my" path="res://sprites/wizard/Lower arm front.PNG" id="6_otsgi"]
+[ext_resource type="Texture2D" uid="uid://xfj84i0o3uqn" path="res://sprites/wizard/Hand front.PNG" id="7_euewv"]
+[ext_resource type="Texture2D" uid="uid://cyb7ej0xj7wgu" path="res://sprites/wizard/Upper leg.PNG" id="8_pq6ca"]
+[ext_resource type="Texture2D" uid="uid://devb7qh1gb285" path="res://sprites/wizard/Lower leg.PNG" id="9_5go3k"]
+[ext_resource type="Texture2D" uid="uid://c7vnnlcaiybjy" path="res://sprites/wizard/Foot.PNG" id="10_pgfvk"]
+[ext_resource type="Script" uid="uid://clgwtw4irp0fp" path="res://addons/soupik/modifications/soup_modification.gd" id="11_otsgi"]
+[ext_resource type="Script" uid="uid://b4u1tvhlw4d2g" path="res://addons/soupik/modifications/soup_look_at.gd" id="12_euewv"]
+[ext_resource type="Script" uid="uid://bnso0mph1tb11" path="res://addons/soupik/modifications/soup_two_bone_ik.gd" id="13_pq6ca"]
+[ext_resource type="Script" uid="uid://b5uiivwxcoics" path="res://addons/soupik/modifications/soup_bone_control.gd" id="14_5go3k"]
+[ext_resource type="Script" uid="uid://cboxwr2dsilvh" path="res://scenes/character_wizard.gd" id="15_wizard_controller"]
+
+[sub_resource type="Animation" id="Animation_pq6ca"]
+length = 0.001
+tracks/0/type = "bezier"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("IKTargets/FeetFrontTarget:position:x")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(-42, -0.0005, 0, 0.0005, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/1/type = "bezier"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("IKTargets/FeetFrontTarget:position:y")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(261, -0.0005, 0, 0.0005, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/2/type = "bezier"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("IKTargets/FeetFrontTarget:rotation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0, -0.0005, 0, 0.0005, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/3/type = "bezier"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("IKTargets/FeetBackTarget:position:x")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(18, -0.0005, 0, 0.0005, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/4/type = "bezier"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("IKTargets/FeetBackTarget:position:y")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(269, -0.0005, 0, 0.0005, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/5/type = "bezier"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("IKTargets/FeetBackTarget:rotation")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0, -0.0005, 0, 0.0005, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/6/type = "bezier"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("IKTargets/HipTarget:position:x")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(12.000001, -0.0005, 0, 0.0005, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/7/type = "bezier"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("IKTargets/HipTarget:position:y")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(85.00001, -0.0005, 0, 0.0005, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/8/type = "bezier"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("IKTargets/HipTarget:rotation")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(-0.016009446, -0.0005, 0, 0.0005, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/9/type = "bezier"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:position:x")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(-32.492172, -0.0005, 0, 0.0005, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/10/type = "bezier"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:position:y")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(30.483742, -0.0005, 0, 0.0005, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/11/type = "bezier"
+tracks/11/imported = false
+tracks/11/enabled = true
+tracks/11/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:rotation")
+tracks/11/interp = 1
+tracks/11/loop_wrap = true
+tracks/11/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0.016009446, -0.0005, 0, 0.0005, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/12/type = "bezier"
+tracks/12/imported = false
+tracks/12/enabled = true
+tracks/12/path = NodePath("IKTargets/HipTarget/ArmBackTarget:position:x")
+tracks/12/interp = 1
+tracks/12/loop_wrap = true
+tracks/12/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(105.78698, -0.0005, 0, 0.0005, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/13/type = "bezier"
+tracks/13/imported = false
+tracks/13/enabled = true
+tracks/13/path = NodePath("IKTargets/HipTarget/ArmBackTarget:position:y")
+tracks/13/interp = 1
+tracks/13/loop_wrap = true
+tracks/13/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(-48.31267, -0.0005, 0, 0.0005, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/14/type = "bezier"
+tracks/14/imported = false
+tracks/14/enabled = true
+tracks/14/path = NodePath("IKTargets/HipTarget/ArmBackTarget:rotation")
+tracks/14/interp = 1
+tracks/14/loop_wrap = true
+tracks/14/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0.016009446, -0.0005, 0, 0.0005, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/15/type = "bezier"
+tracks/15/imported = false
+tracks/15/enabled = true
+tracks/15/path = NodePath("IKTargets/HipTarget/HeadTarget:position:x")
+tracks/15/interp = 1
+tracks/15/loop_wrap = true
+tracks/15/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(57.188843, -0.0005, 0, 0.0005, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/16/type = "bezier"
+tracks/16/imported = false
+tracks/16/enabled = true
+tracks/16/path = NodePath("IKTargets/HipTarget/HeadTarget:position:y")
+tracks/16/interp = 1
+tracks/16/loop_wrap = true
+tracks/16/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(-386.13397, -0.0005, 0, 0.0005, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/17/type = "bezier"
+tracks/17/imported = false
+tracks/17/enabled = true
+tracks/17/path = NodePath("IKTargets/HipTarget/HeadTarget:rotation")
+tracks/17/interp = 1
+tracks/17/loop_wrap = true
+tracks/17/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0.463514, -0.0005, 0, 0.0005, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/18/type = "bezier"
+tracks/18/imported = false
+tracks/18/enabled = true
+tracks/18/path = NodePath("IKTargets/HandsLookatTarget:position:x")
+tracks/18/interp = 1
+tracks/18/loop_wrap = true
+tracks/18/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(335, -0.0005, 0, 0.0005, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/19/type = "bezier"
+tracks/19/imported = false
+tracks/19/enabled = true
+tracks/19/path = NodePath("IKTargets/HandsLookatTarget:position:y")
+tracks/19/interp = 1
+tracks/19/loop_wrap = true
+tracks/19/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(49, -0.0005, 0, 0.0005, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/20/type = "bezier"
+tracks/20/imported = false
+tracks/20/enabled = true
+tracks/20/path = NodePath("IKTargets/HandsLookatTarget:rotation")
+tracks/20/interp = 1
+tracks/20/loop_wrap = true
+tracks/20/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0, -0.0005, 0, 0.0005, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/21/type = "bezier"
+tracks/21/imported = false
+tracks/21/enabled = true
+tracks/21/path = NodePath("Bones/Skeleton2D/Hip/UpperArmBack/LowerArmBack/HandBack/RemoteTransform2D/RemoteTransform2D:position:x")
+tracks/21/interp = 1
+tracks/21/loop_wrap = true
+tracks/21/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(4.632675, -0.0005, 0, 0.0005, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/22/type = "bezier"
+tracks/22/imported = false
+tracks/22/enabled = true
+tracks/22/path = NodePath("Bones/Skeleton2D/Hip/UpperArmBack/LowerArmBack/HandBack/RemoteTransform2D/RemoteTransform2D:position:y")
+tracks/22/interp = 1
+tracks/22/loop_wrap = true
+tracks/22/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(9.723103, -0.0005, 0, 0.0005, 0),
+"times": PackedFloat32Array(0)
+}
+
+[sub_resource type="Animation" id="Animation_c3002"]
+resource_name = "hurt_animation"
+length = 0.2
+tracks/0/type = "bezier"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("IKTargets/HandsLookatTarget:position:x")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"handle_modes": PackedInt32Array(0, 2),
+"points": PackedFloat32Array(335, -0.25, 0, 0.25, 0, 213, -0.033333335, 20.333334, 0, 0),
+"times": PackedFloat32Array(0, 0.2)
+}
+tracks/1/type = "bezier"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("IKTargets/HandsLookatTarget:position:y")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"handle_modes": PackedInt32Array(0, 2),
+"points": PackedFloat32Array(49, -0.25, 0, 0.25, 0, -215, -0.033333335, 44.000004, 0, 0),
+"times": PackedFloat32Array(0, 0.2)
+}
+tracks/2/type = "bezier"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("IKTargets/HandsLookatTarget:rotation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"handle_modes": PackedInt32Array(0, 2),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0, 0, -0.033333335, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.2)
+}
+tracks/3/type = "bezier"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("IKTargets/FeetFrontTarget:position:x")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"handle_modes": PackedInt32Array(0, 2),
+"points": PackedFloat32Array(-42, -0.25, 0, 0.25, 0, -42, -0.033333335, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.2)
+}
+tracks/4/type = "bezier"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("IKTargets/FeetFrontTarget:position:y")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"handle_modes": PackedInt32Array(0, 2),
+"points": PackedFloat32Array(261, -0.25, 0, 0.25, 0, 261, -0.033333335, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.2)
+}
+tracks/5/type = "bezier"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("IKTargets/FeetFrontTarget:rotation")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"handle_modes": PackedInt32Array(0, 2),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0, 0, -0.033333335, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.2)
+}
+tracks/6/type = "bezier"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("IKTargets/FeetBackTarget:position:x")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"handle_modes": PackedInt32Array(0, 2),
+"points": PackedFloat32Array(18, -0.25, 0, 0.25, 0, 18, -0.033333335, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.2)
+}
+tracks/7/type = "bezier"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("IKTargets/FeetBackTarget:position:y")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"handle_modes": PackedInt32Array(0, 2),
+"points": PackedFloat32Array(269, -0.25, 0, 0.25, 0, 269, -0.033333335, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.2)
+}
+tracks/8/type = "bezier"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("IKTargets/FeetBackTarget:rotation")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"handle_modes": PackedInt32Array(0, 2),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0, 0, -0.033333335, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.2)
+}
+tracks/9/type = "bezier"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("IKTargets/HipTarget:position:x")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"handle_modes": PackedInt32Array(0, 2),
+"points": PackedFloat32Array(12.000001, -0.25, 0, 0.25, 0, 12.000001, -0.033333335, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.2)
+}
+tracks/10/type = "bezier"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("IKTargets/HipTarget:position:y")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"handle_modes": PackedInt32Array(0, 2),
+"points": PackedFloat32Array(85.00001, -0.25, 0, 0.25, 0, 85.00001, -0.033333335, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.2)
+}
+tracks/11/type = "bezier"
+tracks/11/imported = false
+tracks/11/enabled = true
+tracks/11/path = NodePath("IKTargets/HipTarget:rotation")
+tracks/11/interp = 1
+tracks/11/loop_wrap = true
+tracks/11/keys = {
+"handle_modes": PackedInt32Array(0, 2),
+"points": PackedFloat32Array(-0.016009446, -0.25, 0, 0.25, 0, -0.16602579, -0.033333335, 0.025002724, 0, 0),
+"times": PackedFloat32Array(0, 0.2)
+}
+tracks/12/type = "bezier"
+tracks/12/imported = false
+tracks/12/enabled = true
+tracks/12/path = NodePath("IKTargets/HipTarget/HeadTarget:position:x")
+tracks/12/interp = 1
+tracks/12/loop_wrap = true
+tracks/12/keys = {
+"handle_modes": PackedInt32Array(0, 2),
+"points": PackedFloat32Array(57.188843, -0.25, 0, 0.25, 0, 100.61369, -0.033333335, -7.2374754, 0, 0),
+"times": PackedFloat32Array(0, 0.2)
+}
+tracks/13/type = "bezier"
+tracks/13/imported = false
+tracks/13/enabled = true
+tracks/13/path = NodePath("IKTargets/HipTarget/HeadTarget:position:y")
+tracks/13/interp = 1
+tracks/13/loop_wrap = true
+tracks/13/keys = {
+"handle_modes": PackedInt32Array(0, 2),
+"points": PackedFloat32Array(-386.13397, -0.25, 0, 0.25, 0, -376.54996, -0.033333335, -1.5973359, 0, 0),
+"times": PackedFloat32Array(0, 0.2)
+}
+tracks/14/type = "bezier"
+tracks/14/imported = false
+tracks/14/enabled = true
+tracks/14/path = NodePath("IKTargets/HipTarget/HeadTarget:rotation")
+tracks/14/interp = 1
+tracks/14/loop_wrap = true
+tracks/14/keys = {
+"handle_modes": PackedInt32Array(0, 2),
+"points": PackedFloat32Array(0.463514, -0.25, 0, 0.25, 0, 0.463514, -0.033333335, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.2)
+}
+tracks/15/type = "bezier"
+tracks/15/imported = false
+tracks/15/enabled = true
+tracks/15/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:position:x")
+tracks/15/interp = 1
+tracks/15/loop_wrap = true
+tracks/15/keys = {
+"handle_modes": PackedInt32Array(0, 2),
+"points": PackedFloat32Array(-32.492172, -0.25, 0, 0.25, 0, 47.78787, -0.033333335, -13.380008, 0, 0),
+"times": PackedFloat32Array(0, 0.2)
+}
+tracks/16/type = "bezier"
+tracks/16/imported = false
+tracks/16/enabled = true
+tracks/16/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:position:y")
+tracks/16/interp = 1
+tracks/16/loop_wrap = true
+tracks/16/keys = {
+"handle_modes": PackedInt32Array(0, 2),
+"points": PackedFloat32Array(30.483742, -0.25, 0, 0.25, 0, -127.86055, -0.033333335, 26.390718, 0, 0),
+"times": PackedFloat32Array(0, 0.2)
+}
+tracks/17/type = "bezier"
+tracks/17/imported = false
+tracks/17/enabled = true
+tracks/17/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:rotation")
+tracks/17/interp = 1
+tracks/17/loop_wrap = true
+tracks/17/keys = {
+"handle_modes": PackedInt32Array(0, 2),
+"points": PackedFloat32Array(0.016009446, -0.25, 0, 0.25, 0, 0.016009446, -0.033333335, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.2)
+}
+tracks/18/type = "bezier"
+tracks/18/imported = false
+tracks/18/enabled = true
+tracks/18/path = NodePath("IKTargets/HipTarget/ArmBackTarget:position:x")
+tracks/18/interp = 1
+tracks/18/loop_wrap = true
+tracks/18/keys = {
+"handle_modes": PackedInt32Array(0, 2),
+"points": PackedFloat32Array(105.78698, -0.25, 0, 0.25, 0, 105.72078, -0.033333335, 0.011033377, 0, 0),
+"times": PackedFloat32Array(0, 0.2)
+}
+tracks/19/type = "bezier"
+tracks/19/imported = false
+tracks/19/enabled = true
+tracks/19/path = NodePath("IKTargets/HipTarget/ArmBackTarget:position:y")
+tracks/19/interp = 1
+tracks/19/loop_wrap = true
+tracks/19/keys = {
+"handle_modes": PackedInt32Array(0, 2),
+"points": PackedFloat32Array(-48.31267, -0.25, 0, 0.25, 0, -201.29608, -0.033333335, 25.497236, 0, 0),
+"times": PackedFloat32Array(0, 0.2)
+}
+tracks/20/type = "bezier"
+tracks/20/imported = false
+tracks/20/enabled = true
+tracks/20/path = NodePath("IKTargets/HipTarget/ArmBackTarget:rotation")
+tracks/20/interp = 1
+tracks/20/loop_wrap = true
+tracks/20/keys = {
+"handle_modes": PackedInt32Array(0, 2),
+"points": PackedFloat32Array(0.016009446, -0.25, 0, 0.25, 0, 0.016009446, -0.033333335, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.2)
+}
+
+[sub_resource type="Animation" id="Animation_5go3k"]
+resource_name = "idle_animation"
+length = 2.0
+loop_mode = 1
+tracks/0/type = "bezier"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("IKTargets/FeetFrontTarget:position:x")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0, 0),
+"points": PackedFloat32Array(-42, -0.25, 0, 0.25, 0, -42, -0.083333336, 0, 0, 0, -42, -0.083333336, 0, 0, 0, -42, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.73333335, 1.4, 2)
+}
+tracks/1/type = "bezier"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("IKTargets/FeetFrontTarget:position:y")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0, 0),
+"points": PackedFloat32Array(261, -0.25, 0, 0.25, 0, 261, -0.083333336, 0, 0, 0, 261, -0.083333336, 0, 0, 0, 261, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.73333335, 1.4, 2)
+}
+tracks/2/type = "bezier"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("IKTargets/FeetFrontTarget:rotation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0, 0),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0, 0, -0.083333336, 0, 0, 0, 0, -0.083333336, 0, 0, 0, 0, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.73333335, 1.4, 2)
+}
+tracks/3/type = "bezier"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("IKTargets/FeetBackTarget:position:x")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0, 0),
+"points": PackedFloat32Array(18, -0.25, 0, 0.25, 0, 18, -0.083333336, 0, 0, 0, 18, -0.083333336, 0, 0, 0, 18, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.73333335, 1.4, 2)
+}
+tracks/4/type = "bezier"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("IKTargets/FeetBackTarget:position:y")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0, 0),
+"points": PackedFloat32Array(269, -0.25, 0, 0.25, 0, 269, -0.083333336, 0, 0, 0, 269, -0.083333336, 0, 0, 0, 269, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.73333335, 1.4, 2)
+}
+tracks/5/type = "bezier"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("IKTargets/FeetBackTarget:rotation")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0, 0),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0, 0, -0.083333336, 0, 0, 0, 0, -0.083333336, 0, 0, 0, 0, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.73333335, 1.4, 2)
+}
+tracks/6/type = "bezier"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("IKTargets/HipTarget:position:x")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0, 0),
+"points": PackedFloat32Array(12.000001, -0.25, 0, 0.25, 0, 13, -0.083333336, -0.16666651, 0, 0, 11, -0.083333336, 0.33333334, 0, 0, 12.000001, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.73333335, 1.4, 2)
+}
+tracks/7/type = "bezier"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("IKTargets/HipTarget:position:y")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0, 0),
+"points": PackedFloat32Array(85.00001, -0.25, 0, 0.25, 0, 81, -0.083333336, 0.66666794, 0, 0, 82.99999, -0.083333336, -0.33333206, 0, 0, 85.00001, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.73333335, 1.4, 2)
+}
+tracks/8/type = "bezier"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("IKTargets/HipTarget:rotation")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0, 0),
+"points": PackedFloat32Array(-0.016009446, -0.25, 0, 0.25, 0, -0.016009446, -0.083333336, 0, 0, 0, -0.016009446, -0.083333336, 0, 0, 0, -0.016009446, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.73333335, 1.4, 2)
+}
+tracks/9/type = "bezier"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:position:x")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0, 0),
+"points": PackedFloat32Array(-32.492172, -0.25, 0, 0.25, 0, -41.426987, -0.083333336, 1.4891357, 0, 0, -33.492043, -0.083333336, -1.3224907, 0, 0, -32.492172, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.73333335, 1.4, 2)
+}
+tracks/10/type = "bezier"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:position:y")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0, 0),
+"points": PackedFloat32Array(30.483742, -0.25, 0, 0.25, 0, 26.340183, -0.083333336, 0.6905931, 0, 0, 30.467749, -0.083333336, -0.6879276, 0, 0, 30.483742, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.73333335, 1.4, 2)
+}
+tracks/11/type = "bezier"
+tracks/11/imported = false
+tracks/11/enabled = true
+tracks/11/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:rotation")
+tracks/11/interp = 1
+tracks/11/loop_wrap = true
+tracks/11/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0, 0),
+"points": PackedFloat32Array(0.016009446, -0.25, 0, 0.25, 0, 0.016009446, -0.083333336, 0, 0, 0, 0.016009446, -0.083333336, 0, 0, 0, 0.016009446, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.73333335, 1.4, 2)
+}
+tracks/12/type = "bezier"
+tracks/12/imported = false
+tracks/12/enabled = true
+tracks/12/path = NodePath("IKTargets/HipTarget/ArmBackTarget:position:x")
+tracks/12/interp = 1
+tracks/12/loop_wrap = true
+tracks/12/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(105.78698, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/13/type = "bezier"
+tracks/13/imported = false
+tracks/13/enabled = true
+tracks/13/path = NodePath("IKTargets/HipTarget/ArmBackTarget:position:y")
+tracks/13/interp = 1
+tracks/13/loop_wrap = true
+tracks/13/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(-48.31267, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/14/type = "bezier"
+tracks/14/imported = false
+tracks/14/enabled = true
+tracks/14/path = NodePath("IKTargets/HipTarget/ArmBackTarget:rotation")
+tracks/14/interp = 1
+tracks/14/loop_wrap = true
+tracks/14/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0.016009446, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/15/type = "bezier"
+tracks/15/imported = false
+tracks/15/enabled = true
+tracks/15/path = NodePath("IKTargets/HipTarget/HeadTarget:position:x")
+tracks/15/interp = 1
+tracks/15/loop_wrap = true
+tracks/15/keys = {
+"handle_modes": PackedInt32Array(0, 2, 0),
+"points": PackedFloat32Array(57.188843, -0.25, 0, 0.25, 0, 36.959087, -0.16666667, 0, 0.16666667, 0, 57.188843, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 1, 2)
+}
+tracks/16/type = "bezier"
+tracks/16/imported = false
+tracks/16/enabled = true
+tracks/16/path = NodePath("IKTargets/HipTarget/HeadTarget:position:y")
+tracks/16/interp = 1
+tracks/16/loop_wrap = true
+tracks/16/keys = {
+"handle_modes": PackedInt32Array(0, 2, 0),
+"points": PackedFloat32Array(-386.13397, -0.25, 0, 0.25, 0, -386.2291, -0.16666667, 0, 0.16666667, 0, -386.13397, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 1, 2)
+}
+tracks/17/type = "bezier"
+tracks/17/imported = false
+tracks/17/enabled = true
+tracks/17/path = NodePath("IKTargets/HipTarget/HeadTarget:rotation")
+tracks/17/interp = 1
+tracks/17/loop_wrap = true
+tracks/17/keys = {
+"handle_modes": PackedInt32Array(0, 2, 0),
+"points": PackedFloat32Array(0.463514, -0.25, 0, 0.25, 0, 0.463514, -0.16666667, 0, 0.16666667, 0, 0.463514, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 1, 2)
+}
+tracks/18/type = "bezier"
+tracks/18/imported = false
+tracks/18/enabled = true
+tracks/18/path = NodePath("IKTargets/HandsLookatTarget:position:x")
+tracks/18/interp = 1
+tracks/18/loop_wrap = true
+tracks/18/keys = {
+"handle_modes": PackedInt32Array(0, 2),
+"points": PackedFloat32Array(335, -0.25, 0, 0.25, 0, 335, -0.33333334, 0, 0, 0),
+"times": PackedFloat32Array(0, 2)
+}
+tracks/19/type = "bezier"
+tracks/19/imported = false
+tracks/19/enabled = true
+tracks/19/path = NodePath("IKTargets/HandsLookatTarget:position:y")
+tracks/19/interp = 1
+tracks/19/loop_wrap = true
+tracks/19/keys = {
+"handle_modes": PackedInt32Array(0, 2),
+"points": PackedFloat32Array(49, -0.25, 0, 0.25, 0, 49, -0.33333334, 0, 0, 0),
+"times": PackedFloat32Array(0, 2)
+}
+tracks/20/type = "bezier"
+tracks/20/imported = false
+tracks/20/enabled = true
+tracks/20/path = NodePath("IKTargets/HandsLookatTarget:rotation")
+tracks/20/interp = 1
+tracks/20/loop_wrap = true
+tracks/20/keys = {
+"handle_modes": PackedInt32Array(0, 2),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0, 0, -0.33333334, 0, 0, 0),
+"times": PackedFloat32Array(0, 2)
+}
+tracks/21/type = "bezier"
+tracks/21/imported = false
+tracks/21/enabled = true
+tracks/21/path = NodePath("Bones/Skeleton2D/Hip/UpperArmBack/LowerArmBack/HandBack/RemoteTransform2D/RemoteTransform2D:position:x")
+tracks/21/interp = 1
+tracks/21/loop_wrap = true
+tracks/21/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(4.632675, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/22/type = "bezier"
+tracks/22/imported = false
+tracks/22/enabled = true
+tracks/22/path = NodePath("Bones/Skeleton2D/Hip/UpperArmBack/LowerArmBack/HandBack/RemoteTransform2D/RemoteTransform2D:position:y")
+tracks/22/interp = 1
+tracks/22/loop_wrap = true
+tracks/22/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(9.723103, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0)
+}
+
+[sub_resource type="Animation" id="Animation_ekivf"]
+resource_name = "move_animation"
+tracks/0/type = "bezier"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("IKTargets/FeetFrontTarget:position:x")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0),
+"points": PackedFloat32Array(-42, -0.25, 0, 0.25, 0, -113, -0.041666668, 11.833334, 0, 0, -42, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.5, 1)
+}
+tracks/1/type = "bezier"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("IKTargets/FeetFrontTarget:position:y")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0),
+"points": PackedFloat32Array(261, -0.25, 0, 0.25, 0, 160, -0.041666668, 16.833334, 0, 0, 261, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.5, 1)
+}
+tracks/2/type = "bezier"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("IKTargets/FeetFrontTarget:rotation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0, 0, -0.041666668, 0, 0, 0, 0, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.5, 1)
+}
+tracks/3/type = "bezier"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("IKTargets/FeetBackTarget:position:x")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0),
+"points": PackedFloat32Array(18, -0.25, 0, 0.25, 0, 120, -0.041666668, -17, 0, 0, 18, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.5, 1)
+}
+tracks/4/type = "bezier"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("IKTargets/FeetBackTarget:position:y")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0),
+"points": PackedFloat32Array(269, -0.25, 0, 0.25, 0, 188, -0.041666668, 13.5, 0, 0, 269, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.5, 1)
+}
+tracks/5/type = "bezier"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("IKTargets/FeetBackTarget:rotation")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0, 0, -0.041666668, 0, 0, 0, 0, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.5, 1)
+}
+tracks/6/type = "bezier"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("IKTargets/HipTarget:position:x")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0),
+"points": PackedFloat32Array(12.000001, -0.25, 0, 0.25, 0, 11.000001, -0.041666668, 0.16666667, 0, 0, 12.000001, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.5, 1)
+}
+tracks/7/type = "bezier"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("IKTargets/HipTarget:position:y")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0),
+"points": PackedFloat32Array(85.00001, -0.25, 0, 0.25, 0, 44.000008, -0.041666668, 6.8333335, 0, 0, 85.00001, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.5, 1)
+}
+tracks/8/type = "bezier"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("IKTargets/HipTarget:rotation")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0),
+"points": PackedFloat32Array(-0.016009446, -0.25, 0, 0.25, 0, -0.016009446, -0.041666668, 0, 0, 0, -0.016009446, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.5, 1)
+}
+tracks/9/type = "bezier"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("IKTargets/HipTarget/HeadTarget:position:x")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0),
+"points": PackedFloat32Array(57.188843, -0.25, 0, 0.25, 0, 57.188843, -0.041666668, 0, 0, 0, 57.188843, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.5, 1)
+}
+tracks/10/type = "bezier"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("IKTargets/HipTarget/HeadTarget:position:y")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0),
+"points": PackedFloat32Array(-386.13397, -0.25, 0, 0.25, 0, -386.13397, -0.041666668, 0, 0, 0, -386.13397, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.5, 1)
+}
+tracks/11/type = "bezier"
+tracks/11/imported = false
+tracks/11/enabled = true
+tracks/11/path = NodePath("IKTargets/HipTarget/HeadTarget:rotation")
+tracks/11/interp = 1
+tracks/11/loop_wrap = true
+tracks/11/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0),
+"points": PackedFloat32Array(0.463514, -0.25, 0, 0.25, 0, 0.463514, -0.041666668, 0, 0, 0, 0.463514, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.5, 1)
+}
+tracks/12/type = "bezier"
+tracks/12/imported = false
+tracks/12/enabled = true
+tracks/12/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:position:x")
+tracks/12/interp = 1
+tracks/12/loop_wrap = true
+tracks/12/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0),
+"points": PackedFloat32Array(-32.492172, -0.25, 0, 0.25, 0, -171.44966, -0.041666668, 23.159582, 0, 0, -32.492172, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.5, 1)
+}
+tracks/13/type = "bezier"
+tracks/13/imported = false
+tracks/13/enabled = true
+tracks/13/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:position:y")
+tracks/13/interp = 1
+tracks/13/loop_wrap = true
+tracks/13/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0),
+"points": PackedFloat32Array(30.483742, -0.25, 0, 0.25, 0, -35.749283, -0.041666668, 11.038837, 0, 0, 30.483742, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.5, 1)
+}
+tracks/14/type = "bezier"
+tracks/14/imported = false
+tracks/14/enabled = true
+tracks/14/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:rotation")
+tracks/14/interp = 1
+tracks/14/loop_wrap = true
+tracks/14/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0),
+"points": PackedFloat32Array(0.016009446, -0.25, 0, 0.25, 0, 0.016009446, -0.041666668, 0, 0, 0, 0.016009446, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.5, 1)
+}
+tracks/15/type = "bezier"
+tracks/15/imported = false
+tracks/15/enabled = true
+tracks/15/path = NodePath("IKTargets/HipTarget/ArmBackTarget:position:x")
+tracks/15/interp = 1
+tracks/15/loop_wrap = true
+tracks/15/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0),
+"points": PackedFloat32Array(105.78698, -0.25, 0, 0.25, 0, 171.56308, -0.041666668, -10.962684, 0, 0, 105.78698, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.5, 1)
+}
+tracks/16/type = "bezier"
+tracks/16/imported = false
+tracks/16/enabled = true
+tracks/16/path = NodePath("IKTargets/HipTarget/ArmBackTarget:position:y")
+tracks/16/interp = 1
+tracks/16/loop_wrap = true
+tracks/16/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0),
+"points": PackedFloat32Array(-48.31267, -0.25, 0, 0.25, 0, -96.26582, -0.041666668, 7.9921923, 0, 0, -48.31267, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.5, 1)
+}
+tracks/17/type = "bezier"
+tracks/17/imported = false
+tracks/17/enabled = true
+tracks/17/path = NodePath("IKTargets/HipTarget/ArmBackTarget:rotation")
+tracks/17/interp = 1
+tracks/17/loop_wrap = true
+tracks/17/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0),
+"points": PackedFloat32Array(0.016009446, -0.25, 0, 0.25, 0, 0.016009446, -0.041666668, 0, 0, 0, 0.016009446, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.5, 1)
+}
+tracks/18/type = "bezier"
+tracks/18/imported = false
+tracks/18/enabled = true
+tracks/18/path = NodePath("IKTargets/HandsLookatTarget:position:x")
+tracks/18/interp = 1
+tracks/18/loop_wrap = true
+tracks/18/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0),
+"points": PackedFloat32Array(335, -0.25, 0, 0.25, 0, 390, -0.041666668, -9.166667, 0, 0, 335, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.5, 1)
+}
+tracks/19/type = "bezier"
+tracks/19/imported = false
+tracks/19/enabled = true
+tracks/19/path = NodePath("IKTargets/HandsLookatTarget:position:y")
+tracks/19/interp = 1
+tracks/19/loop_wrap = true
+tracks/19/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0),
+"points": PackedFloat32Array(49, -0.25, 0, 0.25, 0, -72, -0.041666668, 20.166668, 0, 0, 49, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.5, 1)
+}
+tracks/20/type = "bezier"
+tracks/20/imported = false
+tracks/20/enabled = true
+tracks/20/path = NodePath("IKTargets/HandsLookatTarget:rotation")
+tracks/20/interp = 1
+tracks/20/loop_wrap = true
+tracks/20/keys = {
+"handle_modes": PackedInt32Array(0, 0, 0),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0, 0, -0.041666668, 0, 0, 0, 0, -0.25, 0, 0.25, 0),
+"times": PackedFloat32Array(0, 0.5, 1)
+}
+
+[sub_resource type="Animation" id="Animation_gb7i5"]
+resource_name = "wand_attack_2_animation"
+length = 1.3
+tracks/0/type = "bezier"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("IKTargets/HipTarget/HeadTarget:position:x")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"handle_modes": PackedInt32Array(2, 2, 2),
+"points": PackedFloat32Array(40.49521, -0.25, 0, 0.25, 0, -152.03181, -0.125, -16.479626, 0.041666668, 5.493209, 172.33221, -0.16666667, -21.972836, 0, 0),
+"times": PackedFloat32Array(0, 0.75, 1)
+}
+tracks/1/type = "bezier"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("IKTargets/HipTarget/HeadTarget:position:y")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"handle_modes": PackedInt32Array(2, 2, 2),
+"points": PackedFloat32Array(-405.40372, -0.25, 0, 0.25, 0, -436.48978, -0.125, -9.939541, 0.041666668, 3.3131804, -325.8874, -0.16666667, -13.252722, 0, 0),
+"times": PackedFloat32Array(0, 0.75, 1)
+}
+tracks/2/type = "bezier"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("IKTargets/HipTarget/HeadTarget:rotation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"handle_modes": PackedInt32Array(2, 2, 2),
+"points": PackedFloat32Array(0.4475046, -0.25, 0, 0.25, 0, 0.4475046, -0.125, 0, 0.041666668, 0, 0.4475046, -0.16666667, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.75, 1)
+}
+tracks/3/type = "bezier"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("IKTargets/FeetFrontTarget:position:x")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"handle_modes": PackedInt32Array(0, 2, 2),
+"points": PackedFloat32Array(-42, -0.25, 0, 0.25, 0, -42, -0.125, 1.125, 0.041666668, -0.375, -51, -0.16666667, 1.5, 0, 0),
+"times": PackedFloat32Array(0, 0.75, 1)
+}
+tracks/4/type = "bezier"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("IKTargets/FeetFrontTarget:position:y")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"handle_modes": PackedInt32Array(0, 2, 2),
+"points": PackedFloat32Array(261, -0.25, 0, 0.25, 0, 261, -0.125, 0.125, 0.041666668, -0.041666668, 260, -0.16666667, 0.16666667, 0, 0),
+"times": PackedFloat32Array(0, 0.75, 1)
+}
+tracks/5/type = "bezier"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("IKTargets/FeetFrontTarget:rotation")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"handle_modes": PackedInt32Array(0, 2, 2),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0, 0, -0.125, 0, 0.041666668, 0, 0, -0.16666667, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.75, 1)
+}
+tracks/6/type = "bezier"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("IKTargets/FeetBackTarget:position:x")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"handle_modes": PackedInt32Array(0, 2, 2),
+"points": PackedFloat32Array(18, -0.25, 0, 0.25, 0, 18, -0.125, 0, 0.041666668, 0, 18, -0.16666667, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.75, 1)
+}
+tracks/7/type = "bezier"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("IKTargets/FeetBackTarget:position:y")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"handle_modes": PackedInt32Array(0, 2, 2),
+"points": PackedFloat32Array(269, -0.25, 0, 0.25, 0, 269, -0.125, 0, 0.041666668, 0, 269, -0.16666667, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.75, 1)
+}
+tracks/8/type = "bezier"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("IKTargets/FeetBackTarget:rotation")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"handle_modes": PackedInt32Array(0, 2, 2),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0, 0, -0.125, 0, 0.041666668, 0, 0, -0.16666667, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.75, 1)
+}
+tracks/9/type = "bezier"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("IKTargets/HipTarget:position:x")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"handle_modes": PackedInt32Array(0, 2, 2),
+"points": PackedFloat32Array(10, -0.25, 0, 0.25, 0, 22, -0.125, -0.5, 0.041666668, 0.16666667, 14, -0.041666668, 1.3333334, 0, 0),
+"times": PackedFloat32Array(0, 0.75, 1)
+}
+tracks/10/type = "bezier"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("IKTargets/HipTarget:position:y")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"handle_modes": PackedInt32Array(0, 2, 2),
+"points": PackedFloat32Array(79, -0.25, 0, 0.25, 0, 77, -0.125, -3.874999, 0.041666668, 1.2916664, 109.99999, -0.041666668, -5.499999, 0, 0),
+"times": PackedFloat32Array(0, 0.75, 1)
+}
+tracks/11/type = "bezier"
+tracks/11/imported = false
+tracks/11/enabled = true
+tracks/11/path = NodePath("IKTargets/HipTarget:rotation")
+tracks/11/interp = 1
+tracks/11/loop_wrap = true
+tracks/11/keys = {
+"handle_modes": PackedInt32Array(0, 0, 2, 2),
+"points": PackedFloat32Array(0.33542198, -0.16666667, -0.058571905, 0, 0, -0.016009446, -0.25, 0, 0.25, 0, -0.016009446, -0.125, -0.04392893, 0.041666668, 0.014642976, 0.32470444, -0.041666668, -0.05678565, 0, 0),
+"times": PackedFloat32Array(-0.8666667, 0, 0.75, 1)
+}
+tracks/12/type = "bezier"
+tracks/12/imported = false
+tracks/12/enabled = true
+tracks/12/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:position:x")
+tracks/12/interp = 1
+tracks/12/loop_wrap = true
+tracks/12/keys = {
+"handle_modes": PackedInt32Array(0, 2, 2, 2, 2, 2),
+"points": PackedFloat32Array(-41.426987, -0.25, 0, 0.25, 0, 112.36014, -0.05166667, -4.1755953, 0.05666667, 4.579685, 122.58205, -0.025000002, -3.4669476, 0.031666666, 4.391466, 121.778114, -0.010000001, -1.9436094, 0.021666666, 4.211153, 159.51062, -0.108333334, -2.8679192, 0.041666668, 1.103046, 130.80473, -0.15, -3.9709651, 0, 0),
+"times": PackedFloat32Array(0, 0.41, 0.56, 0.62, 0.75, 1)
+}
+tracks/13/type = "bezier"
+tracks/13/imported = false
+tracks/13/enabled = true
+tracks/13/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:position:y")
+tracks/13/interp = 1
+tracks/13/loop_wrap = true
+tracks/13/keys = {
+"handle_modes": PackedInt32Array(0, 2, 2, 2, 2, 2),
+"points": PackedFloat32Array(26.340183, -0.25, 0, 0.25, 0, -152.11298, -0.05166667, 17.502068, 0.05666667, -19.195814, -204.55576, -0.025000002, 9.438929, 0.031666666, -11.955975, -224.62727, -0.010000001, 3.9961393, 0.021666666, -8.658301, -280.4824, -0.108333334, 4.9870157, 0.041666668, -1.9180831, -101.725716, -0.15, 6.9050994, 0, 0),
+"times": PackedFloat32Array(0, 0.41, 0.56, 0.62, 0.75, 1)
+}
+tracks/14/type = "bezier"
+tracks/14/imported = false
+tracks/14/enabled = true
+tracks/14/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:rotation")
+tracks/14/interp = 1
+tracks/14/loop_wrap = true
+tracks/14/keys = {
+"handle_modes": PackedInt32Array(0, 2, 2, 2, 2, 2),
+"points": PackedFloat32Array(0.016009446, -0.25, 0, 0.25, 0, 0.016009446, -0.05166667, 0, 0.05666667, 0, 0.016009446, -0.025000002, 0, 0.031666666, 0, 0.016009446, -0.010000001, 0, 0.021666666, 0, 0.016009446, -0.108333334, 0, 0.041666668, 0, 0.016009446, -0.15, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.41, 0.56, 0.62, 0.75, 1)
+}
+tracks/15/type = "bezier"
+tracks/15/imported = false
+tracks/15/enabled = true
+tracks/15/path = NodePath("IKTargets/HipTarget/ArmBackTarget:position:x")
+tracks/15/interp = 1
+tracks/15/loop_wrap = true
+tracks/15/keys = {
+"handle_modes": PackedInt32Array(0, 2, 2),
+"points": PackedFloat32Array(106.93094, -0.25, 0, 0.25, 0, 136.4015, -0.125, -3.220293, 0.041666668, 1.073431, 132.69328, -0.16666667, -4.293724, 0, 0),
+"times": PackedFloat32Array(0, 0.75, 1)
+}
+tracks/16/type = "bezier"
+tracks/16/imported = false
+tracks/16/enabled = true
+tracks/16/path = NodePath("IKTargets/HipTarget/ArmBackTarget:position:y")
+tracks/16/interp = 1
+tracks/16/loop_wrap = true
+tracks/16/keys = {
+"handle_modes": PackedInt32Array(0, 2, 2),
+"points": PackedFloat32Array(-57.29551, -0.25, 0, 0.25, 0, -273.8515, -0.125, 5.6360674, 0.041666668, -1.8786892, -102.38405, -0.16666667, 7.5147567, 0, 0),
+"times": PackedFloat32Array(0, 0.75, 1)
+}
+tracks/17/type = "bezier"
+tracks/17/imported = false
+tracks/17/enabled = true
+tracks/17/path = NodePath("IKTargets/HipTarget/ArmBackTarget:rotation")
+tracks/17/interp = 1
+tracks/17/loop_wrap = true
+tracks/17/keys = {
+"handle_modes": PackedInt32Array(0, 2, 2),
+"points": PackedFloat32Array(0.016009446, -0.25, 0, 0.25, 0, 0.016009446, -0.125, 0, 0.041666668, 0, 0.016009446, -0.16666667, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.75, 1)
+}
+tracks/18/type = "bezier"
+tracks/18/imported = false
+tracks/18/enabled = true
+tracks/18/path = NodePath("Bones/Skeleton2D/Hip/UpperArmBack/LowerArmBack/HandBack/RemoteTransform2D/RemoteTransform2D:position:x")
+tracks/18/interp = 1
+tracks/18/loop_wrap = true
+tracks/18/keys = {
+"handle_modes": PackedInt32Array(0, 2),
+"points": PackedFloat32Array(2.0841827, -0.25, 0, 0.25, 0, 2.0841827, -0.16666667, 0, 0, 0),
+"times": PackedFloat32Array(0, 1)
+}
+tracks/19/type = "bezier"
+tracks/19/imported = false
+tracks/19/enabled = true
+tracks/19/path = NodePath("Bones/Skeleton2D/Hip/UpperArmBack/LowerArmBack/HandBack/RemoteTransform2D/RemoteTransform2D:position:y")
+tracks/19/interp = 1
+tracks/19/loop_wrap = true
+tracks/19/keys = {
+"handle_modes": PackedInt32Array(0, 2),
+"points": PackedFloat32Array(8.286018, -0.25, 0, 0.25, 0, 8.286018, -0.16666667, 0, 0, 0),
+"times": PackedFloat32Array(0, 1)
+}
+tracks/20/type = "bezier"
+tracks/20/imported = false
+tracks/20/enabled = true
+tracks/20/path = NodePath("IKTargets/HandsLookatTarget:position:x")
+tracks/20/interp = 1
+tracks/20/loop_wrap = true
+tracks/20/keys = {
+"handle_modes": PackedInt32Array(0, 2, 2, 2),
+"points": PackedFloat32Array(274, -0.25, 0, 0.25, 0, 307, -0.125, -5.5, 0, 0, 324, -0.021234035, -2.378212, 0.020432632, 2.2884548, 335, -0.041666668, -4.666667, 0, 0),
+"times": PackedFloat32Array(0, 0.75, 0.8774042, 1)
+}
+tracks/21/type = "bezier"
+tracks/21/imported = false
+tracks/21/enabled = true
+tracks/21/path = NodePath("IKTargets/HandsLookatTarget:position:y")
+tracks/21/interp = 1
+tracks/21/loop_wrap = true
+tracks/21/keys = {
+"handle_modes": PackedInt32Array(0, 2, 2, 2),
+"points": PackedFloat32Array(26, -0.25, 0, 0.25, 0, -197, -0.125, 37.166668, 0, 0, -30.999985, -0.021234035, -20.89429, 0.020432632, 20.105711, 49, -0.041666668, -41, 0, 0),
+"times": PackedFloat32Array(0, 0.75, 0.8774042, 1)
+}
+tracks/22/type = "bezier"
+tracks/22/imported = false
+tracks/22/enabled = true
+tracks/22/path = NodePath("IKTargets/HandsLookatTarget:rotation")
+tracks/22/interp = 1
+tracks/22/loop_wrap = true
+tracks/22/keys = {
+"handle_modes": PackedInt32Array(0, 2, 2, 2),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0, 0, -0.125, 0, 0, 0, 0, -0.021234035, 0, 0.020432632, 0, 0, -0.041666668, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.75, 0.8774042, 1)
+}
+
+[sub_resource type="Animation" id="Animation_pgfvk"]
+resource_name = "wand_attack_animation"
+length = 0.55
+tracks/0/type = "bezier"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("IKTargets/FeetFrontTarget:position:x")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"handle_modes": PackedInt32Array(0, 0),
+"points": PackedFloat32Array(-27, -0.25, 0, 0.25, 0, -27, -0.16666667, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.23333333)
+}
+tracks/1/type = "bezier"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("IKTargets/FeetFrontTarget:position:y")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"handle_modes": PackedInt32Array(0, 0),
+"points": PackedFloat32Array(267, -0.25, 0, 0.25, 0, 267, -0.16666667, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.23333333)
+}
+tracks/2/type = "bezier"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("IKTargets/FeetFrontTarget:rotation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"handle_modes": PackedInt32Array(0, 0),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0, 0, -0.16666667, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.23333333)
+}
+tracks/3/type = "bezier"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("IKTargets/FeetBackTarget:position:x")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"handle_modes": PackedInt32Array(0, 0),
+"points": PackedFloat32Array(18, -0.25, 0, 0.25, 0, 95, -0.16666667, -12.833334, 0, 0),
+"times": PackedFloat32Array(0, 0.23333333)
+}
+tracks/4/type = "bezier"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("IKTargets/FeetBackTarget:position:y")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"handle_modes": PackedInt32Array(0, 0),
+"points": PackedFloat32Array(269, -0.25, 0, 0.25, 0, 271, -0.16666667, -0.33333334, 0, 0),
+"times": PackedFloat32Array(0, 0.23333333)
+}
+tracks/5/type = "bezier"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("IKTargets/FeetBackTarget:rotation")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"handle_modes": PackedInt32Array(0, 0),
+"points": PackedFloat32Array(0, -0.25, 0, 0.25, 0, 0, -0.16666667, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.23333333)
+}
+tracks/6/type = "bezier"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("IKTargets/HipTarget:position:x")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"handle_modes": PackedInt32Array(0, 0),
+"points": PackedFloat32Array(12.000001, -0.25, 0, 0.25, 0, 46, -0.16666667, -5.666667, 0, 0),
+"times": PackedFloat32Array(0, 0.23333333)
+}
+tracks/7/type = "bezier"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("IKTargets/HipTarget:position:y")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"handle_modes": PackedInt32Array(0, 0),
+"points": PackedFloat32Array(85.00001, -0.25, 0, 0.25, 0, 87, -0.16666667, -0.33333206, 0, 0),
+"times": PackedFloat32Array(0, 0.23333333)
+}
+tracks/8/type = "bezier"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("IKTargets/HipTarget:rotation")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"handle_modes": PackedInt32Array(0, 0),
+"points": PackedFloat32Array(-0.016009446, -0.25, 0, 0.25, 0, -0.016009446, -0.16666667, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.23333333)
+}
+tracks/9/type = "bezier"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:position:x")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"handle_modes": PackedInt32Array(0, 0),
+"points": PackedFloat32Array(-32.492172, -0.25, 0, 0.25, 0, -149.54855, -0.16666667, 19.509398, 0, 0),
+"times": PackedFloat32Array(0, 0.23333333)
+}
+tracks/10/type = "bezier"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:position:y")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"handle_modes": PackedInt32Array(0, 0),
+"points": PackedFloat32Array(30.483742, -0.25, 0, 0.25, 0, -29.397854, -0.16666667, 9.980267, 0, 0),
+"times": PackedFloat32Array(0, 0.23333333)
+}
+tracks/11/type = "bezier"
+tracks/11/imported = false
+tracks/11/enabled = true
+tracks/11/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:rotation")
+tracks/11/interp = 1
+tracks/11/loop_wrap = true
+tracks/11/keys = {
+"handle_modes": PackedInt32Array(0, 0),
+"points": PackedFloat32Array(0.016009446, -0.25, 0, 0.25, 0, 0.016009446, -0.16666667, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.23333333)
+}
+tracks/12/type = "bezier"
+tracks/12/imported = false
+tracks/12/enabled = true
+tracks/12/path = NodePath("IKTargets/HipTarget/ArmBackTarget:position:x")
+tracks/12/interp = 1
+tracks/12/loop_wrap = true
+tracks/12/keys = {
+"handle_modes": PackedInt32Array(0, 0),
+"points": PackedFloat32Array(105.78698, -0.25, 0, 0.25, 0, 208.42294, -0.16666667, -17.105995, 0, 0),
+"times": PackedFloat32Array(0, 0.23333333)
+}
+tracks/13/type = "bezier"
+tracks/13/imported = false
+tracks/13/enabled = true
+tracks/13/path = NodePath("IKTargets/HipTarget/ArmBackTarget:position:y")
+tracks/13/interp = 1
+tracks/13/loop_wrap = true
+tracks/13/keys = {
+"handle_modes": PackedInt32Array(0, 0),
+"points": PackedFloat32Array(-48.31267, -0.25, 0, 0.25, 0, -149.68259, -0.16666667, 16.894987, 0, 0),
+"times": PackedFloat32Array(0, 0.23333333)
+}
+tracks/14/type = "bezier"
+tracks/14/imported = false
+tracks/14/enabled = true
+tracks/14/path = NodePath("IKTargets/HipTarget/ArmBackTarget:rotation")
+tracks/14/interp = 1
+tracks/14/loop_wrap = true
+tracks/14/keys = {
+"handle_modes": PackedInt32Array(0, 0),
+"points": PackedFloat32Array(0.016009446, -0.25, 0, 0.25, 0, 0.016009446, -0.16666667, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.23333333)
+}
+tracks/15/type = "bezier"
+tracks/15/imported = false
+tracks/15/enabled = true
+tracks/15/path = NodePath("IKTargets/HipTarget/HeadTarget:position:x")
+tracks/15/interp = 1
+tracks/15/loop_wrap = true
+tracks/15/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(51.029526, -0.125, 0, 0.125, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/16/type = "bezier"
+tracks/16/imported = false
+tracks/16/enabled = true
+tracks/16/path = NodePath("IKTargets/HipTarget/HeadTarget:position:y")
+tracks/16/interp = 1
+tracks/16/loop_wrap = true
+tracks/16/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(-376.23132, -0.125, 0, 0.125, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/17/type = "bezier"
+tracks/17/imported = false
+tracks/17/enabled = true
+tracks/17/path = NodePath("IKTargets/HipTarget/HeadTarget:rotation")
+tracks/17/interp = 1
+tracks/17/loop_wrap = true
+tracks/17/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0.463514, -0.125, 0, 0.125, 0),
+"times": PackedFloat32Array(0)
+}
+tracks/18/type = "bezier"
+tracks/18/imported = false
+tracks/18/enabled = true
+tracks/18/path = NodePath("Bones/Skeleton2D/Hip/UpperArmBack/LowerArmBack/HandBack/RemoteTransform2D/RemoteTransform2D:position:x")
+tracks/18/interp = 1
+tracks/18/loop_wrap = true
+tracks/18/keys = {
+"handle_modes": PackedInt32Array(0, 0),
+"points": PackedFloat32Array(4.02137, -0.125, 0, 0.125, 0, 4.02137, -0.041666668, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.25)
+}
+tracks/19/type = "bezier"
+tracks/19/imported = false
+tracks/19/enabled = true
+tracks/19/path = NodePath("Bones/Skeleton2D/Hip/UpperArmBack/LowerArmBack/HandBack/RemoteTransform2D/RemoteTransform2D:position:y")
+tracks/19/interp = 1
+tracks/19/loop_wrap = true
+tracks/19/keys = {
+"handle_modes": PackedInt32Array(0, 0),
+"points": PackedFloat32Array(8.830185, -0.125, 0, 0.125, 0, 8.830185, -0.041666668, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.25)
+}
+tracks/20/type = "bezier"
+tracks/20/imported = false
+tracks/20/enabled = true
+tracks/20/path = NodePath("IKTargets/HandsLookatTarget:position:x")
+tracks/20/interp = 1
+tracks/20/loop_wrap = true
+tracks/20/keys = {
+"handle_modes": PackedInt32Array(2, 2),
+"points": PackedFloat32Array(368, 0, 0, 0.041666668, 0, 368, -0.041666668, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.25)
+}
+tracks/21/type = "bezier"
+tracks/21/imported = false
+tracks/21/enabled = true
+tracks/21/path = NodePath("IKTargets/HandsLookatTarget:position:y")
+tracks/21/interp = 1
+tracks/21/loop_wrap = true
+tracks/21/keys = {
+"handle_modes": PackedInt32Array(2, 2),
+"points": PackedFloat32Array(28, 0, 0, 0.041666668, -15.833334, -5, -0.041666668, 5.5, 0, 0),
+"times": PackedFloat32Array(0, 0.25)
+}
+tracks/22/type = "bezier"
+tracks/22/imported = false
+tracks/22/enabled = true
+tracks/22/path = NodePath("IKTargets/HandsLookatTarget:rotation")
+tracks/22/interp = 1
+tracks/22/loop_wrap = true
+tracks/22/keys = {
+"handle_modes": PackedInt32Array(2, 2),
+"points": PackedFloat32Array(0, 0, 0, 0.041666668, 0, 0, -0.041666668, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.25)
+}
+
+[sub_resource type="Animation" id="Animation_l8jcq"]
+resource_name = "wand_slap_animation"
+length = 0.55
+tracks/0/type = "bezier"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("IKTargets/HandsLookatTarget:position:x")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"handle_modes": PackedInt32Array(2, 0, 2, 2, 2),
+"points": PackedFloat32Array(-54, 0, 0, 0.008333334, 0, -54, -0.125, 0, 0.125, 0, 396, -0.01666667, -75.00001, 0, 0, 494, -0.008333333, 20.333334, 0.008333333, -20.333334, 119, -0.008333333, 62.5, 0, 0),
+"times": PackedFloat32Array(0, 0.05, 0.15, 0.2, 0.25)
+}
+tracks/1/type = "bezier"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("IKTargets/HandsLookatTarget:position:y")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"handle_modes": PackedInt32Array(2, 0, 2, 2, 2),
+"points": PackedFloat32Array(-250, 0, 0, 0.008333334, 0, -250, -0.125, 0, 0.125, 0, -296, -0.01666667, 7.6666675, 0, 0, -103, -0.008333333, -38.25, 0.008333333, 38.25, 299, -0.008333333, -67, 0, 0),
+"times": PackedFloat32Array(0, 0.05, 0.15, 0.2, 0.25)
+}
+tracks/2/type = "bezier"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("IKTargets/HandsLookatTarget:rotation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"handle_modes": PackedInt32Array(2, 0, 2, 2, 2),
+"points": PackedFloat32Array(0, 0, 0, 0.008333334, 0, 0, -0.125, 0, 0.125, 0, 0, -0.01666667, 0, 0, 0, 0, -0.008333333, 0, 0.008333333, 0, 0, -0.008333333, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.05, 0.15, 0.2, 0.25)
+}
+tracks/3/type = "bezier"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("IKTargets/HipTarget/ArmBackTarget:position:x")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"handle_modes": PackedInt32Array(2, 0, 2, 2),
+"points": PackedFloat32Array(-35.59755, 0, 0, 0.008333334, 0, -35.59755, -0.125, 0, 0.125, 0, 81.03058, -0.01666667, -19.438023, 0, 0, 138.11699, -0.016666666, -9.514401, 0, 0),
+"times": PackedFloat32Array(0, 0.05, 0.15, 0.25)
+}
+tracks/4/type = "bezier"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("IKTargets/HipTarget/ArmBackTarget:position:y")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"handle_modes": PackedInt32Array(2, 0, 2, 2),
+"points": PackedFloat32Array(-260.74966, 0, 0, 0.008333334, 0, -260.74966, -0.125, 0, 0.125, 0, -291.96667, -0.01666667, 5.2028356, 0, 0, -62.166733, -0.016666666, -38.299988, 0, 0),
+"times": PackedFloat32Array(0, 0.05, 0.15, 0.25)
+}
+tracks/5/type = "bezier"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("IKTargets/HipTarget/ArmBackTarget:rotation")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"handle_modes": PackedInt32Array(2, 0, 2, 2),
+"points": PackedFloat32Array(0.016009446, 0, 0, 0.008333334, 0, 0.016009446, -0.125, 0, 0.125, 0, 0.016009446, -0.01666667, 0, 0, 0, 0.016009446, -0.016666666, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.05, 0.15, 0.25)
+}
+tracks/6/type = "bezier"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:position:x")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"handle_modes": PackedInt32Array(2, 0, 2, 2),
+"points": PackedFloat32Array(-27.576591, 0, 0, 0.008333334, 0, -27.576591, -0.125, 0, 0.125, 0, 89.05154, -0.01666667, -19.438023, 0, 0, 146.13794, -0.016666666, -9.5144005, 0, 0),
+"times": PackedFloat32Array(0, 0.05, 0.15, 0.25)
+}
+tracks/7/type = "bezier"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:position:y")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"handle_modes": PackedInt32Array(2, 0, 2, 2),
+"points": PackedFloat32Array(-262.66385, 0, 0, 0.008333334, 0, -262.66385, -0.125, 0, 0.125, 0, -293.88086, -0.01666667, 5.2028356, 0, 0, -64.08092, -0.016666666, -38.299988, 0, 0),
+"times": PackedFloat32Array(0, 0.05, 0.15, 0.25)
+}
+tracks/8/type = "bezier"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("IKTargets/HipTarget/ArmFrontTarget:rotation")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"handle_modes": PackedInt32Array(2, 0, 2, 2),
+"points": PackedFloat32Array(0.016009446, 0, 0, 0.008333334, 0, 0.016009446, -0.125, 0, 0.125, 0, 0.016009446, -0.01666667, 0, 0, 0, 0.016009446, -0.016666666, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.05, 0.15, 0.25)
+}
+tracks/9/type = "bezier"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("IKTargets/FeetFrontTarget:position:x")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"handle_modes": PackedInt32Array(2, 2),
+"points": PackedFloat32Array(-27, 0, 0, 0.041666668, -3.5, -38, -0.041666668, 1.8333334, 0, 0),
+"times": PackedFloat32Array(0, 0.25)
+}
+tracks/10/type = "bezier"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("IKTargets/FeetFrontTarget:position:y")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"handle_modes": PackedInt32Array(2, 2),
+"points": PackedFloat32Array(265, 0, 0, 0.041666668, -0.6666667, 267, -0.041666668, -0.33333334, 0, 0),
+"times": PackedFloat32Array(0, 0.25)
+}
+tracks/11/type = "bezier"
+tracks/11/imported = false
+tracks/11/enabled = true
+tracks/11/path = NodePath("IKTargets/FeetFrontTarget:rotation")
+tracks/11/interp = 1
+tracks/11/loop_wrap = true
+tracks/11/keys = {
+"handle_modes": PackedInt32Array(2, 2),
+"points": PackedFloat32Array(0, 0, 0, 0.041666668, 0, 0, -0.041666668, 0, 0, 0),
+"times": PackedFloat32Array(0, 0.25)
+}
+tracks/12/type = "bezier"
+tracks/12/imported = false
+tracks/12/enabled = true
+tracks/12/path = NodePath("IKTargets/FeetBackTarget:position:x")
+tracks/12/interp = 1
+tracks/12/loop_wrap = true
+tracks/12/keys = {
+"handle_modes": PackedInt32Array(2, 0),
+"points": PackedFloat32Array(27.00003, 0, 0, 0.041666668, 11.833334, 98.00003, -0.125, 0, 0.125, 0),
+"times": PackedFloat32Array(0, 0.25)
+}
+tracks/13/type = "bezier"
+tracks/13/imported = false
+tracks/13/enabled = true
+tracks/13/path = NodePath("IKTargets/FeetBackTarget:position:y")
+tracks/13/interp = 1
+tracks/13/loop_wrap = true
+tracks/13/keys = {
+"handle_modes": PackedInt32Array(2, 0),
+"points": PackedFloat32Array(268, 0, 0, 0.041666668, 1, 274, -0.125, 0, 0.125, 0),
+"times": PackedFloat32Array(0, 0.25)
+}
+tracks/14/type = "bezier"
+tracks/14/imported = false
+tracks/14/enabled = true
+tracks/14/path = NodePath("IKTargets/FeetBackTarget:rotation")
+tracks/14/interp = 1
+tracks/14/loop_wrap = true
+tracks/14/keys = {
+"handle_modes": PackedInt32Array(2, 0),
+"points": PackedFloat32Array(0, 0, 0, 0.041666668, 0, 0, -0.125, 0, 0.125, 0),
+"times": PackedFloat32Array(0, 0.25)
+}
+tracks/15/type = "bezier"
+tracks/15/imported = false
+tracks/15/enabled = true
+tracks/15/path = NodePath("IKTargets/HipTarget:position:x")
+tracks/15/interp = 1
+tracks/15/loop_wrap = true
+tracks/15/keys = {
+"handle_modes": PackedInt32Array(2, 0),
+"points": PackedFloat32Array(4.9999924, 0, 0, 0.041666668, 3.579763, 26.478569, -0.125, 0, 0.125, 0),
+"times": PackedFloat32Array(0, 0.25)
+}
+tracks/16/type = "bezier"
+tracks/16/imported = false
+tracks/16/enabled = true
+tracks/16/path = NodePath("IKTargets/HipTarget:position:y")
+tracks/16/interp = 1
+tracks/16/loop_wrap = true
+tracks/16/keys = {
+"handle_modes": PackedInt32Array(2, 0),
+"points": PackedFloat32Array(85.99999, 0, 0, 0.041666668, 1.3300884, 93.98052, -0.125, 0, 0.125, 0),
+"times": PackedFloat32Array(0, 0.25)
+}
+tracks/17/type = "bezier"
+tracks/17/imported = false
+tracks/17/enabled = true
+tracks/17/path = NodePath("IKTargets/HipTarget:rotation")
+tracks/17/interp = 1
+tracks/17/loop_wrap = true
+tracks/17/keys = {
+"handle_modes": PackedInt32Array(2, 0),
+"points": PackedFloat32Array(0.091124475, 0, 0, 0.041666668, 0.05074197, 0.3955763, -0.125, 0, 0.125, 0),
+"times": PackedFloat32Array(0, 0.25)
+}
+tracks/18/type = "bezier"
+tracks/18/imported = false
+tracks/18/enabled = true
+tracks/18/path = NodePath("IKTargets/HipTarget/HeadTarget:position:x")
+tracks/18/interp = 1
+tracks/18/loop_wrap = true
+tracks/18/keys = {
+"handle_modes": PackedInt32Array(2, 0),
+"points": PackedFloat32Array(38.72905, 0, 0, 0.041666668, 25.059263, 189.08463, -0.125, 0, 0.125, 0),
+"times": PackedFloat32Array(0, 0.25)
+}
+tracks/19/type = "bezier"
+tracks/19/imported = false
+tracks/19/enabled = true
+tracks/19/path = NodePath("IKTargets/HipTarget/HeadTarget:position:y")
+tracks/19/interp = 1
+tracks/19/loop_wrap = true
+tracks/19/keys = {
+"handle_modes": PackedInt32Array(2, 0),
+"points": PackedFloat32Array(-433.32214, 0, 0, 0.041666668, 12.230734, -359.93774, -0.125, 0, 0.125, 0),
+"times": PackedFloat32Array(0, 0.25)
+}
+tracks/20/type = "bezier"
+tracks/20/imported = false
+tracks/20/enabled = true
+tracks/20/path = NodePath("IKTargets/HipTarget/HeadTarget:rotation")
+tracks/20/interp = 1
+tracks/20/loop_wrap = true
+tracks/20/keys = {
+"handle_modes": PackedInt32Array(2, 0),
+"points": PackedFloat32Array(0.463514, 0, 0, 0.041666668, 0, 0.463514, -0.125, 0, 0.125, 0),
+"times": PackedFloat32Array(0, 0.25)
+}
+tracks/21/type = "bezier"
+tracks/21/imported = false
+tracks/21/enabled = true
+tracks/21/path = NodePath("Bones/Skeleton2D/Hip/UpperArmBack/LowerArmBack/HandBack/RemoteTransform2D/RemoteTransform2D:position:x")
+tracks/21/interp = 1
+tracks/21/loop_wrap = true
+tracks/21/keys = {
+"handle_modes": PackedInt32Array(2, 0),
+"points": PackedFloat32Array(142.60672, 0, 0, 0.041666668, 0, 142.60672, -0.125, 0, 0.125, 0),
+"times": PackedFloat32Array(0, 0.25)
+}
+tracks/22/type = "bezier"
+tracks/22/imported = false
+tracks/22/enabled = true
+tracks/22/path = NodePath("Bones/Skeleton2D/Hip/UpperArmBack/LowerArmBack/HandBack/RemoteTransform2D/RemoteTransform2D:position:y")
+tracks/22/interp = 1
+tracks/22/loop_wrap = true
+tracks/22/keys = {
+"handle_modes": PackedInt32Array(2, 0),
+"points": PackedFloat32Array(33.78265, 0, 0, 0.041666668, 0, 33.78265, -0.125, 0, 0.125, 0),
+"times": PackedFloat32Array(0, 0.25)
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_pgfvk"]
+_data = {
+&"RESET": SubResource("Animation_pq6ca"),
+&"hurt_animation": SubResource("Animation_c3002"),
+&"idle_animation": SubResource("Animation_5go3k"),
+&"move_animation": SubResource("Animation_ekivf"),
+&"wand_attack_2_animation": SubResource("Animation_gb7i5"),
+&"wand_attack_animation": SubResource("Animation_pgfvk"),
+&"wand_slap_animation": SubResource("Animation_l8jcq")
+}
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_hurt"]
+animation = &"hurt_animation"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_pgfvk"]
+animation = &"idle_animation"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_move"]
+animation = &"move_animation"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_wand_attack_2"]
+animation = &"wand_attack_2_animation"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_wand_attack"]
+animation = &"wand_attack_animation"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_wand_slap"]
+animation = &"wand_slap_animation"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_gb7i5"]
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_to_attack_1"]
+xfade_time = 0.2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_to_attack_2"]
+xfade_time = 0.2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_to_attack_3"]
+xfade_time = 0.2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_attack_1_to_idle"]
+xfade_time = 0.2
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_attack_2_to_idle"]
+xfade_time = 0.2
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_attack_3_to_idle"]
+xfade_time = 0.2
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_to_hurt"]
+xfade_time = 0.2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_hurt_to_idle"]
+xfade_time = 0.2
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_to_move"]
+xfade_time = 0.2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_move_to_idle"]
+xfade_time = 0.2
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_pgfvk"]
+states/hurt_animation/node = SubResource("AnimationNodeAnimation_hurt")
+states/hurt_animation/position = Vector2(325.2, 275)
+states/idle_animation/node = SubResource("AnimationNodeAnimation_pgfvk")
+states/idle_animation/position = Vector2(325.2, 122.4)
+states/move_animation/node = SubResource("AnimationNodeAnimation_move")
+states/move_animation/position = Vector2(325.2, -30)
+states/wand_attack_2_animation/node = SubResource("AnimationNodeAnimation_wand_attack_2")
+states/wand_attack_2_animation/position = Vector2(560, 122.4)
+states/wand_attack_animation/node = SubResource("AnimationNodeAnimation_wand_attack")
+states/wand_attack_animation/position = Vector2(560, 20)
+states/wand_slap_animation/node = SubResource("AnimationNodeAnimation_wand_slap")
+states/wand_slap_animation/position = Vector2(560, 225)
+transitions = ["Start", "idle_animation", SubResource("AnimationNodeStateMachineTransition_gb7i5"), "idle_animation", "wand_attack_animation", SubResource("AnimationNodeStateMachineTransition_to_attack_1"), "idle_animation", "wand_attack_2_animation", SubResource("AnimationNodeStateMachineTransition_to_attack_2"), "idle_animation", "wand_slap_animation", SubResource("AnimationNodeStateMachineTransition_to_attack_3"), "wand_attack_animation", "idle_animation", SubResource("AnimationNodeStateMachineTransition_attack_1_to_idle"), "wand_attack_2_animation", "idle_animation", SubResource("AnimationNodeStateMachineTransition_attack_2_to_idle"), "wand_slap_animation", "idle_animation", SubResource("AnimationNodeStateMachineTransition_attack_3_to_idle"), "idle_animation", "hurt_animation", SubResource("AnimationNodeStateMachineTransition_to_hurt"), "hurt_animation", "idle_animation", SubResource("AnimationNodeStateMachineTransition_hurt_to_idle"), "idle_animation", "move_animation", SubResource("AnimationNodeStateMachineTransition_to_move"), "move_animation", "idle_animation", SubResource("AnimationNodeStateMachineTransition_move_to_idle")]
+graph_offset = Vector2(0, -39.548496)
+
+[node name="CharacterWizard" type="Node2D" unique_id=1820071779]
+position = Vector2(612, 328)
+script = ExtResource("15_wizard_controller")
+
+[node name="Sprites" type="Node2D" parent="." unique_id=1709236486]
+
+[node name="Staff" type="Sprite2D" parent="Sprites" unique_id=2012842320]
+position = Vector2(126.99988, 31)
+rotation = 0.23866501
+scale = Vector2(0.99999493, 0.99999493)
+texture = ExtResource("3_pgfvk")
+offset = Vector2(-4.3874817, 19.556866)
+
+[node name="HandBack" type="Sprite2D" parent="Sprites" unique_id=1964545805]
+position = Vector2(116.99994, 35)
+rotation = -1.5066643
+scale = Vector2(0.99999493, 0.99999493)
+texture = ExtResource("7_euewv")
+offset = Vector2(3.5, 7)
+
+[node name="LowerArmBack" type="Sprite2D" parent="Sprites" unique_id=2008934934]
+position = Vector2(35.982727, 33.925354)
+rotation = -1.5822191
+scale = Vector2(0.9999954, 0.9999954)
+texture = ExtResource("6_otsgi")
+offset = Vector2(1.5, 32)
+
+[node name="UpperArmBack" type="Sprite2D" parent="Sprites" unique_id=1633068627]
+position = Vector2(15.5979, -65.07684)
+rotation = -0.24264826
+scale = Vector2(0.9999988, 0.9999988)
+texture = ExtResource("5_c712k")
+offset = Vector2(1.5, 41)
+
+[node name="Neck" type="Sprite2D" parent="Sprites" unique_id=1420531551]
+position = Vector2(16.245605, -87.09001)
+rotation = -0.08428216
+scale = Vector2(0.9999976, 0.9999976)
+texture = ExtResource("2_k1xhg")
+offset = Vector2(11, -13)
+
+[node name="Head" type="Sprite2D" parent="Sprites/Neck" unique_id=1322964229]
+position = Vector2(13.354004, -38.497055)
+rotation = 0.12739526
+scale = Vector2(0.9999992, 0.9999992)
+texture = ExtResource("1_br2nk")
+offset = Vector2(15, -53)
+
+[node name="LowerLegBack" type="Sprite2D" parent="Sprites" unique_id=892447442]
+position = Vector2(46.206116, 170.16003)
+rotation = -0.028384931
+scale = Vector2(0.9999963, 0.9999963)
+texture = ExtResource("9_5go3k")
+offset = Vector2(-16, 46)
+
+[node name="UpperLegBack" type="Sprite2D" parent="Sprites" unique_id=793557731]
+position = Vector2(34.461426, 113.644104)
+rotation = 0.040083025
+scale = Vector2(0.999998, 0.999998)
+texture = ExtResource("8_pq6ca")
+offset = Vector2(3, 17)
+
+[node name="ToesBack" type="Sprite2D" parent="Sprites" unique_id=1279808350]
+position = Vector2(18.000061, 269)
+rotation = -0.045624603
+scale = Vector2(0.9999963, 0.9999963)
+texture = ExtResource("10_pgfvk")
+offset = Vector2(13, -4)
+
+[node name="LowerLegFront" type="Sprite2D" parent="Sprites" unique_id=750182096]
+position = Vector2(1.8740234, 167.63525)
+rotation = 0.15433826
+scale = Vector2(0.99999565, 0.99999565)
+texture = ExtResource("9_5go3k")
+offset = Vector2(-14, 48)
+
+[node name="UpperLegFront" type="Sprite2D" parent="Sprites" unique_id=1580685502]
+position = Vector2(-7.5651855, 112.31671)
+rotation = 0.0486207
+scale = Vector2(0.9999973, 0.9999973)
+texture = ExtResource("8_pq6ca")
+offset = Vector2(4, 21)
+
+[node name="ToesFront" type="Sprite2D" parent="Sprites" unique_id=871059513]
+position = Vector2(-41.99994, 261)
+rotation = 0.21290849
+scale = Vector2(0.9999933, 0.9999933)
+texture = ExtResource("10_pgfvk")
+offset = Vector2(16, -2)
+
+[node name="Torso" type="Sprite2D" parent="Sprites" unique_id=1013249041]
+position = Vector2(12, 85)
+rotation = -0.016009446
+texture = ExtResource("3_1x7nm")
+offset = Vector2(-3, -76)
+
+[node name="Belt" type="Sprite2D" parent="Sprites" unique_id=77606943]
+position = Vector2(5.4404907, 50.100525)
+rotation = -0.016009446
+texture = ExtResource("4_631rr")
+offset = Vector2(-2, -2)
+
+[node name="HandFront" type="Sprite2D" parent="Sprites" unique_id=1518975192]
+position = Vector2(-20, 116)
+rotation = -0.24754713
+scale = Vector2(0.9999964, 0.9999964)
+texture = ExtResource("7_euewv")
+offset = Vector2(2, 9)
+
+[node name="LowerArmFront" type="Sprite2D" parent="Sprites" unique_id=425560861]
+position = Vector2(-31.63385, 32.713623)
+rotation = -0.18636964
+scale = Vector2(0.99999756, 0.99999756)
+texture = ExtResource("6_otsgi")
+offset = Vector2(-1.4794769, 34.540222)
+
+[node name="UpperArmFront" type="Sprite2D" parent="Sprites" unique_id=350385651]
+position = Vector2(-13.414368, -65.61246)
+rotation = 0.18321846
+scale = Vector2(0.9999985, 0.9999985)
+texture = ExtResource("5_c712k")
+offset = Vector2(2.4514694, 44.581833)
+
+[node name="Bones" type="Node2D" parent="." unique_id=1767018022]
+
+[node name="Skeleton2D" type="Skeleton2D" parent="Bones" unique_id=44444575]
+
+[node name="Hip" type="Bone2D" parent="Bones/Skeleton2D" unique_id=317834541]
+position = Vector2(12, 85)
+rotation = -0.016009446
+rest = Transform2D(0.99987185, -0.016008763, 0.016008763, 0.99987185, 12.000001, 85.00001)
+
+[node name="RemoteTransform2D" type="RemoteTransform2D" parent="Bones/Skeleton2D/Hip" unique_id=822974769]
+remote_path = NodePath("../../../../Sprites/Torso")
+
+[node name="RemoteTransform2D" type="RemoteTransform2D" parent="Bones/Skeleton2D/Hip/RemoteTransform2D" unique_id=1341033929]
+position = Vector2(-6, -35)
+remote_path = NodePath("../../../../../Sprites/Belt")
+
+[node name="UpperLegFront" type="Bone2D" parent="Bones/Skeleton2D/Hip" unique_id=660182902]
+position = Vector2(-20, 27)
+rotation = 0.06463014
+scale = Vector2(0.9999974, 0.9999974)
+rest = Transform2D(0.9979126, 0.064571805, -0.064571805, 0.9979126, -20, 27)
+
+[node name="RemoteTransform2D" type="RemoteTransform2D" parent="Bones/Skeleton2D/Hip/UpperLegFront" unique_id=1609239822]
+remote_path = NodePath("../../../../../Sprites/UpperLegFront")
+
+[node name="LowerLegFront" type="Bone2D" parent="Bones/Skeleton2D/Hip/UpperLegFront" unique_id=1577659050]
+position = Vector2(14, 56)
+rotation = 0.105717555
+scale = Vector2(0.9999983, 0.9999983)
+rest = Transform2D(0.99441457, 0.105541095, -0.105541095, 0.99441457, 14, 56)
+
+[node name="RemoteTransform2D" type="RemoteTransform2D" parent="Bones/Skeleton2D/Hip/UpperLegFront/LowerLegFront" unique_id=1460711563]
+position = Vector2(-2, -1)
+remote_path = NodePath("../../../../../../Sprites/LowerLegFront")
+
+[node name="FootFront" type="Bone2D" parent="Bones/Skeleton2D/Hip/UpperLegFront/LowerLegFront" unique_id=46090222]
+position = Vector2(-31, 98)
+rotation = 0.058570236
+scale = Vector2(0.9999976, 0.9999976)
+rest = Transform2D(0.9982851, 0.058536746, -0.058536746, 0.9982851, -31, 98)
+auto_calculate_length_and_angle = false
+length = 30.0
+bone_angle = 0.0
+
+[node name="RemoteTransform2D" type="RemoteTransform2D" parent="Bones/Skeleton2D/Hip/UpperLegFront/LowerLegFront/FootFront" unique_id=1894616648]
+remote_path = NodePath("../../../../../../../Sprites/ToesFront")
+
+[node name="UpperLegBack" type="Bone2D" parent="Bones/Skeleton2D/Hip" unique_id=279680558]
+position = Vector2(22, 29)
+rotation = 0.05609247
+scale = Vector2(0.999998, 0.999998)
+rest = Transform2D(0.9984274, 0.056051012, -0.056051012, 0.9984274, 22, 29)
+
+[node name="RemoteTransform2D" type="RemoteTransform2D" parent="Bones/Skeleton2D/Hip/UpperLegBack" unique_id=246455072]
+remote_path = NodePath("../../../../../Sprites/UpperLegBack")
+
+[node name="LowerLegBack" type="Bone2D" parent="Bones/Skeleton2D/Hip/UpperLegBack" unique_id=1294058932]
+position = Vector2(14, 56)
+rotation = -0.06846795
+scale = Vector2(0.99999833, 0.99999833)
+rest = Transform2D(0.9976578, -0.06839553, 0.06839553, 0.9976578, 14, 56)
+
+[node name="RemoteTransform2D" type="RemoteTransform2D" parent="Bones/Skeleton2D/Hip/UpperLegBack/LowerLegBack" unique_id=900229656]
+remote_path = NodePath("../../../../../../Sprites/LowerLegBack")
+
+[node name="FootBack" type="Bone2D" parent="Bones/Skeleton2D/Hip/UpperLegBack/LowerLegBack" unique_id=513945928]
+position = Vector2(-31, 98)
+rotation = -0.017239671
+rest = Transform2D(0.9998514, -0.017238818, 0.017238818, 0.9998514, -31, 98)
+auto_calculate_length_and_angle = false
+length = 30.0
+bone_angle = 0.0
+
+[node name="RemoteTransform2D" type="RemoteTransform2D" parent="Bones/Skeleton2D/Hip/UpperLegBack/LowerLegBack/FootBack" unique_id=1215710889]
+remote_path = NodePath("../../../../../../../Sprites/ToesBack")
+
+[node name="UpperArmBack" type="Bone2D" parent="Bones/Skeleton2D/Hip" unique_id=2129303576]
+position = Vector2(6, -150)
+rotation = -0.22663881
+scale = Vector2(0.9999988, 0.9999988)
+rest = Transform2D(0.97442675, -0.22470188, 0.22470188, 0.97442675, 6, -150)
+
+[node name="RemoteTransform2D" type="RemoteTransform2D" parent="Bones/Skeleton2D/Hip/UpperArmBack" unique_id=150229528]
+remote_path = NodePath("../../../../../Sprites/UpperArmBack")
+
+[node name="LowerArmBack" type="Bone2D" parent="Bones/Skeleton2D/Hip/UpperArmBack" unique_id=46956704]
+position = Vector2(-4, 101)
+rotation = -1.3395709
+scale = Vector2(0.9999966, 0.9999966)
+rest = Transform2D(0.22916774, -0.97338545, 0.97338545, 0.22916774, -4, 101)
+
+[node name="RemoteTransform2D" type="RemoteTransform2D" parent="Bones/Skeleton2D/Hip/UpperArmBack/LowerArmBack" unique_id=687759698]
+remote_path = NodePath("../../../../../../Sprites/LowerArmBack")
+
+[node name="HandBack" type="Bone2D" parent="Bones/Skeleton2D/Hip/UpperArmBack/LowerArmBack" unique_id=1063783092]
+position = Vector2(-2, 81)
+rotation = 0.07555486
+scale = Vector2(0.9999996, 0.9999996)
+rest = Transform2D(0.99999964, -0.00076299894, 0.00076299894, 0.99999964, -2, 81)
+auto_calculate_length_and_angle = false
+length = 20.0
+bone_angle = 90.0
+
+[node name="RemoteTransform2D" type="RemoteTransform2D" parent="Bones/Skeleton2D/Hip/UpperArmBack/LowerArmBack/HandBack" unique_id=873241539]
+remote_path = NodePath("../../../../../../../Sprites/HandBack")
+
+[node name="RemoteTransform2D" type="RemoteTransform2D" parent="Bones/Skeleton2D/Hip/UpperArmBack/LowerArmBack/HandBack/RemoteTransform2D" unique_id=2010822646]
+position = Vector2(4.632675, 9.723103)
+rotation = 1.7453293
+remote_path = NodePath("../../../../../../../../Sprites/Staff")
+
+[node name="UpperArmFront" type="Bone2D" parent="Bones/Skeleton2D/Hip" unique_id=400978686]
+position = Vector2(-23, -151)
+rotation = 0.19922791
+scale = Vector2(0.99999845, 0.99999845)
+rest = Transform2D(0.98021793, 0.1979182, -0.1979182, 0.98021793, -23, -151)
+
+[node name="RemoteTransform2D" type="RemoteTransform2D" parent="Bones/Skeleton2D/Hip/UpperArmFront" unique_id=1304107616]
+remote_path = NodePath("../../../../../Sprites/UpperArmFront")
+
+[node name="LowerArmFront" type="Bone2D" parent="Bones/Skeleton2D/Hip/UpperArmFront" unique_id=850009462]
+position = Vector2(0, 100)
+rotation = -0.3695881
+scale = Vector2(0.9999991, 0.9999991)
+rest = Transform2D(0.93247074, -0.3612436, 0.3612436, 0.93247074, 0, 100)
+
+[node name="RemoteTransform2D" type="RemoteTransform2D" parent="Bones/Skeleton2D/Hip/UpperArmFront/LowerArmFront" unique_id=201601368]
+remote_path = NodePath("../../../../../../Sprites/LowerArmFront")
+
+[node name="HandFront" type="Bone2D" parent="Bones/Skeleton2D/Hip/UpperArmFront/LowerArmFront" unique_id=1634544103]
+position = Vector2(-4, 84)
+rotation = -0.06117748
+scale = Vector2(0.9999988, 0.9999988)
+rest = Transform2D(0.9731629, 0.23011659, -0.23011659, 0.9731629, -4, 84)
+auto_calculate_length_and_angle = false
+length = 20.0
+bone_angle = 90.0
+
+[node name="RemoteTransform2D" type="RemoteTransform2D" parent="Bones/Skeleton2D/Hip/UpperArmFront/LowerArmFront/HandFront" unique_id=1177344440]
+remote_path = NodePath("../../../../../../../Sprites/HandFront")
+
+[node name="Neck" type="Bone2D" parent="Bones/Skeleton2D/Hip" unique_id=1706642671]
+position = Vector2(7, -172)
+rotation = -0.06827271
+scale = Vector2(0.9999976, 0.9999976)
+rest = Transform2D(0.99767, -0.06822121, 0.06822121, 0.99767, 7, -172)
+
+[node name="RemoteTransform2D" type="RemoteTransform2D" parent="Bones/Skeleton2D/Hip/Neck" unique_id=1560582375]
+remote_path = NodePath("../../../../../Sprites/Neck")
+
+[node name="Head" type="Bone2D" parent="Bones/Skeleton2D/Hip/Neck" unique_id=934062233]
+position = Vector2(12, -39)
+rotation = -1.2722975
+scale = Vector2(0.9999993, 0.9999993)
+rest = Transform2D(0.29408568, -0.95577884, 0.95577884, 0.29408568, 12, -39)
+auto_calculate_length_and_angle = false
+length = 37.499485
+bone_angle = 90.0
+
+[node name="RemoteTransform2D" type="RemoteTransform2D" parent="Bones/Skeleton2D/Hip/Neck/Head" unique_id=516242418]
+position = Vector2(-0.08250666, 1.4420338)
+rotation = 1.3996928
+remote_path = NodePath("../../../../../../Sprites/Neck/Head")
+
+[node name="IKTargets" type="Node2D" parent="." unique_id=965380633]
+
+[node name="FeetFrontTarget" type="Node2D" parent="IKTargets" unique_id=928842967]
+position = Vector2(-42, 261)
+
+[node name="FeetBackTarget" type="Node2D" parent="IKTargets" unique_id=2134074278]
+position = Vector2(18, 269)
+
+[node name="HipTarget" type="Node2D" parent="IKTargets" unique_id=716259440]
+position = Vector2(12.000001, 85.00001)
+rotation = -0.016009446
+
+[node name="HeadTarget" type="Node2D" parent="IKTargets/HipTarget" unique_id=1969151043]
+position = Vector2(57.188843, -386.13397)
+rotation = 0.463514
+
+[node name="ArmFrontTarget" type="Node2D" parent="IKTargets/HipTarget" unique_id=1978876147]
+position = Vector2(-32.492172, 30.483742)
+rotation = 0.016009446
+
+[node name="ArmBackTarget" type="Node2D" parent="IKTargets/HipTarget" unique_id=1416795447]
+position = Vector2(105.78698, -48.31267)
+rotation = 0.016009446
+
+[node name="HandsLookatTarget" type="Node2D" parent="IKTargets" unique_id=1078535597]
+position = Vector2(335, 49)
+
+[node name="SoupMod" type="Node2D" parent="." unique_id=625042154]
+script = ExtResource("11_otsgi")
+metadata/_custom_type_script = "uid://clgwtw4irp0fp"
+
+[node name="HeadLookatTarget" type="Node2D" parent="SoupMod" unique_id=948755140 node_paths=PackedStringArray("bone_node", "target_node")]
+script = ExtResource("12_euewv")
+bone_node = NodePath("../../Bones/Skeleton2D/Hip/Neck")
+target_node = NodePath("../../IKTargets/HipTarget/HeadTarget")
+metadata/_custom_type_script = "uid://b4u1tvhlw4d2g"
+
+[node name="SoupTwoBoneIK" type="Node2D" parent="SoupMod" unique_id=212162609 node_paths=PackedStringArray("target_node", "joint_one_bone_node", "joint_two_bone_node")]
+script = ExtResource("13_pq6ca")
+target_node = NodePath("../../IKTargets/HipTarget/ArmBackTarget")
+joint_one_bone_node = NodePath("../../Bones/Skeleton2D/Hip/UpperArmBack")
+joint_two_bone_node = NodePath("../../Bones/Skeleton2D/Hip/UpperArmBack/LowerArmBack")
+metadata/_custom_type_script = "uid://bnso0mph1tb11"
+
+[node name="SoupTwoBoneIK2" type="Node2D" parent="SoupMod" unique_id=553371029 node_paths=PackedStringArray("target_node", "joint_one_bone_node", "joint_two_bone_node")]
+script = ExtResource("13_pq6ca")
+target_node = NodePath("../../IKTargets/HipTarget/ArmFrontTarget")
+joint_one_bone_node = NodePath("../../Bones/Skeleton2D/Hip/UpperArmFront")
+joint_two_bone_node = NodePath("../../Bones/Skeleton2D/Hip/UpperArmFront/LowerArmFront")
+draw_gizmo = true
+metadata/_custom_type_script = "uid://bnso0mph1tb11"
+
+[node name="SoupTwoBoneIK3" type="Node2D" parent="SoupMod" unique_id=399194030 node_paths=PackedStringArray("target_node", "joint_one_bone_node", "joint_two_bone_node")]
+script = ExtResource("13_pq6ca")
+flip_bend_direction = true
+target_node = NodePath("../../IKTargets/FeetFrontTarget")
+joint_one_bone_node = NodePath("../../Bones/Skeleton2D/Hip/UpperLegFront")
+joint_two_bone_node = NodePath("../../Bones/Skeleton2D/Hip/UpperLegFront/LowerLegFront")
+metadata/_custom_type_script = "uid://bnso0mph1tb11"
+
+[node name="SoupTwoBoneIK4" type="Node2D" parent="SoupMod" unique_id=19532420 node_paths=PackedStringArray("target_node", "joint_one_bone_node", "joint_two_bone_node")]
+script = ExtResource("13_pq6ca")
+flip_bend_direction = true
+target_node = NodePath("../../IKTargets/FeetBackTarget")
+joint_one_bone_node = NodePath("../../Bones/Skeleton2D/Hip/UpperLegBack")
+joint_two_bone_node = NodePath("../../Bones/Skeleton2D/Hip/UpperLegBack/LowerLegBack")
+metadata/_custom_type_script = "uid://bnso0mph1tb11"
+
+[node name="SoupBoneControl" type="Node2D" parent="SoupMod" unique_id=1294841642 node_paths=PackedStringArray("bone_node", "target_node")]
+script = ExtResource("14_5go3k")
+control_rotation = true
+control_position = true
+bone_node = NodePath("../../Bones/Skeleton2D/Hip")
+target_node = NodePath("../../IKTargets/HipTarget")
+target_rotation = -0.016009446
+metadata/_custom_type_script = "uid://b5uiivwxcoics"
+
+[node name="SoupLookAt" type="Node2D" parent="SoupMod" unique_id=633380298 node_paths=PackedStringArray("bone_node", "target_node")]
+script = ExtResource("12_euewv")
+bone_node = NodePath("../../Bones/Skeleton2D/Hip/UpperArmBack/LowerArmBack/HandBack")
+target_node = NodePath("../../IKTargets/HandsLookatTarget")
+metadata/_custom_type_script = "uid://b4u1tvhlw4d2g"
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1138206201]
+libraries/ = SubResource("AnimationLibrary_pgfvk")
+
+[node name="AnimationTree" type="AnimationTree" parent="." unique_id=2082805858]
+tree_root = SubResource("AnimationNodeStateMachine_pgfvk")
+anim_player = NodePath("../AnimationPlayer")
