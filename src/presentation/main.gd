@@ -20,12 +20,9 @@ const ClaimSheet = preload("res://src/presentation/ui/claim_sheet.gd")
 const Portrait = preload("res://src/presentation/ui/portrait.gd")
 const ResolutionSequence = preload("res://src/presentation/animation/resolution_sequence.gd")
 
-## The tallest the decision row may be at the smallest supported window.
-##
-## Chosen so the field still clears its own floor at 1024x640 while every primary
-## control stays above the fold — the two constraints that fight each other at
-## this size, and the reason the UI smoke test asserts the second one.
-const COMPACT_DECISION_CEILING := 250
+## The band the exchange strip takes at the top of the field. The overhead tags
+## hang below this rather than behind the strip, which is opaque.
+const STRIP_BAND := 86
 
 ## Move order shown in the action buttons.
 const MOVE_IDS: Array[String] = ["light_attack", "heavy_attack", "defensive_stance", "swap"]
@@ -417,34 +414,20 @@ func _apply_layout_balance() -> void:
 		lower_row.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 		return
 
-	# The challenge screen carries both risk branches and both actions, which is
-	# the longest decision in the game. It gets the extra height from the board
-	# rather than from a scroll, so LET IT STAND and CHALLENGE stay on screen.
+	# One height per size tier, the same for every stage.
+	#
+	# The challenge screen used to claim an extra 125-160px from the board, so
+	# entering CHALLENGE made the whole field jump down and back. A board that
+	# moves under the player is worse than a decision that scrolls: the decision
+	# has a pinned footer, so its primary controls stay on screen either way,
+	# while the board has nothing to pin.
 	var compact := _is_compact()
 	var roomy := _is_roomy()
-	# Enough for both risk branches and the pinned actions on the challenge
-	# screen, and enough for the reveal and its next control everywhere else.
-	# The board takes what is left, so the four cards per side stay whole at the
-	# sizes that can hold them.
-	var decision_height := 340
+	var decision_height := 215
 	if compact:
-		# The branches stack at this size, so the row needs less width-driven
-		# height and the board keeps enough to show a readable card.
-		decision_height = 285
+		decision_height = 190
 	elif roomy:
-		decision_height = 400
-	if ui_stage != "CHALLENGE":
-		decision_height = 190 if compact else 215
-		if roomy:
-			decision_height = 240
-
-	# The field is the board, and below a certain height it stops being one: the
-	# figures shrink out of legibility and the nameplates lose their names. At
-	# the smallest window the decision row is capped so the field clears that
-	# floor, which the decision can afford because its contents scroll and its
-	# primary controls are pinned to a footer that never scrolls.
-	if compact:
-		decision_height = mini(decision_height, COMPACT_DECISION_CEILING)
+		decision_height = 240
 
 	# The bottom row keeps its height and the board takes whatever is left, which
 	# is the whole point of every column bounding its own contents.
@@ -607,6 +590,10 @@ func _render_board() -> void:
 	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	battlefield.add_child(overlay)
+	# The overhead tags belong on top of the strip, and below the band it takes:
+	# a tag hidden behind it is the number the player is being asked to act on.
+	battlefield.raise_banners()
+	battlefield.top_reserve = STRIP_BAND
 
 	# The log ticker keeps its place under the field, and is still the first
 	# thing to go when the board is squeezed.
@@ -677,20 +664,22 @@ func _render_field() -> void:
 		"target": target_key,
 		"active_player": active if game.state["status"] != MatchState.STATUS_FINISHED else -1,
 	})
+	_render_field_banners()
 
 
-## The exchange banner that rides over the field: who is fighting whom, the move,
-## and during CLAIM the boast itself.
+## The exchange strip that rides over the field: the phase, the move, and the
+## position multiplier, on one line pinned to the top edge.
 ##
-## It is an overlay rather than a column, so it must not eat clicks meant for the
-## fighters underneath. Only the banner's own paper takes pointer events, and it
-## sits at the top of the field where no figure stands.
+## Deliberately thin. The matchup itself is shown by the figures — the attacker
+## and the defender are the two the field has already picked out — and the
+## numbers of the exchange hang over their heads, so a panel in the middle of
+## the board would only repeat that while covering the fighters it describes.
 func _build_stage_frame(compact: bool) -> Control:
 	var layer := Control.new()
 	layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	var anchor := VBoxContainer.new()
-	anchor.add_theme_constant_override("separation", 6)
+	anchor.add_theme_constant_override("separation", 4)
 	anchor.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	anchor.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
 	anchor.offset_left = 8
@@ -698,20 +687,19 @@ func _build_stage_frame(compact: bool) -> Control:
 	anchor.offset_top = 6
 	layer.add_child(anchor)
 
-	var banner := PanelContainer.new()
-	banner.add_theme_stylebox_override("panel", UiTheme.paper_style("raised"))
-	banner.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	# The banner is the one part of the overlay a player can hover for a rules
+	var strip := PanelContainer.new()
+	strip.add_theme_stylebox_override("panel", UiTheme.paper_style("raised"))
+	strip.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	# The strip is the one part of the overlay a player can hover for a rules
 	# tooltip, so it takes pointer events while the rest of the layer stays
 	# transparent to them.
-	banner.mouse_filter = Control.MOUSE_FILTER_STOP
-	banner.custom_minimum_size.x = 320 if compact else (520 if _is_roomy() else 420)
-	anchor.add_child(banner)
+	strip.mouse_filter = Control.MOUSE_FILTER_STOP
+	anchor.add_child(strip)
 
 	var stage_box := VBoxContainer.new()
-	stage_box.add_theme_constant_override("separation", 6)
+	stage_box.add_theme_constant_override("separation", 4)
 	stage_box.alignment = BoxContainer.ALIGNMENT_BEGIN
-	banner.add_child(stage_box)
+	strip.add_child(stage_box)
 	_render_stage(stage_box)
 	return layer
 
@@ -787,27 +775,16 @@ func _render_stage(box: VBoxContainer) -> void:
 	var move := Moves.get_move(str(action["move_id"]))
 	box.add_child(Widgets.centered_label(str(labels["main"]), 15, UiTheme.COLOR_CARDBOARD))
 
-	# The two paper tokens repeat what the field already shows: the attacker and
-	# the defender are the two figures the board has picked out. At the smallest
-	# window the banner would cover the whole field to say it twice, so there it
-	# folds to the matchup line alone and lets the figures do the showing.
-	if _is_compact():
-		box.add_child(Widgets.centered_label(_current_matchup_text(), 14, UiTheme.COLOR_INK))
-	else:
-		var matchup := HBoxContainer.new()
-		matchup.add_theme_constant_override("separation", 10)
-		matchup.alignment = BoxContainer.ALIGNMENT_CENTER
-		box.add_child(matchup)
-		matchup.add_child(_stage_fighter(actor_player, str(action["actor_id"]), "ATTACKER"))
-		if Moves.is_attack(str(action["move_id"])):
-			matchup.add_child(Widgets.label("⚔", 26, UiTheme.COLOR_ACCENT))
-			matchup.add_child(_stage_fighter(1 - actor_player, str(action["target_id"]), "DEFENDER"))
+	# The matchup is a line, not a pair of paper tokens: the two fighters are
+	# already picked out on the field, so a token of each would repeat the board
+	# back at itself and need the height to do it.
+	box.add_child(Widgets.centered_label(_current_matchup_text(), 14, UiTheme.COLOR_INK))
 
 	var move_row := HBoxContainer.new()
 	move_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	move_row.add_theme_constant_override("separation", 6)
 	box.add_child(move_row)
-	move_row.add_child(Widgets.stamp(str(move["display_name"]).to_upper(), UiTheme.COLOR_ACCENT, 12))
+	move_row.add_child(Widgets.stamp(str(move["display_name"]).to_upper(), UiTheme.COLOR_ACCENT, 11))
 
 	# The multiplier the target's rank applies, named at the point the target is
 	# chosen rather than left for the player to remember.
@@ -831,10 +808,13 @@ func _render_select_stage(box: VBoxContainer) -> void:
 	if actor.is_empty():
 		return
 
-	var token := HBoxContainer.new()
-	token.alignment = BoxContainer.ALIGNMENT_CENTER
-	box.add_child(token)
-	token.add_child(_stage_fighter(player, selected_actor_id, "PICKED"))
+	# No token for the picked fighter: they are already the one highlighted on
+	# the field, and a paper echo of them here would cover the crew it belongs to.
+	# The name goes on the strip instead.
+	box.add_child(Widgets.centered_label(
+		"%s — PICK A MOVE" % str(actor.get("display_name", selected_actor_id)).to_upper(),
+		13, UiTheme.COLOR_INK,
+	))
 
 	# The props sit on the table under the fighter who would use them, at a width
 	# that keeps all four in one glance.
@@ -846,36 +826,12 @@ func _render_select_stage(box: VBoxContainer) -> void:
 	var props_box := VBoxContainer.new()
 	props_box.add_theme_constant_override("separation", 5)
 	props.add_child(props_box)
-	props_box.add_child(Widgets.label("PICK A MOVE", 11, UiTheme.COLOR_INK_MUTED))
 	props_box.add_child(_build_move_buttons(player, actor))
 
 	if selected_move_id.is_empty():
 		return
 	props_box.add_child(Widgets.wrapped_label(_move_description(selected_move_id), 12, UiTheme.COLOR_INK_MUTED))
 	props_box.add_child(_build_target_hint(player))
-
-
-## One side of the centre matchup: a paper-token echo of the roster card.
-func _stage_fighter(player: int, character_id: String, role: String) -> Control:
-	var character: Dictionary = game.find_character(player, character_id)
-	var panel := PanelContainer.new()
-	panel.add_theme_stylebox_override("panel", UiTheme.paper_style("raised"))
-	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 2)
-	box.alignment = BoxContainer.ALIGNMENT_CENTER
-	panel.add_child(box)
-
-	box.add_child(Portrait.build(
-		character_id, str(character.get("display_name", character_id)), _player_color(player), 44,
-	))
-	box.add_child(Widgets.centered_label(str(character.get("display_name", character_id)), 13, UiTheme.COLOR_INK))
-	var tag := HBoxContainer.new()
-	tag.alignment = BoxContainer.ALIGNMENT_CENTER
-	box.add_child(tag)
-	tag.add_child(Widgets.patch(
-		role, UiTheme.COLOR_ACCENT if role == "ATTACKER" else UiTheme.COLOR_INFO, 9,
-	))
-	return panel
 
 
 ## Damage taken by formation slot, as a display string. The authority is
@@ -1261,33 +1217,6 @@ func _roll_face(roll: int, tint: Color) -> CenterContainer:
 	face.add_child(value)
 	column.add_child(face)
 	return centre
-
-
-## One public claim card in the challenge comparison. The two sit side by side
-## so the numbers can be read against each other without arithmetic.
-func _claim_tile(caption: String, value: int, tint: Color) -> PanelContainer:
-	var tile := PanelContainer.new()
-	tile.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var style := UiTheme.paper_style("raised")
-	style.set_corner_radius_all(UiTheme.RADIUS_CARD)
-	# Ownership as a tape edge along the top, so neither card is tinted in a
-	# colour that would read as an outcome.
-	style.border_width_top = 6
-	style.content_margin_top = 6
-	style.content_margin_bottom = 6
-	tile.add_theme_stylebox_override("panel", style)
-
-	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 2)
-	tile.add_child(box)
-	var owner_row := HBoxContainer.new()
-	owner_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	box.add_child(owner_row)
-	owner_row.add_child(Widgets.patch(caption, tint, 9))
-	var value_label := Widgets.label(str(value), 34, UiTheme.COLOR_INK)
-	value_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	box.add_child(value_label)
-	return tile
 
 
 ## The full-width result sign painted for the end of a match.
@@ -2035,22 +1964,13 @@ func _render_challenge_prompt() -> void:
 	var own_claim := int(game.state["exchange"]["claims"][decision_player]["value"])
 	prompt_box.add_child(_timed_section_heading("%s: call their bluff" % _player_name(decision_player)))
 
-	# Both public claim cards flip into the centre together, so neither player
-	# reads the other's number first.
-	var claims := HBoxContainer.new()
-	claims.add_theme_constant_override("separation", 8)
-	prompt_box.add_child(claims)
-	claims.add_child(_claim_tile("%s BOASTED" % _player_name(opponent).to_upper(), opponent_claim, _player_color(opponent)))
-	claims.add_child(_claim_tile("YOU BOASTED", own_claim, _player_color(decision_player)))
-
-	# Claims are not comparable on their own: the stats and move modifiers decide
-	# the exchange, so the totals both claims would produce are spelled out here.
+	# The two boasts hang over the heads of the fighters who made them, so they
+	# are not repeated here. What this panel owes the player is the arithmetic
+	# those numbers produce and the price of calling — not the numbers again.
 	prompt_box.add_child(_standing_totals(decision_player, own_claim, opponent, opponent_claim))
 
-	prompt_box.add_child(Widgets.wrapped_label(
-		"Challenge if you think their claim is higher than their true roll. Their roll stays hidden until the reveal, so both branches are priced below.",
-		12, UiTheme.COLOR_INK_MUTED,
-	))
+	# No instruction paragraph: the two branch cards below say what a challenge
+	# is worth in each case, which is the same thing said twice over.
 	prompt_box.add_child(_challenge_preview(decision_player))
 
 	# LET IT STAND and CHALLENGE stay on screen at all times: they go in the
@@ -2139,12 +2059,25 @@ func _challenge_preview(player: int) -> PanelContainer:
 
 	# Anything already on the board that changes these numbers is named here, so a
 	# player never has to remember which effects are live.
-	var modifiers := _challenge_modifier_lines(player)
+	#
+	# As patches rather than paragraphs: printing the full rules text of every
+	# live effect was the largest block on the longest decision screen, and it is
+	# the same text the kit patches carry everywhere else on the board. The name
+	# is the reminder; the rule is one hover away.
+	var modifiers := _challenge_modifiers(player)
 	if not modifiers.is_empty():
 		box.add_child(Widgets.rule(UiTheme.COLOR_CARDBOARD, 1))
 		box.add_child(Widgets.label("IN PLAY THIS EXCHANGE", 11, UiTheme.COLOR_INK_MUTED))
-		for line in modifiers:
-			box.add_child(Widgets.wrapped_label(line, 11, UiTheme.COLOR_INK_MUTED))
+		var patches := HFlowContainer.new()
+		patches.add_theme_constant_override("h_separation", 4)
+		patches.add_theme_constant_override("v_separation", 4)
+		box.add_child(patches)
+		for modifier in modifiers:
+			var patch := Widgets.patch(
+				str(modifier["label"]).to_upper(), modifier["tint"], 10,
+			)
+			patch.tooltip_text = str(modifier["tooltip"])
+			patches.add_child(patch)
 	return panel
 
 
@@ -2222,8 +2155,13 @@ func _challenge_branch_lines(player: int, they_bluffed: bool, challenging_the_at
 
 ## Live effects that bear on this challenge: stance, exposure, claim caps, and the
 ## kit effects that change what a caught bluff costs.
-func _challenge_modifier_lines(player: int) -> PackedStringArray:
-	var lines := PackedStringArray()
+##
+## Returns a patch per effect rather than a paragraph: `label` is the reminder
+## printed on the board, `tooltip` carries the rule in full. Matched on the kit
+## effect constant rather than on display text, so renaming the public wording
+## cannot silently drop an effect from the panel.
+func _challenge_modifiers(player: int) -> Array:
+	var modifiers: Array = []
 	var action: Dictionary = game.state["exchange"]["action"]
 	var attacker_player := int(action["player"])
 	var attacker: Dictionary = game.find_character(attacker_player, str(action["actor_id"]))
@@ -2242,18 +2180,38 @@ func _challenge_modifier_lines(player: int) -> PackedStringArray:
 		var name := str(character["display_name"])
 		var counters: Dictionary = character["effect_counters"]
 		if counters.get("defensive_stance_active", false):
-			lines.append("%s: %s is in a defensive stance, +5 defence." % [who, name])
+			modifiers.append({
+				"label": "%s: stance" % name,
+				"tint": UiTheme.COLOR_INFO,
+				"tooltip": "Defensive stance
+%s: %s is in a defensive stance, +5 defence." % [who, name],
+			})
 		if counters.get("exposed_after_wrong_call", false):
-			lines.append("%s: %s is EXPOSED, -5 defence this exchange." % [who, name])
+			modifiers.append({
+				"label": "%s: exposed" % name,
+				"tint": UiTheme.COLOR_WARNING,
+				"tooltip": "Exposed
+%s: %s is EXPOSED, -5 defence this exchange." % [who, name],
+			})
 		if int(counters.get(Kits.COUNTER_AUDIT_CAP, 20)) < 20:
-			lines.append("%s: %s is capped at a claim of %d." % [who, name, int(counters[Kits.COUNTER_AUDIT_CAP])])
-		# Only the kit effects that change what this challenge is worth. Matched on
-		# the effect constant rather than the display name so renaming the public
-		# text cannot silently drop an effect from the panel.
+			var cap := int(counters[Kits.COUNTER_AUDIT_CAP])
+			modifiers.append({
+				"label": "%s: capped %d" % [name, cap],
+				"tint": UiTheme.COLOR_WARNING,
+				"tooltip": "Audited
+%s: %s cannot claim above %d this round." % [who, name, cap],
+			})
 		for description in Kits.effect_descriptions(str(character["id"])):
 			if str(description["effect"]) in CHALLENGE_RELEVANT_EFFECTS:
-				lines.append("%s: %s — %s" % [who, str(description["name"]), str(description["text"])])
-	return lines
+				modifiers.append({
+					"label": "%s: %s" % [name, str(description["name"])],
+					"tint": UiTheme.COLOR_ACCENT,
+					"tooltip": "%s
+%s: %s" % [
+						str(description["name"]), who, str(description["text"]),
+					],
+				})
+	return modifiers
 
 
 func _submit_challenge(challenge: bool) -> void:
@@ -2461,6 +2419,78 @@ func _play_exchange_animation(resolution: Dictionary, attacker_player: int, defe
 		# The attacker's own flinch waits for its swing to finish, so a caught
 		# bluff reads as swing-then-recoil rather than as both at once.
 		attacker.play_after(FighterRigs.BEAT_HURT)
+
+
+## Hangs the exchange's own numbers over the fighters they belong to.
+##
+## This is where a claim, a revealed roll, and the damage that followed are
+## shown. They sit over the heads rather than in a panel on the field because
+## the middle of the board is where the fighters are: any panel large enough to
+## carry them covers the crews it is describing.
+##
+## Every value is public at the moment it is printed. A claim is public from the
+## moment both are in — the blind part is over by CHALLENGE — and a roll and its
+## damage come from `last_resolution`, which only exists after the reveal.
+func _render_field_banners() -> void:
+	if battlefield == null or not is_instance_valid(battlefield):
+		return
+	battlefield.clear_banners()
+
+	var action: Dictionary = game.state["exchange"].get("action", {})
+	if action.is_empty() or str(action.get("actor_id", "")).is_empty():
+		if ui_stage == "RESOLUTION":
+			_render_resolution_banners()
+		return
+
+	var attacker_player := int(action["player"])
+	var attacker_id := str(action["actor_id"])
+	if not Moves.is_attack(str(action["move_id"])):
+		return
+	var defender_player := 1 - attacker_player
+	var defender_id := str(action["target_id"])
+
+	# Claims only go up once both are in. Printing one the moment it is submitted
+	# would show the first player's boast to the second before they commit to
+	# theirs, which is the blindness the whole protocol exists to protect.
+	if ui_stage != "CHALLENGE" and ui_stage != "WAIT_CHALLENGE":
+		return
+	var claims: Array = game.state["exchange"]["claims"]
+	battlefield.set_banner(
+		attacker_player, attacker_id,
+		"⚔ %d" % int(claims[attacker_player]["value"]),
+		_player_color(attacker_player), "BOASTS",
+	)
+	battlefield.set_banner(
+		defender_player, defender_id,
+		"⛨ %d" % int(claims[defender_player]["value"]),
+		_player_color(defender_player), "BOASTS",
+	)
+
+
+## The reveal, over the heads: each side's true roll stamped with how its claim
+## settled, and the damage that landed.
+func _render_resolution_banners() -> void:
+	var resolution: Dictionary = game.state.get("last_resolution", {})
+	if resolution.is_empty() or bool(resolution.get("non_attack", false)):
+		return
+	var attacker_player := int(resolution["attacker_player"])
+	var defender_player := int(resolution["defender_player"])
+
+	for side in [
+		{"key": "attack", "player": attacker_player, "id": str(resolution["actor_id"])},
+		{"key": "defence", "player": defender_player, "id": str(resolution["target_id"])},
+	]:
+		var entry: Dictionary = resolution[str(side["key"])]
+		var outcome := str(entry["outcome"])
+		var text := "%d" % int(entry["true_roll"])
+		var claim := int(entry["claim"])
+		if claim > int(entry["true_roll"]):
+			text = "%d → %d" % [int(entry["true_roll"]), claim]
+		battlefield.set_banner(
+			int(side["player"]), str(side["id"]), text,
+			ResolutionSequence._stamp_color(outcome),
+			str(ResolutionSequence.OUTCOME_STAMPS.get(outcome, outcome)),
+		)
 
 
 ## Draws attention to a kit effect on the field. Best effort by design: the

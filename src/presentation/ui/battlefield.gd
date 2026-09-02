@@ -88,6 +88,7 @@ var _viewport: SubViewport
 var _viewport_holder: SubViewportContainer
 var _world: Node2D
 var _plate_layer: Control
+var _banner_layer: Control
 ## Every fighter on the field, keyed "<player>:<character_id>". Held so a
 ## resolution can animate one fighter without rebuilding the board.
 var _fighters: Dictionary = {}
@@ -127,6 +128,13 @@ func _init() -> void:
 	_plate_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_plate_layer)
 
+	# The overhead tags draw above the plates and never take a click, so a tag
+	# that happens to sit over a nameplate cannot block selecting that fighter.
+	_banner_layer = Control.new()
+	_banner_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_banner_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_banner_layer)
+
 	resized.connect(_on_resized)
 
 
@@ -135,6 +143,38 @@ func _init() -> void:
 ## character is not on the board.
 func fighter_for(player: int, character_id: String) -> Fighter:
 	return _fighters.get(_key(player, character_id))
+
+
+## Prints an overhead tag on one fighter, or clears it with an empty text.
+##
+## The shell drives these from `last_resolution` and the public claims, the same
+## way it drives the animation beats: the field decides where a tag hangs, never
+## what it says.
+func set_banner(player: int, character_id: String, text: String, tint: Color, detail: String = "") -> void:
+	var fighter := fighter_for(player, character_id)
+	if fighter == null:
+		return
+	fighter.show_banner(text, tint, detail)
+	_layout()
+
+
+## The band at the top of the field the shell has claimed for its own strip.
+## Tags hang below it rather than behind it.
+var top_reserve := 0.0
+
+
+## Lifts the overhead tags above anything the shell has since parented onto the
+## field, so a strip drawn over the top cannot hide the numbers.
+func raise_banners() -> void:
+	if is_instance_valid(_banner_layer):
+		move_child(_banner_layer, get_child_count() - 1)
+
+
+## Clears every overhead tag. Called when an exchange ends so a claim from the
+## last turn cannot linger over a fighter into the next one.
+func clear_banners() -> void:
+	for key: String in _fighters:
+		(_fighters[key] as Fighter).clear_banner()
 
 
 ## Draws both crews.
@@ -176,6 +216,7 @@ func _sync_fighter(player: int, character: Dictionary, tint: Color, view: Dictio
 		_fighters[key] = fighter
 		_world.add_child(fighter.rig_root)
 		_plate_layer.add_child(fighter.plate)
+		_banner_layer.add_child(fighter.banner)
 		# An AnimationTree has no playback object until it is inside the tree, so
 		# the idle loop can only start once the rig has been parented.
 		fighter.start_idle()
@@ -224,6 +265,9 @@ func _layout() -> void:
 	# means lifting it by the scaled distance from origin to feet.
 	var feet_offset := FighterRigs.RIG_GROUND * scale_factor
 	var figure_width := FighterRigs.RIG_HEIGHT * scale_factor * 0.36
+
+	# One crest line for every tag on the field, from the top of a full rig.
+	var crest_y := ground_y - feet_offset + FighterRigs.RIG_CREST * scale_factor
 
 	var centre := size.x * 0.5
 	var inset := size.x * CENTRE_GAP * 0.5
@@ -277,6 +321,11 @@ func _layout() -> void:
 		fighter.rig_root.z_index = rank
 
 		fighter.place_plate(Vector2(x, ground_y), plate_width, size, plate_width < KIT_ROW_MIN_WIDTH)
+		# Every tag hangs at the same height, taken from a full rig rather than
+		# from this figure's own top. A standee is shorter than a rig, so per
+		# figure crests would step the tags up and down across the line and stop
+		# them reading as one row of numbers.
+		fighter.place_banner(x, crest_y, size, top_reserve)
 
 
 ## The widest a plate could be on a field this size.

@@ -22,6 +22,9 @@ signal clicked(player: int, character_id: String)
 
 ## How far under the ground line the nameplate hangs, in pixels.
 const PLATE_DROP := 6
+
+## The clear air kept between the top of a figure's head and its overhead tag.
+const BANNER_LIFT := 10
 const PLATE_MIN_WIDTH := 84
 
 ## The least height a plate may take, so a plate whose rows have not been laid
@@ -42,12 +45,18 @@ var position_rank := 4
 var rig_root: Node2D
 ## The clickable nameplate. This is the fighter's whole interface.
 var plate: PlateButton
+## The tag that floats over this fighter's head: their boast during the blind
+## phases, their true roll and outcome at the reveal, and the damage they took.
+## Empty and hidden the rest of the time, so a quiet field stays quiet.
+var banner: PanelContainer
 
 var _rig: Node2D
 var _playback: AnimationNodeStateMachinePlayback
 var _name_label: Label
 var _rank_label: Label
 var _health_bar: ProgressBar
+var _banner_label: Label
+var _banner_detail: Label
 var _stamp_row: HBoxContainer
 var _kit_row: HBoxContainer
 var _placeholder: Node2D
@@ -77,6 +86,7 @@ func _init(owning_player: int = -1, id: String = "") -> void:
 		rig_root.add_child(_placeholder)
 
 	plate = _build_plate()
+	banner = _build_banner()
 
 
 ## Frees both halves. The rig lives in a viewport and the plate in the control
@@ -86,6 +96,8 @@ func dispose() -> void:
 		rig_root.queue_free()
 	if is_instance_valid(plate):
 		plate.queue_free()
+	if is_instance_valid(banner):
+		banner.queue_free()
 
 
 ## Applies one character's public state.
@@ -145,6 +157,74 @@ func bind(character: Dictionary, view: Dictionary) -> void:
 		_placeholder.modulate = Color(1, 1, 1, 1.0 if _alive else 0.4)
 	elif _rig != null:
 		_rig.modulate = Color(1, 1, 1, 1.0 if _alive else 0.4)
+
+
+## Prints a line over this fighter's head, or clears it when `text` is empty.
+##
+## This is where the exchange's own numbers go: a claim while it is still a
+## boast, the true roll and its outcome once revealed, the damage that followed.
+## They belong over the figure that owns them rather than in a panel in the
+## middle of the field, which is the one place a banner cannot go without
+## covering the fighters it is describing.
+func show_banner(text: String, tint: Color, detail: String = "") -> void:
+	if not is_instance_valid(banner):
+		return
+	if text.is_empty():
+		banner.visible = false
+		return
+	banner.visible = true
+	_banner_label.text = text
+	_banner_label.add_theme_color_override("font_color", UiTheme.ink_on(tint))
+	_banner_detail.text = detail
+	_banner_detail.visible = not detail.is_empty()
+	_banner_detail.add_theme_color_override("font_color", UiTheme.ink_on(tint))
+	var style := UiTheme.patch_style(tint, "stamped")
+	style.content_margin_left = 8
+	style.content_margin_right = 8
+	banner.add_theme_stylebox_override("panel", style)
+	banner.reset_size()
+
+
+## Clears the overhead tag.
+func clear_banner() -> void:
+	show_banner("", UiTheme.COLOR_ACCENT)
+
+
+## Hangs the overhead tag above a figure whose head is at `crest`.
+func place_banner(anchor_x: float, crest_y: float, field_size: Vector2, top_reserve: float = 0.0) -> void:
+	if not is_instance_valid(banner) or not banner.visible:
+		return
+	var wanted := banner.get_combined_minimum_size()
+	banner.size = wanted
+	var x := clampf(anchor_x - wanted.x * 0.5, 2.0, maxf(2.0, field_size.x - wanted.x - 2.0))
+	# Above the head, and never off the top of the field: a tag that has been
+	# pushed down onto the figure is the overlap this exists to avoid, so it is
+	# clamped into the field rather than allowed to ride up out of it.
+	# Above the head, below whatever the shell has reserved at the top of the
+	# field for its own strip. Clamped into the field either way: a tag pushed
+	# down onto the figure is the overlap this exists to avoid.
+	var floor_y := maxf(2.0, top_reserve)
+	var y := clampf(crest_y - wanted.y - BANNER_LIFT, floor_y, maxf(floor_y, field_size.y - wanted.y - 2.0))
+	banner.position = Vector2(x, y)
+
+
+## The overhead tag. Hidden until an exchange gives it something to say.
+func _build_banner() -> PanelContainer:
+	var node := PanelContainer.new()
+	node.visible = false
+	# Decoration over the field: it must never intercept a click meant for the
+	# figure or the plate underneath it.
+	node.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 0)
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	node.add_child(box)
+	_banner_label = Widgets.centered_label("", 15, UiTheme.COLOR_INK)
+	box.add_child(_banner_label)
+	_banner_detail = Widgets.centered_label("", 10, UiTheme.COLOR_INK)
+	_banner_detail.visible = false
+	box.add_child(_banner_detail)
+	return node
 
 
 ## The name as it fits on a plate: the character's own word, without the article.
