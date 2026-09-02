@@ -2,9 +2,8 @@ extends Node2D
 
 const IDLE: StringName = &"idle_animation"
 const TEST_ANIMATIONS: Array[StringName] = [
-	&"wand_attack_animation",
-	&"wand_attack_2_animation",
-	&"wand_slap_animation",
+	&"attack_animation",
+	&"stab_animation",
 	&"hurt_animation",
 	&"move_animation",
 ]
@@ -22,7 +21,6 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	# is_action_pressed() ignores key-repeat events by default.
 	if not event.is_action_pressed(&"ui_accept"):
 		return
 
