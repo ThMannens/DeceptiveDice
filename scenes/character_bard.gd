@@ -24,8 +24,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not event.is_action_pressed(&"ui_accept"):
 		return
 
-	if playback.get_current_node() != IDLE:
+	if playback.get_current_node() == IDLE:
+		playback.travel(TEST_ANIMATIONS[next_animation])
+		next_animation = (next_animation + 1) % TEST_ANIMATIONS.size()
 		return
 
-	playback.travel(TEST_ANIMATIONS[next_animation])
-	next_animation = (next_animation + 1) % TEST_ANIMATIONS.size()
+	playback.travel(IDLE)
