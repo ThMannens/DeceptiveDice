@@ -5,16 +5,16 @@
     "player_ids": ["alice", "bob"]
   },
   "setup_steps": [
-    {"event": {"type": "draft_submitted", "match_id": "a2-positions", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}},
-    {"event": {"type": "draft_submitted", "match_id": "a2-positions", "exchange_number": 0, "phase": "DRAFT", "sender": 1, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}}
+    {"event": {"type": "draft_submitted", "match_id": "a2-positions", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["scribe", "knight", "bard", "rogue"]}}},
+    {"event": {"type": "draft_submitted", "match_id": "a2-positions", "exchange_number": 0, "phase": "DRAFT", "sender": 1, "payload": {"character_ids": ["scribe", "knight", "bard", "rogue"]}}}
   ],
   "cases": [
     {
       "name": "position 2 takes 85 percent",
       "steps": [
-        {"event": {"type": "formation_submitted", "match_id": "a2-positions", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["ledger", "gambler", "hook", "bruiser"]}}},
-        {"event": {"type": "formation_submitted", "match_id": "a2-positions", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["bruiser", "ledger", "gambler", "hook"]}}},
-        {"event": {"type": "action_selected", "match_id": "a2-positions", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "bruiser", "move_id": "light_attack", "target_id": "ledger"}}},
+        {"event": {"type": "formation_submitted", "match_id": "a2-positions", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["scribe", "bard", "rogue", "knight"]}}},
+        {"event": {"type": "formation_submitted", "match_id": "a2-positions", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["knight", "scribe", "bard", "rogue"]}}},
+        {"event": {"type": "action_selected", "match_id": "a2-positions", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "knight", "move_id": "light_attack", "target_id": "scribe"}}},
         {"event": {"type": "commit_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "alice-commit", "observer_secret": "bob-observer-secret"}}},
         {"event": {"type": "commit_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "bob-commit", "observer_secret": "alice-observer-secret"}}},
         {"event": {"type": "claim_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 12}}},
@@ -35,9 +35,9 @@
     {
       "name": "position 3 takes 100 percent",
       "steps": [
-        {"event": {"type": "formation_submitted", "match_id": "a2-positions", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["ledger", "gambler", "hook", "bruiser"]}}},
-        {"event": {"type": "formation_submitted", "match_id": "a2-positions", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["bruiser", "gambler", "ledger", "hook"]}}},
-        {"event": {"type": "action_selected", "match_id": "a2-positions", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "bruiser", "move_id": "light_attack", "target_id": "ledger"}}},
+        {"event": {"type": "formation_submitted", "match_id": "a2-positions", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["scribe", "bard", "rogue", "knight"]}}},
+        {"event": {"type": "formation_submitted", "match_id": "a2-positions", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["knight", "bard", "scribe", "rogue"]}}},
+        {"event": {"type": "action_selected", "match_id": "a2-positions", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "knight", "move_id": "light_attack", "target_id": "scribe"}}},
         {"event": {"type": "commit_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "alice-commit", "observer_secret": "bob-observer-secret"}}},
         {"event": {"type": "commit_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "bob-commit", "observer_secret": "alice-observer-secret"}}},
         {"event": {"type": "claim_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 12}}},
@@ -58,9 +58,9 @@
     {
       "name": "position 4 takes 120 percent",
       "steps": [
-        {"event": {"type": "formation_submitted", "match_id": "a2-positions", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["ledger", "gambler", "hook", "bruiser"]}}},
-        {"event": {"type": "formation_submitted", "match_id": "a2-positions", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["bruiser", "gambler", "hook", "ledger"]}}},
-        {"event": {"type": "action_selected", "match_id": "a2-positions", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "bruiser", "move_id": "light_attack", "target_id": "ledger"}}},
+        {"event": {"type": "formation_submitted", "match_id": "a2-positions", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["scribe", "bard", "rogue", "knight"]}}},
+        {"event": {"type": "formation_submitted", "match_id": "a2-positions", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["knight", "bard", "rogue", "scribe"]}}},
+        {"event": {"type": "action_selected", "match_id": "a2-positions", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "knight", "move_id": "light_attack", "target_id": "scribe"}}},
         {"event": {"type": "commit_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "alice-commit", "observer_secret": "bob-observer-secret"}}},
         {"event": {"type": "commit_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "bob-commit", "observer_secret": "alice-observer-secret"}}},
         {"event": {"type": "claim_submitted", "match_id": "a2-positions", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 12}}},

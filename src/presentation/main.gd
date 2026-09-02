@@ -12,12 +12,20 @@ const NetworkMatch = preload("res://src/network/network_match.gd")
 
 const UiTheme = preload("res://src/presentation/theme.gd")
 const Widgets = preload("res://src/presentation/ui/widgets.gd")
-const CharacterCard = preload("res://src/presentation/ui/character_card.gd")
-const TeamRoster = preload("res://src/presentation/ui/team_roster.gd")
+const Fighter = preload("res://src/presentation/ui/fighter.gd")
+const Battlefield = preload("res://src/presentation/ui/battlefield.gd")
+const FighterRigs = preload("res://src/presentation/ui/fighter_rigs.gd")
 const PhaseRibbon = preload("res://src/presentation/ui/phase_ribbon.gd")
 const ClaimSheet = preload("res://src/presentation/ui/claim_sheet.gd")
 const Portrait = preload("res://src/presentation/ui/portrait.gd")
 const ResolutionSequence = preload("res://src/presentation/animation/resolution_sequence.gd")
+
+## The tallest the decision row may be at the smallest supported window.
+##
+## Chosen so the field still clears its own floor at 1024x640 while every primary
+## control stays above the fold — the two constraints that fight each other at
+## this size, and the reason the UI smoke test asserts the second one.
+const COMPACT_DECISION_CEILING := 250
 
 ## Move order shown in the action buttons.
 const MOVE_IDS: Array[String] = ["light_attack", "heavy_attack", "defensive_stance", "swap"]
@@ -79,9 +87,10 @@ var subtitle_label: Label
 ## stage are held rather than rebuilt from scratch, so the layout at 1280x720
 ## and 1024x640 is decided once and only the contents change.
 var phase_ribbon: PhaseRibbon
-var rosters: Array = [null, null]
+## The animated field. It is the board now: the two crews stand on it and every
+## actor and target is picked by clicking a fighter's nameplate.
+var battlefield: Battlefield
 var claim_sheets: Array = [null, null]
-var roster_columns: Array = [null, null]
 ## Every claim that has become public, newest first, one list per player. Built
 ## as resolutions land rather than read back out of state, because the reducer
 ## keeps only the last resolution.
@@ -429,6 +438,14 @@ func _apply_layout_balance() -> void:
 		if roomy:
 			decision_height = 240
 
+	# The field is the board, and below a certain height it stops being one: the
+	# figures shrink out of legibility and the nameplates lose their names. At
+	# the smallest window the decision row is capped so the field clears that
+	# floor, which the decision can afford because its contents scroll and its
+	# primary controls are pinned to a footer that never scrolls.
+	if compact:
+		decision_height = mini(decision_height, COMPACT_DECISION_CEILING)
+
 	# The bottom row keeps its height and the board takes whatever is left, which
 	# is the whole point of every column bounding its own contents.
 	lower_row.custom_minimum_size.y = decision_height
@@ -547,14 +564,17 @@ func _current_matchup_text() -> String:
 	return "%s ⚔ %s" % [actor, target]
 
 
-## Builds the exchange theatre: roster, centre stage, roster, with each player's
-## claim sheet pinned under their own side.
+## Builds the exchange theatre: the field with both crews on it, the exchange
+## banner over the top, and each player's claim sheet pinned beneath.
+##
+## The field is the board. The paper roster columns it replaced carried the same
+## facts — name, rank, health, whose turn, what is clickable — and those now ride
+## on the nameplate under each figure, so nothing was dropped in the move; what
+## changed is that a player reads the formation off the formation itself.
 func _render_board() -> void:
 	_clear_children(board_container)
 	_clear_children(lower_row)
-	rosters = [null, null]
 	claim_sheets = [null, null]
-	roster_columns = [null, null]
 	history_label = null
 	log_panel = null
 
@@ -563,95 +583,137 @@ func _render_board() -> void:
 		# Before the crews are on the field there is nothing to lay out. The
 		# prompt takes the full page rather than sitting beside an empty board
 		# and an empty log.
+		battlefield = null
 		prompt_box = _build_stage_column(lower_row, false)
 		return
 
 	var compact := _is_compact()
-	var width := _roster_width()
 
-	for player in 2:
-		var column := VBoxContainer.new()
-		column.add_theme_constant_override("separation", 6)
-		column.custom_minimum_size = Vector2(width, 0)
-		column.size_flags_horizontal = Control.SIZE_FILL
-		column.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		column.clip_contents = true
-		roster_columns[player] = column
+	# The field takes the whole board row. Both crews are on it, so there is no
+	# longer a left column, a centre, and a right column to balance.
+	var field_column := VBoxContainer.new()
+	field_column.add_theme_constant_override("separation", 6)
+	field_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	field_column.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	field_column.clip_contents = true
 
-		# The roster scrolls inside its own column. Without this the four cards
-		# set the board's minimum height, which beats every ceiling the layout
-		# puts on it and pushes the decision row off the bottom of the page.
-		var roster_scroll := ScrollContainer.new()
-		roster_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-		roster_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		column.add_child(roster_scroll)
+	battlefield = Battlefield.new()
+	battlefield.fighter_clicked.connect(_on_card_clicked)
+	field_column.add_child(battlefield)
 
-		var roster := TeamRoster.new()
-		roster.card_clicked.connect(_on_card_clicked)
-		roster.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		rosters[player] = roster
-		roster_scroll.add_child(roster)
-		_render_team(player, roster, compact)
+	# The exchange banner rides over the field rather than beside it: the matchup
+	# and the props belong to the two figures already facing each other.
+	var overlay := _build_stage_frame(compact)
+	overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	battlefield.add_child(overlay)
 
-	# The claim sheets sit under their own rosters, so reading what an opponent
-	# has been claiming never means scanning past your own. At the smallest
-	# supported size they fold into the roster columns instead of taking a third
-	# of a bottom row that barely fits the decision.
+	# The log ticker keeps its place under the field, and is still the first
+	# thing to go when the board is squeezed.
+	log_panel = _build_log_panel()
+	log_panel.visible = not compact
+	field_column.add_child(log_panel)
+
+	board_container.add_child(field_column)
+	_render_field()
+
+	# The claim sheets flank the decision, one per player, in the same reading
+	# order as the crews on the field above them.
 	for player in 2:
 		var sheet := ClaimSheet.new()
-		sheet.custom_minimum_size.x = width
+		sheet.custom_minimum_size.x = _roster_width()
 		claim_sheets[player] = sheet
 	if compact:
+		# At the floor size the sheets go inside the decision column's own
+		# scroll rather than taking a band of their own. The field and the
+		# pinned footer both outrank them: a claim record is reference, and the
+		# control the player needs must stay above the fold.
+		prompt_box = _build_stage_column(lower_row, true)
+		var sheet_row := HBoxContainer.new()
+		sheet_row.add_theme_constant_override("separation", 8)
 		for player in 2:
-			claim_sheets[player].custom_minimum_size.y = 90
-			roster_columns[player].add_child(claim_sheets[player])
+			claim_sheets[player].custom_minimum_size = Vector2(0, 76)
+			claim_sheets[player].size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			sheet_row.add_child(claim_sheets[player])
+		prompt_box.add_child(sheet_row)
 	else:
 		lower_row.add_child(claim_sheets[0])
-	# Built before the stage: a decision that plays on the stage parents its
-	# commit control into this column's pinned footer.
-	prompt_box = _build_stage_column(lower_row, true)
-	if not compact:
+		prompt_box = _build_stage_column(lower_row, true)
 		lower_row.add_child(claim_sheets[1])
 
-	# Rosters flank the board; the centre stage takes the slack width.
-	board_container.add_child(roster_columns[0])
-	board_container.add_child(_build_stage_frame(compact))
-	board_container.add_child(roster_columns[1])
+
+## Puts both crews on the field in their current formation.
+##
+## Every interaction state comes from the same predicates the roster cards used,
+## so clicking a fighter and clicking a card were never two rules.
+func _render_field() -> void:
+	if battlefield == null or state_is_empty():
+		return
+	var active := int(game.state["active_player"])
+	var clickable: Array = []
+	var target_key := ""
+	for player in 2:
+		for character in game.state["teams"][player]["characters"]:
+			var character_id := str(character["id"])
+			if _is_pickable_actor(player, character_id) or _is_valid_target(player, character_id):
+				clickable.append("%d:%s" % [player, character_id])
+
+	# The exchange's own attacker and defender outrank a pending selection, so
+	# once an action is locked in the field shows that pairing rather than the
+	# stale pick that produced it.
+	var action: Dictionary = game.state["exchange"].get("action", {})
+	var selected_key := ""
+	if not action.is_empty() and not str(action.get("actor_id", "")).is_empty():
+		selected_key = "%d:%s" % [int(action["player"]), str(action["actor_id"])]
+		if Moves.is_attack(str(action["move_id"])):
+			target_key = "%d:%s" % [1 - int(action["player"]), str(action["target_id"])]
+	elif not selected_actor_id.is_empty():
+		selected_key = "%d:%s" % [active, selected_actor_id]
+
+	battlefield.render(game.state["teams"], {
+		"tints": [_player_color(0), _player_color(1)],
+		"clickable": clickable,
+		"selected": selected_key,
+		"target": target_key,
+		"active_player": active if game.state["status"] != MatchState.STATUS_FINISHED else -1,
+	})
 
 
-## The centre column of the board: the exchange itself, plus the log ticker.
+## The exchange banner that rides over the field: who is fighting whom, the move,
+## and during CLAIM the boast itself.
+##
+## It is an overlay rather than a column, so it must not eat clicks meant for the
+## fighters underneath. Only the banner's own paper takes pointer events, and it
+## sits at the top of the field where no figure stands.
 func _build_stage_frame(compact: bool) -> Control:
-	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", 6)
-	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	column.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	column.clip_contents = true
-	# The stage never narrows past what the decision controls need, even when
-	# the window is at the smaller supported size, but it may give up any height.
-	column.custom_minimum_size = Vector2(380 if compact else (560 if _is_roomy() else 440), 0)
+	var layer := Control.new()
+	layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	var stage := PanelContainer.new()
-	stage.add_theme_stylebox_override("panel", UiTheme.paper_style("well"))
-	stage.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	stage.clip_contents = true
-	# The stage is allowed to be squeezed to nothing. Its contents are echoed in
-	# the roster cards and the decision panel, so losing height here costs no
-	# information; letting it set a floor would cost the decision its footer.
-	stage.custom_minimum_size.y = 0
-	column.add_child(stage)
+	var anchor := VBoxContainer.new()
+	anchor.add_theme_constant_override("separation", 6)
+	anchor.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	anchor.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+	anchor.offset_left = 8
+	anchor.offset_right = -8
+	anchor.offset_top = 6
+	layer.add_child(anchor)
+
+	var banner := PanelContainer.new()
+	banner.add_theme_stylebox_override("panel", UiTheme.paper_style("raised"))
+	banner.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	# The banner is the one part of the overlay a player can hover for a rules
+	# tooltip, so it takes pointer events while the rest of the layer stays
+	# transparent to them.
+	banner.mouse_filter = Control.MOUSE_FILTER_STOP
+	banner.custom_minimum_size.x = 320 if compact else (520 if _is_roomy() else 420)
+	anchor.add_child(banner)
 
 	var stage_box := VBoxContainer.new()
 	stage_box.add_theme_constant_override("separation", 6)
 	stage_box.alignment = BoxContainer.ALIGNMENT_BEGIN
-	stage.add_child(stage_box)
+	banner.add_child(stage_box)
 	_render_stage(stage_box)
-
-	# The log ticker is the first thing to go when the board is squeezed: it is a
-	# scrollback of what already happened, not part of the current decision.
-	log_panel = _build_log_panel()
-	log_panel.visible = not _is_compact()
-	column.add_child(log_panel)
-	return column
+	return layer
 
 
 ## The prompt column: the current decision and its primary controls.
@@ -725,14 +787,21 @@ func _render_stage(box: VBoxContainer) -> void:
 	var move := Moves.get_move(str(action["move_id"]))
 	box.add_child(Widgets.centered_label(str(labels["main"]), 15, UiTheme.COLOR_CARDBOARD))
 
-	var matchup := HBoxContainer.new()
-	matchup.add_theme_constant_override("separation", 10)
-	matchup.alignment = BoxContainer.ALIGNMENT_CENTER
-	box.add_child(matchup)
-	matchup.add_child(_stage_fighter(actor_player, str(action["actor_id"]), "ATTACKER"))
-	if Moves.is_attack(str(action["move_id"])):
-		matchup.add_child(Widgets.label("⚔", 26, UiTheme.COLOR_ACCENT))
-		matchup.add_child(_stage_fighter(1 - actor_player, str(action["target_id"]), "DEFENDER"))
+	# The two paper tokens repeat what the field already shows: the attacker and
+	# the defender are the two figures the board has picked out. At the smallest
+	# window the banner would cover the whole field to say it twice, so there it
+	# folds to the matchup line alone and lets the figures do the showing.
+	if _is_compact():
+		box.add_child(Widgets.centered_label(_current_matchup_text(), 14, UiTheme.COLOR_INK))
+	else:
+		var matchup := HBoxContainer.new()
+		matchup.add_theme_constant_override("separation", 10)
+		matchup.alignment = BoxContainer.ALIGNMENT_CENTER
+		box.add_child(matchup)
+		matchup.add_child(_stage_fighter(actor_player, str(action["actor_id"]), "ATTACKER"))
+		if Moves.is_attack(str(action["move_id"])):
+			matchup.add_child(Widgets.label("⚔", 26, UiTheme.COLOR_ACCENT))
+			matchup.add_child(_stage_fighter(1 - actor_player, str(action["target_id"]), "DEFENDER"))
 
 	var move_row := HBoxContainer.new()
 	move_row.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -746,7 +815,7 @@ func _render_stage(box: VBoxContainer) -> void:
 		var target: Dictionary = game.find_character(1 - actor_player, str(action["target_id"]))
 		var target_position := int(target.get("position", 3))
 		move_row.add_child(Widgets.patch(
-			"POSITION %d · %s DAMAGE" % [target_position, str(CharacterCard.POSITION_LABELS.get(target_position, "100%"))],
+			"POSITION %d · %s DAMAGE" % [target_position, str(Fighter.POSITION_LABELS.get(target_position, "100%"))],
 			UiTheme.COLOR_WARNING, 10,
 		))
 
@@ -807,52 +876,6 @@ func _stage_fighter(player: int, character_id: String, role: String) -> Control:
 		role, UiTheme.COLOR_ACCENT if role == "ATTACKER" else UiTheme.COLOR_INFO, 9,
 	))
 	return panel
-
-
-## Fills one roster column with the current team.
-func _render_team(player: int, roster: TeamRoster, compact: bool) -> void:
-	var is_active := player == int(game.state["active_player"])
-	var characters: Array = game.state["teams"][player]["characters"]
-	var used: Array = game.state["teams"][player]["used_character_ids"]
-
-	var states := {}
-	var clickable: Array = []
-	for character in characters:
-		var character_id := str(character["id"])
-		states[character_id] = _card_state(player, character, is_active, character_id in used)
-		if _is_pickable_actor(player, character_id) or _is_valid_target(player, character_id):
-			clickable.append(character_id)
-
-	roster.render(player, characters, {
-		"name": _player_name(player),
-		"tint": _player_color(player),
-		"acting": is_active and game.state["status"] != MatchState.STATUS_FINISHED,
-		"compact": compact,
-		"card_states": states,
-		"clickable_ids": clickable,
-	})
-
-
-## The one interaction state a card is in. Resolved in priority order, so a card
-## is never both a target and a defender: the most decision-relevant state wins.
-func _card_state(player: int, character: Dictionary, team_is_active: bool, used: bool) -> String:
-	if not bool(character["is_alive"]):
-		return CharacterCard.STATE_DEFEATED
-	var character_id := str(character["id"])
-	if character_id == selected_actor_id and player == int(game.state["active_player"]):
-		return CharacterCard.STATE_SELECTED
-	if _is_valid_target(player, character_id):
-		return CharacterCard.STATE_LEGAL_TARGET
-	match _exchange_role(player, character_id):
-		"ATTACKER":
-			return CharacterCard.STATE_ATTACKER
-		"DEFENDER":
-			return CharacterCard.STATE_DEFENDER
-	if used:
-		return CharacterCard.STATE_ACTED
-	if team_is_active:
-		return CharacterCard.STATE_READY
-	return CharacterCard.STATE_NORMAL
 
 
 ## Damage taken by formation slot, as a display string. The authority is
@@ -2331,6 +2354,14 @@ func _resolution_beats(sequence: ResolutionSequence, resolution: Dictionary) -> 
 	var attacker_player := int(resolution["attacker_player"])
 	var defender_player := int(resolution["defender_player"])
 
+	# 0: the figures play the exchange while the numbers are read out. The swing
+	# and the flinch are chosen from `hit` and the damage fields the reducer
+	# already produced — nothing here decides an outcome, it only shows the one
+	# that is already in state.
+	beats.append(sequence.beat(ResolutionSequence.BEAT_ROLLS, func():
+		_play_exchange_animation(resolution, attacker_player, defender_player)
+	))
+
 	# 1-3: the true rolls come out from behind each claim, and each side is
 	# stamped with how its claim settled.
 	beats.append(sequence.beat(ResolutionSequence.BEAT_ROLLS, func():
@@ -2401,18 +2432,48 @@ func _resolution_beats(sequence: ResolutionSequence, resolution: Dictionary) -> 
 	return beats
 
 
-## Draws attention to a kit patch on whichever card carries it. Best effort: a
-## card that has since been rebuilt simply does not pulse, which costs nothing
-## because the effect is also named in the sequence text.
+## Plays the exchange on the field: the attacker swings, and anyone who actually
+## lost HP flinches.
+##
+## Every branch here reads a `last_resolution` field. The attack variant is the
+## exchange number rather than a random draw, so a replay of the same match
+## swings the same way on both peers — the same reason the reducer takes its
+## randomness through events.
+func _play_exchange_animation(resolution: Dictionary, attacker_player: int, defender_player: int) -> void:
+	if battlefield == null or not is_instance_valid(battlefield) or UiTheme.reduced_motion:
+		return
+	var variant := int(game.state.get("exchange_number", 0))
+
+	var attacker = battlefield.fighter_for(attacker_player, str(resolution["actor_id"]))
+	if attacker != null:
+		attacker.play(FighterRigs.BEAT_ATTACK, variant)
+
+	# A flinch is owed to whoever took damage, whatever the source: a landed hit,
+	# a caught bluff, or a reflection. Reading it off the HP fields rather than
+	# off `hit` alone means self-damage is never silent.
+	var defender = battlefield.fighter_for(defender_player, str(resolution["target_id"]))
+	var defender_hurt := int(resolution.get("hit_damage", 0)) > 0 		or int(resolution.get("defender_self_damage", 0)) > 0 		or int(resolution.get("defender_reflected_damage", 0)) > 0
+	if defender != null and defender_hurt:
+		defender.play(FighterRigs.BEAT_HURT)
+
+	var attacker_hurt := int(resolution.get("attacker_self_damage", 0)) > 0 		or int(resolution.get("attacker_reflected_damage", 0)) > 0
+	if attacker != null and attacker_hurt:
+		# The attacker's own flinch waits for its swing to finish, so a caught
+		# bluff reads as swing-then-recoil rather than as both at once.
+		attacker.play_after(FighterRigs.BEAT_HURT)
+
+
+## Draws attention to a kit effect on the field. Best effort by design: the
+## effect is also named in the sequence text, so a fighter that has since left
+## the board simply does not flash and no reading is lost.
 func _pulse_kit_patch(effect: String) -> void:
+	if battlefield == null or not is_instance_valid(battlefield):
+		return
 	for player in 2:
-		var roster: TeamRoster = rosters[player]
-		if roster == null or not is_instance_valid(roster):
-			continue
 		for character in game.state["teams"][player]["characters"]:
-			var card: CharacterCard = roster.card_for(str(character["id"]))
-			if card != null and is_instance_valid(card):
-				card.pulse_effect(effect)
+			var fighter = battlefield.fighter_for(player, str(character["id"]))
+			if fighter != null:
+				fighter.pulse_effect(effect)
 
 
 ## The winner banner or the continue control, added once the reveal settles.

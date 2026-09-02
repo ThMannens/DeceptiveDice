@@ -153,7 +153,7 @@ func _run_hotseat_smoke() -> void:
 	if local_match.state["active_player"] != 1:
 		_fail("Hot-seat smoke expected Player 2 to start")
 
-	result = local_match.select_action("mirror", "light_attack", "bruiser")
+	result = local_match.select_action("wizard", "light_attack", "knight")
 	if result["ok"]:
 		result = local_match.prepare_attack_exchange()
 	if result["ok"]:
@@ -173,13 +173,13 @@ func _run_hotseat_smoke() -> void:
 		_fail("Hot-seat attack did not advance to Player 1 selection")
 		return
 
-	result = local_match.select_action("ledger", "defensive_stance", "ledger")
+	result = local_match.select_action("scribe", "defensive_stance", "scribe")
 	if result["ok"]:
 		result = local_match.resolve_non_attack_exchange()
 	if not result["ok"]:
 		_fail("Hot-seat non-attack exchange failed: %s" % result["error"])
 		return
-	if not local_match.find_character(0, "ledger")["effect_counters"].get("defensive_stance_active", false):
+	if not local_match.find_character(0, "scribe")["effect_counters"].get("defensive_stance_active", false):
 		_fail("Hot-seat defensive stance was not applied")
 	if _failures == failures_before:
 		print("PASS: local hot-seat controller smoke test")
@@ -346,14 +346,14 @@ func _run_victory_smoke() -> void:
 
 	for index in local_match.state["teams"][0]["characters"].size():
 		var character: Dictionary = local_match.state["teams"][0]["characters"][index]
-		if character["id"] == "bruiser":
+		if character["id"] == "knight":
 			character["hp"] = 1
 		else:
 			character["hp"] = 0
 			character["is_alive"] = false
 		local_match.state["teams"][0]["characters"][index] = character
 
-	result = local_match.select_action("mirror", "light_attack", "bruiser")
+	result = local_match.select_action("wizard", "light_attack", "knight")
 	if result["ok"]:
 		result = local_match.prepare_attack_exchange()
 	local_match.true_rolls = [1, 20]

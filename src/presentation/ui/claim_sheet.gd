@@ -36,7 +36,7 @@ func _init() -> void:
 
 	column.add_child(Widgets.heading("Claim record"))
 
-	# The Ledger's banked paddings sit above the history: they are live state a
+	# The Scribe's banked paddings sit above the history: they are live state a
 	# player has to price a claim against, not a record of what already happened.
 	_ledger_box = HBoxContainer.new()
 	_ledger_box.add_theme_constant_override("separation", 4)
@@ -57,7 +57,7 @@ func _init() -> void:
 ##
 ## `entries` are newest first, each a dictionary of "character", "claim",
 ## "true_roll" (-1 before the reveal), "padding", and "outcome".
-## `recorded_paddings` is the Ledger's banked list from public team state.
+## `recorded_paddings` is the Scribe's banked list from public team state.
 func render(entries: Array, recorded_paddings: Array, tint: Color) -> void:
 	for child in _ledger_box.get_children():
 		child.queue_free()
@@ -72,7 +72,7 @@ func render(entries: Array, recorded_paddings: Array, tint: Color) -> void:
 		# past claim: it is a number that can still be spent.
 		for padding in recorded_paddings:
 			var pin := Widgets.patch("📌 +%d" % int(padding), UiTheme.COLOR_ACCENT, 10)
-			pin.tooltip_text = "Bookkeeping\nThe Ledger has a padding of %d on record. A future claim padded by exactly that amount locks in and cannot be challenged." % int(padding)
+			pin.tooltip_text = "Bookkeeping\nThe Scribe has a padding of %d on record. A future claim padded by exactly that amount locks in and cannot be challenged." % int(padding)
 			_ledger_box.add_child(pin)
 	_ledger_box.add_child(Widgets.filler())
 

@@ -782,11 +782,11 @@ static func _expose_character(state: Dictionary, player: int, character_index: i
 	})
 
 
-## Maintains one player's Bookkeeping ledger for the claim they just made.
+## Maintains one player's Bookkeeping scribe for the claim they just made.
 ##
 ## A claim that consumed an entry spends it and records nothing, so the same padding
 ## has to be earned again before it protects another claim. Any other recording claim
-## puts its padding on the ledger, once: a padding already listed stays listed rather
+## puts its padding on the scribe, once: a padding already listed stays listed rather
 ## than stacking a duplicate that would grant two immunities.
 static func _update_recorded_paddings(
 	state: Dictionary,

@@ -62,10 +62,10 @@ Final portraits should be exported as follows:
 - at least 24 px transparent padding around the outer black stroke;
 - no baked UI frame, team color, shadow, name, or background;
 - stable paths:
-  - `res://src/presentation/assets/portraits/ledger.png`
-  - `res://src/presentation/assets/portraits/bruiser.png`
-  - `res://src/presentation/assets/portraits/mirror.png`
-  - `res://src/presentation/assets/portraits/gambler.png`
+  - `res://src/presentation/assets/portraits/scribe.png`
+  - `res://src/presentation/assets/portraits/knight.png`
+  - `res://src/presentation/assets/portraits/wizard.png`
+  - `res://src/presentation/assets/portraits/bard.png`
   - `res://src/presentation/assets/portraits/hook.png`
 
 Do not guess which concept face maps to which character. Use placeholders until the mapping or correctly named exports are supplied.
@@ -259,7 +259,7 @@ The centre stage shows only information relevant to the current exchange:
 - Put each player's claim history beneath that player's roster rather than mixing both histories in one unrelated panel.
 - Show newest claims first.
 - Each line shows character face or initials, claim, true roll after reveal, padding, and outcome icon.
-- Make Ledger-recorded paddings visually distinct as pinned/ticked numbers.
+- Make Scribe-recorded paddings visually distinct as pinned/ticked numbers.
 - Keep the exchange log as a compact chronological ticker or expandable rulebook page. It must not consume a fixed 340 px column while empty.
 
 ## Character card component
@@ -638,3 +638,236 @@ When handing the implementation back:
 - report test commands and results;
 - call out any visual behavior that could not be derived from existing reducer state;
 - do not claim the visual pass is complete while primary controls still require scrolling or any hidden-information path is unverified.
+
+---
+
+# Implementation status
+
+*Last verified 2026-09-02 against commit `d444675`. The specification above is
+unchanged and remains the contract; this section records how far the
+implementation has got against it, and is the thing to update as work continues.*
+
+Steps 1–5 of the implementation order are done. Step 6 is partially done. Steps
+7 and 8 are open.
+
+## Verified state
+
+Full suite green as of 2026-09-02 (`.\run-tests.ps1`, all ten stages):
+reducer/protocol (81 tests), full-match bot (12 matches, 21–33 exchanges), UI
+smoke, WebRTC smoke, online match smoke, WebRTC timeout, disconnect, direct
+match, reconnection. Working tree clean.
+
+### Done — step 1, baseline and regression capture
+
+`tests/ui_screenshot.gd` was repaired. It previously called `_start_match()` and
+then indexed `available_actors()[0]` as though a preset match had begun, which
+had not been true since the draft screen landed. It now walks start → draft →
+placement → select → claim → challenge → resolution, and captures at both
+1280×720 and 1024×640.
+
+### Done — step 2, theme tokens
+
+`src/presentation/theme.gd` carries the full palette from the colour table above
+and the semantic helpers: `paper_style`, `team_card_style`, `patch_style`,
+`prop_button_style`, `tooltip_style`, `health_color`, plus `ink_on`, which picks
+the printing colour from a fill's luminance so a derived colour still gets a
+readable pairing.
+
+No colour literal remains in presentation code outside `theme.gd` (verified by
+grep). The old navy-and-brass constant names survive as aliases onto their
+nearest craft-material equivalent, so any call site not yet converted renders in
+the new palette rather than reintroducing the felt table one widget at a time.
+
+### Done — step 3, adaptive shell
+
+Three-column Exchange Theatre, phase ribbon, and a pinned decision footer. Three
+size tiers (compact below 1180px, normal, roomy at 1600×900 and above). Pre-match
+screens no longer reserve an empty board or an empty exchange log. The exchange
+log is a compact ticker, not a fixed 340px column.
+
+`project.godot` now opens at 1920×1080 with stretch disabled, so the layout uses
+the space rather than scaling a 1280-wide design up. 1024×640 remains the floor
+and is asserted in the smoke test.
+
+### Done — step 4, reusable roster cards
+
+Extracted from `main.gd` into `src/presentation/ui/`:
+
+| File | Lines | Role |
+|---|---:|---|
+| `widgets.gd` | 137 | labels, patches, stamps, prop buttons, headings, rules |
+| `character_card.gd` | 408 | the full card, with the spec's stable API |
+| `team_roster.gd` | 97 | one player's column |
+| `phase_ribbon.gd` | 194 | FIGHTER → DICE → BOAST → CALL → REVEAL → RESULT |
+| `claim_sheet.gd` | 131 | per-player claim history, newest first |
+| `portrait.gd` | 109 | production lookup and the placeholder |
+| `animation/resolution_sequence.gd` | 149 | the skippable reveal |
+
+`character_card.gd` implements `bind_character`, `set_interaction_state`,
+`animate_hp`, `animate_position`, and `pulse_effect`, and the eight interaction
+states. It reads state and reports clicks; it never queries the reducer.
+
+### Done — step 5, exchange theatre decisions
+
+Select, claim, wait, and challenge presentations; hot-seat handoff privacy and
+online waiting/countdown preserved; player-relative claim sheets beneath each
+roster.
+
+### Partial — step 6, resolution sequence
+
+`resolution_sequence.gd` plays a beat-timed reveal driven exclusively by
+`last_resolution` fields: true rolls, the four outcome stamps (`HONEST`,
+`LOCKED IN`, `CAUGHT`, `WRONG CALL`), assembled totals, margin, and damage. It
+is skippable, and `skip()` is idempotent so a stray click cannot double-run a
+beat. Under reduced motion every beat applies at once and no tween is queued —
+asserted in the smoke test.
+
+The sequence infers no rules; it orders fields the reducer already produced.
+
+**What is missing from step 6.** There is no
+`animation/state_visual_snapshot.gd`. Without a before/after snapshot,
+`animate_hp` and `animate_position` on the card have no caller: HP and formation
+changes appear by rebuild rather than as a trail or a slide. `pulse_effect` *is*
+wired (`main.gd:2415`). The reveal is a text-and-stamp sequence, not the
+twelve-beat cinematic of card movement, rope-snapping, and formation compaction
+the spec describes.
+
+## Not started
+
+- **Step 7, particles.** None of the feedback language exists: no flecks, shield
+  ring, torn paper, stamp dust, stitch motes, defeat slump, or drag trail. No
+  card impact offset.
+- **Material grain.** No `larp_grain_overlay.gd`.
+- **Fonts.** Still the Godot default. No `src/presentation/assets/fonts/`
+  directory, so neither Atkinson Hyperlegible nor Bree Serif is bundled, and
+  there is no license file to record.
+
+## Assets
+
+**None have been added.** `src/presentation/assets/` does not exist. There is
+therefore nothing to report under the handoff requirement to list added assets
+and their licenses.
+
+## Portraits — all five are placeholders
+
+No export exists for any character. `portrait.gd` looks up
+`res://src/presentation/assets/portraits/<id>.png`, finds nothing, and falls
+back to the placeholder in every case. A missing export is treated as a visual
+state and never an error, which is asserted in the smoke test.
+
+The placeholder is the character's initial — taken from the name proper, so
+"The Scribe" reads as `L` and not a column of `T`s — over a kit-specific prop
+glyph, on a pale ownership wash.
+
+Still required, per the production portrait asset contract above:
+`scribe.png`, `knight.png`, `wizard.png`, `bard.png`, `hook.png`.
+
+The concept-face-to-character mapping has not been supplied, so nothing has been
+guessed.
+
+## Test coverage
+
+`tests/ui_smoke.gd` carries 46 assertions across five groups:
+`_check_rules_tooltips`, `_check_visual_contract`, `_check_hidden_before_reveal`,
+`_check_challenge_actions_visible`, `_check_reduced_motion`.
+
+Of the assertions the spec asks for under **Automated verification**, these are
+covered: phase-ribbon step matches state; all eight cards exist; every card
+exposes both kit names; Challenge and Let It Stand visible at 1024×640; hidden
+opponent values absent before reveal; reduced motion completes with no queued
+tweens; missing portraits use placeholders without error.
+
+**Not covered:** that skip produces the same settled values as the full
+sequence; that a resolution sequence does not enable the next action early; that
+a timer update does not rebuild or reset the active input.
+
+## Unverified — do not treat the visual pass as complete
+
+Per the handoff rule in this document, two things block that claim:
+
+1. **Every portrait is a placeholder.**
+2. **The online hidden-information boundary has never been manually checked.**
+   Only the hot-seat path is exercised, and only by the smoke test. The
+   `_check_hidden_before_reveal` assertions run against hot-seat state.
+
+The **required visual test matrix** is largely uncovered. Roughly twelve stages
+have been captured. Not captured: the ten kit effects firing; Drag movement,
+Slippery swap, normal Swap, death compaction; reconnecting, failed match,
+winner, and forfeit; the online wait and countdown at five seconds; caught
+defence bluff and both wrong-call branches.
+
+## Suggested next steps
+
+1. Manually verify the online hidden-information boundary — the one open item
+   that is a correctness risk rather than a polish gap.
+2. Add `state_visual_snapshot.gd` and give `animate_hp` / `animate_position`
+   their caller, closing step 6.
+3. Work the visual test matrix, starting with the kit effects and the movement
+   cases, since those are where a reveal is most likely to show a number it
+   cannot explain.
+4. Bundle the two fonts with their licenses.
+5. Step 7 particles, last — they are punctuation on a reveal that should read
+   correctly without them first.
+
+---
+
+# Board replacement: the animated field
+
+*Added 2026-09-02. This supersedes the roster-column half of the Exchange
+Theatre described above; the phase ribbon, claim sheets, decision footer, and
+size tiers are unchanged.*
+
+The two paper roster columns have been replaced by a single field both crews
+stand on. `src/presentation/ui/battlefield.gd` lays eight fighters on one ground
+line, the teams facing each other, with position 1 farthest from the opponent
+and position 4 closest — the same order the position damage multiplier uses, so
+the formation is now readable off the formation itself rather than off a printed
+multiplier on a card.
+
+Each figure is a `fighter.gd`: an animated rig in a `SubViewport`, plus a
+clickable nameplate. The split matters. The rig is decoration and may be absent;
+the plate is the whole interface and carries everything the card carried — name,
+rank, health, both kit names, live statuses, the full stat tooltip — so nothing
+became unreachable in the move and the board is still keyboard-navigable. A
+character with no rig gets a paper standee and remains fully playable, which is
+the same rule portraits already followed: missing art is a visual state, never
+an error.
+
+`character_card.gd` and `team_roster.gd` were deleted rather than left in place;
+the draft and placement screens never used them.
+
+## What the field costs, and what pays for it
+
+The field cannot be squeezed to nothing the way the old centre stage could,
+because the nameplates are the only place health and rank are legible. It
+therefore carries a real minimum height, and at 1024×640 that competes directly
+with the decision footer. The decision row is capped at that tier
+(`COMPACT_DECISION_CEILING`) and the claim sheets fold into its scroll, which it
+can afford because its primary controls are pinned to a footer that never
+scrolls. The `1024x640` assertion in the UI smoke test is what holds this
+balance honest; it caught the first two attempts at it.
+
+At that floor size the field is tight: plates drop their kit row, and below a
+readable width they drop the name too, keeping the rank, the health bar, and the
+TARGET / DOWN stamps — the two cues a player acts on. The full name stays in the
+tooltip and the claim record. **Eight figures at a legible size do not fit
+1024px wide**; this is a real limitation of the layout, not a tuning gap.
+
+## Animation
+
+`fighter_rigs.gd` maps a character id to a rig scene and translates the board's
+four beats — idle, move, hurt, attack — into that rig's own animation names,
+which differ per rig. Adding art for a character is a row in that table and
+nothing else.
+
+Beats are driven from `last_resolution` fields only, under the same rule the
+resolution sequence follows: the attacker swings, and anyone whose HP actually
+fell flinches, read off the damage fields rather than off `hit` alone so
+self-damage is never silent. Attack variants are selected by exchange number,
+never randomly, so a replay swings identically on both peers.
+
+## Still open
+
+The two blocking items above are unchanged. The rename below is new context:
+the roster is now Scribe, Knight, Wizard, Bard, Rogue. Only the wizard and the
+bard have rigs; the other three stand as paper standees until their art lands.

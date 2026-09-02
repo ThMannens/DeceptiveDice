@@ -5,11 +5,11 @@
     "player_ids": ["alice", "bob"]
   },
   "setup_steps": [
-    {"event": {"type": "draft_submitted", "match_id": "a2-rows", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}},
-    {"event": {"type": "draft_submitted", "match_id": "a2-rows", "exchange_number": 0, "phase": "DRAFT", "sender": 1, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}},
-    {"event": {"type": "formation_submitted", "match_id": "a2-rows", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["ledger", "gambler", "hook", "bruiser"]}}},
-    {"event": {"type": "formation_submitted", "match_id": "a2-rows", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}},
-    {"event": {"type": "action_selected", "match_id": "a2-rows", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "bruiser", "move_id": "light_attack", "target_id": "ledger"}}},
+    {"event": {"type": "draft_submitted", "match_id": "a2-rows", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["scribe", "knight", "bard", "rogue"]}}},
+    {"event": {"type": "draft_submitted", "match_id": "a2-rows", "exchange_number": 0, "phase": "DRAFT", "sender": 1, "payload": {"character_ids": ["scribe", "knight", "bard", "rogue"]}}},
+    {"event": {"type": "formation_submitted", "match_id": "a2-rows", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["scribe", "bard", "rogue", "knight"]}}},
+    {"event": {"type": "formation_submitted", "match_id": "a2-rows", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["scribe", "knight", "bard", "rogue"]}}},
+    {"event": {"type": "action_selected", "match_id": "a2-rows", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "knight", "move_id": "light_attack", "target_id": "scribe"}}},
     {"event": {"type": "commit_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "alice-commit", "observer_secret": "bob-observer-secret"}}},
     {"event": {"type": "commit_submitted", "match_id": "a2-rows", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "bob-commit", "observer_secret": "alice-observer-secret"}}}
   ],

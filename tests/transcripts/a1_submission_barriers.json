@@ -6,7 +6,7 @@
   },
   "steps": [
     {
-      "event": {"type": "draft_submitted", "match_id": "barrier-test", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}
+      "event": {"type": "draft_submitted", "match_id": "barrier-test", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["scribe", "knight", "bard", "rogue"]}}
     }
   ],
   "assertions": [

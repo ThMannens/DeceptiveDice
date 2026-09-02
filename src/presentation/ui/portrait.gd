@@ -16,11 +16,11 @@ const PORTRAIT_DIR := "res://src/presentation/assets/portraits"
 ## faces will be, so the placeholder and a finished portrait sit in the same
 ## frame without a second visual language.
 const PROPS := {
-	"ledger": "✎",
-	"bruiser": "⚒",
-	"mirror": "⛨",
-	"gambler": "⚅",
-	"hook": "⚓",
+	"scribe": "✎",
+	"knight": "⚒",
+	"wizard": "⛨",
+	"bard": "⚅",
+	"rogue": "⚓",
 }
 
 
@@ -90,7 +90,7 @@ static func _placeholder(character_id: String, display_name: String, tint: Color
 
 
 ## The letter to print: the first letter of the character's own name rather than
-## the article, so "The Ledger" reads as L and not as a column of Ts.
+## the article, so "The Scribe" reads as S and not as a column of Ts.
 static func _initial(display_name: String) -> String:
 	var words := display_name.strip_edges().split(" ", false)
 	for word: String in words:

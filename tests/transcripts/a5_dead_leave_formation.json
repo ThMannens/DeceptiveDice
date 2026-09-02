@@ -5,16 +5,16 @@
     "player_ids": ["alice", "bob"]
   },
   "setup_steps": [
-    {"event": {"type": "draft_submitted", "match_id": "a5-dead", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["mirror", "bruiser", "gambler", "hook"]}}},
-    {"event": {"type": "draft_submitted", "match_id": "a5-dead", "exchange_number": 0, "phase": "DRAFT", "sender": 1, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}},
-    {"event": {"type": "formation_submitted", "match_id": "a5-dead", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["mirror", "gambler", "hook", "bruiser"]}}},
-    {"event": {"type": "formation_submitted", "match_id": "a5-dead", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["ledger", "hook", "gambler", "bruiser"]}}}
+    {"event": {"type": "draft_submitted", "match_id": "a5-dead", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["wizard", "knight", "bard", "rogue"]}}},
+    {"event": {"type": "draft_submitted", "match_id": "a5-dead", "exchange_number": 0, "phase": "DRAFT", "sender": 1, "payload": {"character_ids": ["scribe", "knight", "bard", "rogue"]}}},
+    {"event": {"type": "formation_submitted", "match_id": "a5-dead", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["wizard", "bard", "rogue", "knight"]}}},
+    {"event": {"type": "formation_submitted", "match_id": "a5-dead", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["scribe", "rogue", "bard", "knight"]}}}
   ],
   "cases": [
     {
       "name": "a character killed at position 3 is moved to the back and the living close up",
       "steps": [
-        {"event": {"type": "action_selected", "match_id": "a5-dead", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "bruiser", "move_id": "heavy_attack", "target_id": "gambler"}}},
+        {"event": {"type": "action_selected", "match_id": "a5-dead", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "knight", "move_id": "heavy_attack", "target_id": "bard"}}},
         {"event": {"type": "commit_submitted", "match_id": "a5-dead", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
         {"event": {"type": "commit_submitted", "match_id": "a5-dead", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
         {"event": {"type": "claim_submitted", "match_id": "a5-dead", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 20}}},
@@ -26,21 +26,21 @@
         {"event": {"type": "exchange_resolved", "match_id": "a5-dead", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [20, 1]}}}
       ],
       "assertions": [
-        {"path": "teams.1.characters.2.id", "equals": "gambler"},
+        {"path": "teams.1.characters.2.id", "equals": "bard"},
         {"path": "teams.1.characters.2.is_alive", "equals": false},
         {"path": "teams.1.characters.2.position", "equals": 1},
-        {"path": "teams.1.characters.1.id", "equals": "bruiser"},
+        {"path": "teams.1.characters.1.id", "equals": "knight"},
         {"path": "teams.1.characters.1.position", "equals": 4},
-        {"path": "teams.1.characters.3.id", "equals": "hook"},
+        {"path": "teams.1.characters.3.id", "equals": "rogue"},
         {"path": "teams.1.characters.3.position", "equals": 3},
-        {"path": "teams.1.characters.0.id", "equals": "ledger"},
+        {"path": "teams.1.characters.0.id", "equals": "scribe"},
         {"path": "teams.1.characters.0.position", "equals": 2}
       ]
     },
     {
       "name": "a formation with no deaths is left untouched",
       "steps": [
-        {"event": {"type": "action_selected", "match_id": "a5-dead", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "mirror", "move_id": "defensive_stance", "target_id": "mirror"}}},
+        {"event": {"type": "action_selected", "match_id": "a5-dead", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "wizard", "move_id": "defensive_stance", "target_id": "wizard"}}},
         {"event": {"type": "exchange_resolved", "match_id": "a5-dead", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {}}}
       ],
       "assertions": [

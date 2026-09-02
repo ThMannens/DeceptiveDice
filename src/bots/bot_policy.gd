@@ -87,7 +87,7 @@ func choose_challenge(_state: Dictionary, _player: int, _opponent_claim: int) ->
 	return policy == POLICY_MAX_PAD
 
 
-## The Ledger's Audit can cap a character's next claim below 20. A bot that
+## The Scribe's Audit can cap a character's next claim below 20. A bot that
 ## ignored it would submit an illegal claim and stall the match, so the cap is
 ## read here rather than left to the caller.
 func _claim_cap(state: Dictionary, player: int) -> int:

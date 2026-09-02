@@ -5,16 +5,16 @@
     "player_ids": ["alice", "bob"]
   },
   "setup_steps": [
-    {"event": {"type": "draft_submitted", "match_id": "a3-moves", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}},
-    {"event": {"type": "draft_submitted", "match_id": "a3-moves", "exchange_number": 0, "phase": "DRAFT", "sender": 1, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}},
-    {"event": {"type": "formation_submitted", "match_id": "a3-moves", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["ledger", "gambler", "hook", "bruiser"]}}},
-    {"event": {"type": "formation_submitted", "match_id": "a3-moves", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["ledger", "gambler", "hook", "bruiser"]}}}
+    {"event": {"type": "draft_submitted", "match_id": "a3-moves", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["scribe", "knight", "bard", "rogue"]}}},
+    {"event": {"type": "draft_submitted", "match_id": "a3-moves", "exchange_number": 0, "phase": "DRAFT", "sender": 1, "payload": {"character_ids": ["scribe", "knight", "bard", "rogue"]}}},
+    {"event": {"type": "formation_submitted", "match_id": "a3-moves", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["scribe", "bard", "rogue", "knight"]}}},
+    {"event": {"type": "formation_submitted", "match_id": "a3-moves", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["scribe", "bard", "rogue", "knight"]}}}
   ],
   "cases": [
     {
       "name": "heavy attack applies its modifiers from position 4",
       "steps": [
-        {"event": {"type": "action_selected", "match_id": "a3-moves", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "bruiser", "move_id": "heavy_attack", "target_id": "ledger"}}},
+        {"event": {"type": "action_selected", "match_id": "a3-moves", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "knight", "move_id": "heavy_attack", "target_id": "scribe"}}},
         {"event": {"type": "commit_submitted", "match_id": "a3-moves", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
         {"event": {"type": "commit_submitted", "match_id": "a3-moves", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
         {"event": {"type": "claim_submitted", "match_id": "a3-moves", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 12}}},
@@ -37,7 +37,7 @@
     {
       "name": "heavy attack is rejected from position 1",
       "steps": [
-        {"event": {"type": "action_selected", "match_id": "a3-moves", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "ledger", "move_id": "heavy_attack", "target_id": "ledger"}}, "expect_ok": false, "error_contains": "position 3 or 4"}
+        {"event": {"type": "action_selected", "match_id": "a3-moves", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "scribe", "move_id": "heavy_attack", "target_id": "scribe"}}, "expect_ok": false, "error_contains": "position 3 or 4"}
       ],
       "assertions": [
         {"path": "phase", "equals": "SELECT"},
@@ -47,9 +47,9 @@
     {
       "name": "defensive stance applies and boosts a later defence roll",
       "steps": [
-        {"event": {"type": "action_selected", "match_id": "a3-moves", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "ledger", "move_id": "defensive_stance", "target_id": "ledger"}}},
+        {"event": {"type": "action_selected", "match_id": "a3-moves", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "scribe", "move_id": "defensive_stance", "target_id": "scribe"}}},
         {"event": {"type": "exchange_resolved", "match_id": "a3-moves", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {}}},
-        {"event": {"type": "action_selected", "match_id": "a3-moves", "exchange_number": 2, "phase": "SELECT", "sender": 1, "payload": {"actor_id": "bruiser", "move_id": "light_attack", "target_id": "ledger"}}},
+        {"event": {"type": "action_selected", "match_id": "a3-moves", "exchange_number": 2, "phase": "SELECT", "sender": 1, "payload": {"actor_id": "knight", "move_id": "light_attack", "target_id": "scribe"}}},
         {"event": {"type": "commit_submitted", "match_id": "a3-moves", "exchange_number": 2, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
         {"event": {"type": "commit_submitted", "match_id": "a3-moves", "exchange_number": 2, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
         {"event": {"type": "claim_submitted", "match_id": "a3-moves", "exchange_number": 2, "phase": "CLAIM", "sender": 0, "payload": {"value": 8}}},
@@ -71,20 +71,20 @@
     {
       "name": "swap exchanges adjacent positions",
       "steps": [
-        {"event": {"type": "action_selected", "match_id": "a3-moves", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "hook", "move_id": "swap", "target_id": "bruiser"}}},
+        {"event": {"type": "action_selected", "match_id": "a3-moves", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "rogue", "move_id": "swap", "target_id": "knight"}}},
         {"event": {"type": "exchange_resolved", "match_id": "a3-moves", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {}}}
       ],
       "assertions": [
         {"path": "last_resolution.summary", "equals": "POSITIONS_SWAPPED"},
         {"path": "teams.0.characters.3.position", "equals": 4},
         {"path": "teams.0.characters.1.position", "equals": 3},
-        {"path": "teams.0.used_character_ids.0", "equals": "hook"}
+        {"path": "teams.0.used_character_ids.0", "equals": "rogue"}
       ]
     },
     {
       "name": "swap rejects a non-adjacent ally",
       "steps": [
-        {"event": {"type": "action_selected", "match_id": "a3-moves", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "ledger", "move_id": "swap", "target_id": "hook"}}, "expect_ok": false, "error_contains": "adjacent ally"}
+        {"event": {"type": "action_selected", "match_id": "a3-moves", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "scribe", "move_id": "swap", "target_id": "rogue"}}, "expect_ok": false, "error_contains": "adjacent ally"}
       ],
       "assertions": [
         {"path": "phase", "equals": "SELECT"},

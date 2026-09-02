@@ -6,20 +6,20 @@
   },
   "steps": [
     {
-      "event": {"type": "draft_submitted", "match_id": "test-match", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}},
+      "event": {"type": "draft_submitted", "match_id": "test-match", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["scribe", "knight", "bard", "rogue"]}},
       "assertions": [{"path": "phase", "equals": "DRAFT"}]
     },
     {
-      "event": {"type": "draft_submitted", "match_id": "test-match", "exchange_number": 0, "phase": "DRAFT", "sender": 1, "payload": {"character_ids": ["mirror", "bruiser", "gambler", "hook"]}}
+      "event": {"type": "draft_submitted", "match_id": "test-match", "exchange_number": 0, "phase": "DRAFT", "sender": 1, "payload": {"character_ids": ["wizard", "knight", "bard", "rogue"]}}
     },
     {
-      "event": {"type": "formation_submitted", "match_id": "test-match", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["ledger", "gambler", "hook", "bruiser"]}}
+      "event": {"type": "formation_submitted", "match_id": "test-match", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["scribe", "bard", "rogue", "knight"]}}
     },
     {
-      "event": {"type": "formation_submitted", "match_id": "test-match", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["hook", "bruiser", "gambler", "mirror"]}}
+      "event": {"type": "formation_submitted", "match_id": "test-match", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["rogue", "knight", "bard", "wizard"]}}
     },
     {
-      "event": {"type": "action_selected", "match_id": "test-match", "exchange_number": 1, "phase": "SELECT", "sender": 1, "payload": {"actor_id": "mirror", "move_id": "light_attack", "target_id": "bruiser"}}
+      "event": {"type": "action_selected", "match_id": "test-match", "exchange_number": 1, "phase": "SELECT", "sender": 1, "payload": {"actor_id": "wizard", "move_id": "light_attack", "target_id": "knight"}}
     },
     {
       "event": {"type": "commit_submitted", "match_id": "test-match", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "attack-commit", "observer_secret": "defence-observer-secret"}},

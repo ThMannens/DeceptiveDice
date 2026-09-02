@@ -130,15 +130,15 @@ The dead do not hold a rank. When a character dies, the living close up toward t
 
 Five characters. Each player drafts four. Base stats: HP 60, Defence 0, Attack +2, Damage 20, Initiative 5.
 
-### The Ledger — HP 55, Def +1, Atk +2, Dmg 18, Init 6
+### The Scribe — HP 55, Def +1, Atk +2, Dmg 18, Init 6
 
-**Bookkeeping.** The Ledger records every claim its owner makes with any character. A claim whose value has already been claimed once this match cannot be challenged and locks in automatically.
+**Bookkeeping.** The Scribe records every claim its owner makes with any character. A claim whose value has already been claimed once this match cannot be challenged and locks in automatically.
 
-**Audit.** When the Ledger correctly calls a bluff, the bluffing character's next claim this round is capped at the value of their previous claim.
+**Audit.** When the Scribe correctly calls a bluff, the bluffing character's next claim this round is capped at the value of their previous claim.
 
 Bookkeeping gives free immunity at the cost of telegraphing which number is coming.
 
-### The Bruiser — HP 70, Def -2, Atk +3, Dmg 24, Init 3
+### The Knight — HP 70, Def -2, Atk +3, Dmg 24, Init 3
 
 **Thick Skull.** Padding damage from being caught is halved.
 
@@ -146,29 +146,29 @@ Bookkeeping gives free immunity at the cost of telegraphing which number is comi
 
 The character who can afford to lie, which is exactly why sitting on honest rolls with him works.
 
-### The Mirror — HP 50, Def +2, Atk +1, Dmg 16, Init 8
+### The Wizard — HP 50, Def +2, Atk +1, Dmg 16, Init 8
 
-**Reflect.** When the Mirror correctly calls a bluff, the Mirror deals the padded amount as damage to the bluffer instead of the bluffer taking it as self-damage.
+**Reflect.** When the Wizard correctly calls a bluff, the Wizard deals the padded amount as damage to the bluffer instead of the bluffer taking it as self-damage.
 
-**Read the Room.** If the Mirror's own claim locks in, the Mirror's next challenge this round cannot be a wrong call. It resolves as correct if the claim was padded and costs nothing if it was honest.
+**Read the Room.** If the Wizard's own claim locks in, the Wizard's next challenge this round cannot be a wrong call. It resolves as correct if the claim was padded and costs nothing if it was honest.
 
-Low offence. Her value is punishing liars, which counters the Bruiser directly.
+Low offence. Their value is punishing liars, which counters the Knight directly.
 
-### The Gambler — HP 45, Def 0, Atk +2, Dmg 20, Init 7
+### The Bard — HP 45, Def 0, Atk +2, Dmg 20, Init 7
 
-**All In.** If the Gambler's claim is 15 or higher and locks in, margin damage is doubled. If caught, the Gambler takes double padding.
+**All In.** If the Bard's claim is 15 or higher and locks in, margin damage is doubled. If caught, the Bard takes double padding.
 
-**Cold Streak.** Each consecutive turn the Gambler claims honestly, the padding damage on their next caught bluff drops by 3, to a maximum reduction of 9. Reset on any padded claim.
+**Cold Streak.** Each consecutive turn the Bard claims honestly, the padding damage on their next caught bluff drops by 3, to a maximum reduction of 9. Reset on any padded claim.
 
 The only kit whose honest and dishonest incentives are linked. The line is honest, honest, honest, then one large lie.
 
-### The Hook — HP 60, Def 0, Atk +1, Dmg 14, Init 4
+### The Rogue — HP 60, Def 0, Atk +1, Dmg 14, Init 4
 
 **Drag.** On a successful hit, pull the target one position toward the front. A target already at position 4 takes 8 extra damage instead.
 
-**Slippery.** When caught, the Hook swaps positions with an ally instead of taking padding damage.
+**Slippery.** When caught, the Rogue swaps positions with an ally instead of taking padding damage.
 
-Sets up the Bruiser, gets shut down by the Ledger's Audit.
+Sets up the Knight, gets shut down by the Scribe's Audit.
 
 ## User stories
 
@@ -316,7 +316,7 @@ What exists, as of the reconciliation pass. This section records divergence betw
 
 ## Open decisions
 
-**Draft format.** Five characters, four drafted, means near-mirror matches. Alternatives: expand the roster to seven and draft four, or allow duplicates, or use fixed asymmetric teams. Blocked on nothing but roster authoring time. Default to draft four of five for the jam.
+**Draft format.** Five characters, four drafted, means near-wizard matches. Alternatives: expand the roster to seven and draft four, or allow duplicates, or use fixed asymmetric teams. Blocked on nothing but roster authoring time. Default to draft four of five for the jam.
 
 ~~**Transport stack.**~~ **Settled:** WebRTC with manual signalling, plus an ENet address transport for LAN and tests. No signalling server, no Steam dependency. See the Connection section for the reasoning and for what it costs.
 
@@ -330,7 +330,7 @@ What exists, as of the reconciliation pass. This section records divergence betw
 
 *First data (G4):* twelve bot matches, an always-honest policy against an always-pad-to-20 policy, run to a win. Matches take 21 to 33 exchanges, median 26. That is a sane length — long enough that one exchange does not decide it, short enough to finish. Still blocked on human playtest data for the single-exchange spike question, which the bots do not probe: neither policy chooses its padding, so neither ever sets up the large-padding heavy attack that the worry is actually about.
 
-**Kit effect edge cases.** Bookkeeping and Read the Room can interact in ways not yet enumerated: a Mirror challenge against a Ledger claim that is already immune, for example. Enumerate these while writing the transcripts, and record the resolution here as it is decided.
+**Kit effect edge cases.** Bookkeeping and Read the Room can interact in ways not yet enumerated: a Wizard challenge against a Scribe claim that is already immune, for example. Enumerate these while writing the transcripts, and record the resolution here as it is decided.
 
 ## Further notes
 

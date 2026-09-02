@@ -5,16 +5,16 @@
     "player_ids": ["alice", "bob"]
   },
   "setup_steps": [
-    {"event": {"type": "draft_submitted", "match_id": "a5-caught", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["mirror", "bruiser", "gambler", "hook"]}}},
-    {"event": {"type": "draft_submitted", "match_id": "a5-caught", "exchange_number": 0, "phase": "DRAFT", "sender": 1, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}},
-    {"event": {"type": "formation_submitted", "match_id": "a5-caught", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["mirror", "gambler", "hook", "bruiser"]}}},
-    {"event": {"type": "formation_submitted", "match_id": "a5-caught", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["ledger", "gambler", "hook", "bruiser"]}}}
+    {"event": {"type": "draft_submitted", "match_id": "a5-caught", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["wizard", "knight", "bard", "rogue"]}}},
+    {"event": {"type": "draft_submitted", "match_id": "a5-caught", "exchange_number": 0, "phase": "DRAFT", "sender": 1, "payload": {"character_ids": ["scribe", "knight", "bard", "rogue"]}}},
+    {"event": {"type": "formation_submitted", "match_id": "a5-caught", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["wizard", "bard", "rogue", "knight"]}}},
+    {"event": {"type": "formation_submitted", "match_id": "a5-caught", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["scribe", "bard", "rogue", "knight"]}}}
   ],
   "cases": [
     {
       "name": "catching a padded defence exposes the defender when the attack still deals nothing",
       "steps": [
-        {"event": {"type": "action_selected", "match_id": "a5-caught", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "gambler", "move_id": "light_attack", "target_id": "gambler"}}},
+        {"event": {"type": "action_selected", "match_id": "a5-caught", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "bard", "move_id": "light_attack", "target_id": "bard"}}},
         {"event": {"type": "commit_submitted", "match_id": "a5-caught", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
         {"event": {"type": "commit_submitted", "match_id": "a5-caught", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
         {"event": {"type": "claim_submitted", "match_id": "a5-caught", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 3}}},
@@ -35,7 +35,7 @@
     {
       "name": "a caught defence that let the attack through does not also expose",
       "steps": [
-        {"event": {"type": "action_selected", "match_id": "a5-caught", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "gambler", "move_id": "light_attack", "target_id": "gambler"}}},
+        {"event": {"type": "action_selected", "match_id": "a5-caught", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "bard", "move_id": "light_attack", "target_id": "bard"}}},
         {"event": {"type": "commit_submitted", "match_id": "a5-caught", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
         {"event": {"type": "commit_submitted", "match_id": "a5-caught", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
         {"event": {"type": "claim_submitted", "match_id": "a5-caught", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 14}}},
@@ -55,7 +55,7 @@
     {
       "name": "a kit may still wipe the padding damage, and the exposure is what remains",
       "steps": [
-        {"event": {"type": "action_selected", "match_id": "a5-caught", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "gambler", "move_id": "light_attack", "target_id": "bruiser"}}},
+        {"event": {"type": "action_selected", "match_id": "a5-caught", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "bard", "move_id": "light_attack", "target_id": "knight"}}},
         {"event": {"type": "commit_submitted", "match_id": "a5-caught", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
         {"event": {"type": "commit_submitted", "match_id": "a5-caught", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
         {"event": {"type": "claim_submitted", "match_id": "a5-caught", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 2}}},

@@ -56,10 +56,10 @@ func _play_match(seed_value: int) -> Dictionary:
 	]
 
 	var state := MatchState.create("g4-seed-%d" % seed_value, ["honest", "padder"])
-	state = _apply(state, MatchEvent.DRAFT_SUBMITTED, 0, {"character_ids": ["ledger", "bruiser", "gambler", "hook"]})
-	state = _apply(state, MatchEvent.DRAFT_SUBMITTED, 1, {"character_ids": ["mirror", "bruiser", "gambler", "hook"]})
-	state = _apply(state, MatchEvent.FORMATION_SUBMITTED, 0, {"character_ids": ["ledger", "gambler", "hook", "bruiser"]})
-	state = _apply(state, MatchEvent.FORMATION_SUBMITTED, 1, {"character_ids": ["bruiser", "hook", "gambler", "mirror"]})
+	state = _apply(state, MatchEvent.DRAFT_SUBMITTED, 0, {"character_ids": ["scribe", "knight", "bard", "rogue"]})
+	state = _apply(state, MatchEvent.DRAFT_SUBMITTED, 1, {"character_ids": ["wizard", "knight", "bard", "rogue"]})
+	state = _apply(state, MatchEvent.FORMATION_SUBMITTED, 0, {"character_ids": ["scribe", "bard", "rogue", "knight"]})
+	state = _apply(state, MatchEvent.FORMATION_SUBMITTED, 1, {"character_ids": ["knight", "rogue", "bard", "wizard"]})
 	if _failed:
 		return {"exchanges": 0}
 

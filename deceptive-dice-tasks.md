@@ -40,11 +40,11 @@ Pure GDScript. No scene tree, no network, no clock, no random calls. One person 
 
 One person, or split two ways. Each kit is independent, so this parallelizes well once A6 lands.
 
-**B1 — The Bruiser.** *Depends on: A6.*
-**B2 — The Mirror.** *Depends on: A6.*
-**B3 — The Ledger.** *Depends on: A6.* Bookkeeping touches the challenge phase, so coordinate with C3.
-**B4 — The Gambler.** *Depends on: A6.*
-**B5 — The Hook.** *Depends on: A6, A3.* Drag moves positions, so it needs swap logic in place.
+**B1 — The Knight.** *Depends on: A6.*
+**B2 — The Wizard.** *Depends on: A6.*
+**B3 — The Scribe.** *Depends on: A6.* Bookkeeping touches the challenge phase, so coordinate with C3.
+**B4 — The Bard.** *Depends on: A6.*
+**B5 — The Rogue.** *Depends on: A6, A3.* Drag moves positions, so it needs swap logic in place.
 
 Each kit is done when both its effects have transcripts for firing, for not firing, and for interacting with a challenge outcome. Not before.
 
@@ -159,7 +159,7 @@ Do not leave these to the end.
 
 After A3 and E3, play a match with no kits and no lying, just moves and rolls. Confirm the combat is not boring on its own.
 
-After B1 and B2, play the Bruiser against the Mirror, hot-seat, on paper if needed. This is the design test. If it does not produce interesting decisions, the kit system needs changing and you want to know now.
+After B1 and B2, play the Knight against the Wizard, hot-seat, on paper if needed. This is the design test. If it does not produce interesting decisions, the kit system needs changing and you want to know now.
 
 After G4, run twenty bot matches and check the length. Twenty successful hits to win may be too long. Damage numbers are the easiest thing to change and the last thing anyone remembers to check.
 

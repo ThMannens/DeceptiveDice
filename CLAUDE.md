@@ -72,7 +72,11 @@ Phases: `SELECT → COMMIT → CLAIM → CHALLENGE → REVEAL → RESOLVE`. A ph
 The look is specified in [docs/larp-ui-visual-overhaul.md](docs/larp-ui-visual-overhaul.md): a weekend LARP tournament assembled from real craft materials. Resolve visual questions against that document rather than inventing a second language.
 
 - [theme.gd](src/presentation/theme.gd) — the whole palette and every reusable style. Presentation code must not introduce colour literals; ask for a paper stock (`paper_style`), a card state (`team_card_style`), a patch, or a prop button instead. `UiTheme.reduced_motion` is the presentation-only motion switch every animated sequence checks.
-- `ui/` — [widgets.gd](src/presentation/ui/widgets.gd) (labels, patches, prop buttons), [character_card.gd](src/presentation/ui/character_card.gd), [team_roster.gd](src/presentation/ui/team_roster.gd), [phase_ribbon.gd](src/presentation/ui/phase_ribbon.gd), [claim_sheet.gd](src/presentation/ui/claim_sheet.gd), [portrait.gd](src/presentation/ui/portrait.gd). Each accepts state and reports clicks; none queries the reducer.
+- `ui/` — [widgets.gd](src/presentation/ui/widgets.gd) (labels, patches, prop buttons), [battlefield.gd](src/presentation/ui/battlefield.gd), [fighter.gd](src/presentation/ui/fighter.gd), [fighter_rigs.gd](src/presentation/ui/fighter_rigs.gd), [plate_button.gd](src/presentation/ui/plate_button.gd), [phase_ribbon.gd](src/presentation/ui/phase_ribbon.gd), [claim_sheet.gd](src/presentation/ui/claim_sheet.gd), [portrait.gd](src/presentation/ui/portrait.gd). Each accepts state and reports clicks; none queries the reducer.
+
+The board is [battlefield.gd](src/presentation/ui/battlefield.gd): both crews stand facing each other on one ground line, position 1 farthest from the opponent and position 4 closest, which is the order the position damage multiplier uses. Each figure is a [fighter.gd](src/presentation/ui/fighter.gd) — an animated rig inside a `SubViewport` plus a clickable nameplate above it. The rig is decoration; the plate is the whole interface, so a character with no rig yet is a visual state and the board stays keyboard-reachable either way. The paper `character_card.gd` and `team_roster.gd` this replaced are gone; the draft and placement screens draw their own rows.
+
+[fighter_rigs.gd](src/presentation/ui/fighter_rigs.gd) maps a character id to its rig scene in [scenes/](scenes/) and translates the board's beats — idle, move, hurt, attack — into that rig's own animation names. Adding art for a character means adding a row there and nothing else. Attack variants are picked by exchange number, never randomly, so a replay swings identically on both peers.
 - `animation/` — [resolution_sequence.gd](src/presentation/animation/resolution_sequence.gd) plays the reveal from `last_resolution` fields only. It never infers a rule: if a beat cannot be derived from an existing field, add a presentation effect to the reducer's `effects` output rather than recomputing it here.
 
 The layout has three size tiers (compact below 1180px wide, roomy at 1600x900 and above). Every column bounds its own contents so the pinned decision footer can never fall below the fold; that is what the `1024x640` assertion in the UI smoke test protects.
@@ -83,7 +87,7 @@ Character portraits load from `src/presentation/assets/portraits/<id>.png` when 
 
 **Transcript tests are the primary form.** A scenario is a JSON file in [tests/transcripts/](tests/transcripts/): an initial state, optional `setup_steps`, then `steps` of `{event, expect_ok, error_contains, assertions}`. Assertions are `{path, equals}` over dotted state paths. To cover a new rule or kit effect, add a transcript — not test scaffolding code. Rejection steps also assert that state was not mutated.
 
-Transcript files are named by task ID (`a5_wrong_call_cost.json`, `b4_gambler.json`). A kit is not considered done until each of its effects has a transcript for firing, for not firing, and for interacting with a challenge outcome.
+Transcript files are named by task ID (`a5_wrong_call_cost.json`, `b4_bard.json`). A kit is not considered done until each of its effects has a transcript for firing, for not firing, and for interacting with a challenge outcome.
 
 JSON numbers parse as floats while the reducer holds ints; `_values_match` recurses so transcripts need not care.
 

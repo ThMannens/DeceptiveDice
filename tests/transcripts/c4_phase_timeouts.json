@@ -17,10 +17,10 @@
         "sender": 0,
         "payload": {
           "character_ids": [
-            "mirror",
-            "bruiser",
-            "gambler",
-            "hook"
+            "wizard",
+            "knight",
+            "bard",
+            "rogue"
           ]
         }
       }
@@ -34,10 +34,10 @@
         "sender": 1,
         "payload": {
           "character_ids": [
-            "ledger",
-            "bruiser",
-            "gambler",
-            "hook"
+            "scribe",
+            "knight",
+            "bard",
+            "rogue"
           ]
         }
       }
@@ -51,10 +51,10 @@
         "sender": 0,
         "payload": {
           "character_ids": [
-            "mirror",
-            "gambler",
-            "hook",
-            "bruiser"
+            "wizard",
+            "bard",
+            "rogue",
+            "knight"
           ]
         }
       }
@@ -68,10 +68,10 @@
         "sender": 1,
         "payload": {
           "character_ids": [
-            "ledger",
-            "gambler",
-            "hook",
-            "bruiser"
+            "scribe",
+            "bard",
+            "rogue",
+            "knight"
           ]
         }
       }
@@ -89,9 +89,9 @@
             "phase": "SELECT",
             "sender": 0,
             "payload": {
-              "actor_id": "gambler",
+              "actor_id": "bard",
               "move_id": "light_attack",
-              "target_id": "gambler"
+              "target_id": "bard"
             }
           }
         },
@@ -239,9 +239,9 @@
             "phase": "SELECT",
             "sender": 0,
             "payload": {
-              "actor_id": "gambler",
+              "actor_id": "bard",
               "move_id": "light_attack",
-              "target_id": "gambler"
+              "target_id": "bard"
             }
           }
         },
@@ -385,9 +385,9 @@
             "phase": "SELECT",
             "sender": 0,
             "payload": {
-              "actor_id": "gambler",
+              "actor_id": "bard",
               "move_id": "light_attack",
-              "target_id": "gambler"
+              "target_id": "bard"
             }
           }
         },
@@ -539,9 +539,9 @@
             "phase": "SELECT",
             "sender": 0,
             "payload": {
-              "actor_id": "gambler",
+              "actor_id": "bard",
               "move_id": "light_attack",
-              "target_id": "gambler"
+              "target_id": "bard"
             }
           }
         },
@@ -689,9 +689,9 @@
             "phase": "SELECT",
             "sender": 0,
             "payload": {
-              "actor_id": "gambler",
+              "actor_id": "bard",
               "move_id": "light_attack",
-              "target_id": "gambler"
+              "target_id": "bard"
             }
           }
         },
@@ -835,9 +835,9 @@
             "phase": "SELECT",
             "sender": 0,
             "payload": {
-              "actor_id": "gambler",
+              "actor_id": "bard",
               "move_id": "light_attack",
-              "target_id": "gambler"
+              "target_id": "bard"
             }
           }
         },

@@ -20,10 +20,10 @@
             "sender": 0,
             "payload": {
               "character_ids": [
-                "ledger",
-                "bruiser",
-                "gambler",
-                "hook"
+                "scribe",
+                "knight",
+                "bard",
+                "rogue"
               ]
             }
           }
@@ -37,10 +37,10 @@
             "sender": 1,
             "payload": {
               "character_ids": [
-                "mirror",
-                "bruiser",
-                "gambler",
-                "hook"
+                "wizard",
+                "knight",
+                "bard",
+                "rogue"
               ]
             }
           }
@@ -54,10 +54,10 @@
             "sender": 0,
             "payload": {
               "character_ids": [
-                "ledger",
-                "gambler",
-                "hook",
-                "bruiser"
+                "scribe",
+                "bard",
+                "rogue",
+                "knight"
               ]
             }
           }
@@ -71,10 +71,10 @@
             "sender": 1,
             "payload": {
               "character_ids": [
-                "bruiser",
-                "hook",
-                "gambler",
-                "mirror"
+                "knight",
+                "rogue",
+                "bard",
+                "wizard"
               ]
             }
           }
@@ -127,9 +127,9 @@
             "sender": 0,
             "payload": {
               "character_ids": [
-                "ledger",
-                "bruiser",
-                "gambler"
+                "scribe",
+                "knight",
+                "bard"
               ]
             }
           },
@@ -156,10 +156,10 @@
             "sender": 0,
             "payload": {
               "character_ids": [
-                "ledger",
-                "ledger",
-                "gambler",
-                "hook"
+                "scribe",
+                "scribe",
+                "bard",
+                "rogue"
               ]
             }
           },
@@ -186,10 +186,10 @@
             "sender": 0,
             "payload": {
               "character_ids": [
-                "ledger",
-                "bruiser",
-                "gambler",
-                "wizard"
+                "scribe",
+                "knight",
+                "bard",
+                "not_a_character"
               ]
             }
           },
@@ -216,10 +216,10 @@
             "sender": 0,
             "payload": {
               "character_ids": [
-                "ledger",
-                "bruiser",
-                "gambler",
-                "hook"
+                "scribe",
+                "knight",
+                "bard",
+                "rogue"
               ]
             }
           }
@@ -233,10 +233,10 @@
             "sender": 0,
             "payload": {
               "character_ids": [
-                "mirror",
-                "bruiser",
-                "gambler",
-                "hook"
+                "wizard",
+                "knight",
+                "bard",
+                "rogue"
               ]
             }
           },
@@ -247,7 +247,7 @@
       "assertions": [
         {
           "path": "teams.0.drafted_character_ids.0",
-          "equals": "ledger"
+          "equals": "scribe"
         }
       ]
     },
@@ -263,10 +263,10 @@
             "sender": 0,
             "payload": {
               "character_ids": [
-                "ledger",
-                "bruiser",
-                "gambler",
-                "hook"
+                "scribe",
+                "knight",
+                "bard",
+                "rogue"
               ]
             }
           }
@@ -280,10 +280,10 @@
             "sender": 1,
             "payload": {
               "character_ids": [
-                "mirror",
-                "bruiser",
-                "gambler",
-                "hook"
+                "wizard",
+                "knight",
+                "bard",
+                "rogue"
               ]
             }
           }
@@ -297,10 +297,10 @@
             "sender": 0,
             "payload": {
               "character_ids": [
-                "ledger",
-                "gambler",
-                "hook",
-                "mirror"
+                "scribe",
+                "bard",
+                "rogue",
+                "wizard"
               ]
             }
           },
@@ -327,10 +327,10 @@
             "sender": 0,
             "payload": {
               "character_ids": [
-                "ledger",
-                "bruiser",
-                "gambler",
-                "hook"
+                "scribe",
+                "knight",
+                "bard",
+                "rogue"
               ]
             }
           }
@@ -344,10 +344,10 @@
             "sender": 1,
             "payload": {
               "character_ids": [
-                "mirror",
-                "bruiser",
-                "gambler",
-                "hook"
+                "wizard",
+                "knight",
+                "bard",
+                "rogue"
               ]
             }
           }
@@ -361,10 +361,10 @@
             "sender": 0,
             "payload": {
               "character_ids": [
-                "hook",
-                "bruiser",
-                "ledger",
-                "gambler"
+                "rogue",
+                "knight",
+                "scribe",
+                "bard"
               ]
             }
           }
@@ -378,10 +378,10 @@
             "sender": 1,
             "payload": {
               "character_ids": [
-                "bruiser",
-                "hook",
-                "gambler",
-                "mirror"
+                "knight",
+                "rogue",
+                "bard",
+                "wizard"
               ]
             }
           }

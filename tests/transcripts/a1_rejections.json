@@ -11,15 +11,15 @@
       "error_contains": "current phase"
     },
     {
-      "event": {"type": "draft_submitted", "match_id": "wrong-match", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}},
+      "event": {"type": "draft_submitted", "match_id": "wrong-match", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["scribe", "knight", "bard", "rogue"]}},
       "expect_ok": false,
       "error_contains": "match_id"
     },
     {
-      "event": {"type": "draft_submitted", "match_id": "reject-test", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}
+      "event": {"type": "draft_submitted", "match_id": "reject-test", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["scribe", "knight", "bard", "rogue"]}}
     },
     {
-      "event": {"type": "draft_submitted", "match_id": "reject-test", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}},
+      "event": {"type": "draft_submitted", "match_id": "reject-test", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["scribe", "knight", "bard", "rogue"]}},
       "expect_ok": false,
       "error_contains": "already submitted"
     }

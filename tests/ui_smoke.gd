@@ -4,7 +4,7 @@ const MatchState = preload("res://src/core/match_state.gd")
 const Roster = preload("res://src/core/roster.gd")
 const Kits = preload("res://src/core/kits.gd")
 const UiTheme = preload("res://src/presentation/theme.gd")
-const CharacterCard = preload("res://src/presentation/ui/character_card.gd")
+const PlateButton = preload("res://src/presentation/ui/plate_button.gd")
 const PhaseRibbon = preload("res://src/presentation/ui/phase_ribbon.gd")
 
 var _failed := false
@@ -131,7 +131,7 @@ func _check_rules_tooltips(main) -> void:
 
 	var pill: Control = _find_tooltipped(main, "Bookkeeping")
 	_check(pill != null, "No kit pill carrying kit text was found on the board")
-	var card: Control = _find_tooltipped(main, "The Ledger")
+	var card: Control = _find_tooltipped(main, "The Scribe")
 	_check(card != null, "No character card carrying a stat tooltip was found on the board")
 	if pill == null or card == null:
 		return
@@ -174,17 +174,19 @@ func _check_visual_contract(main) -> void:
 		"The phase ribbon does not match the public phase",
 	)
 
-	# Every character in play carries a card, and every card names both of its
-	# kit effects: kits are public information the whole game reads from.
-	var cards: Array = []
-	_collect_cards(main, cards)
-	_check(cards.size() == 8, "The board did not build all eight character cards, found %d" % cards.size())
-	for card in cards:
-		var text := _collect_text(card)
-		for description in Kits.effect_descriptions(card.character_id):
+	# Every character in play stands on the field with a nameplate, and every
+	# plate names both of its kit effects: kits are public information the whole
+	# game reads from, so they cannot be hidden behind a hover.
+	var plates: Array = []
+	_collect_plates(main, plates)
+	_check(plates.size() == 8, "The board did not build all eight fighter plates, found %d" % plates.size())
+	for plate in plates:
+		var text := _collect_text(plate)
+		var character_id := _plate_character_id(main, plate)
+		for description in Kits.effect_descriptions(character_id):
 			_check(
 				str(description["name"]).to_upper() in text.to_upper(),
-				"A character card does not name its kit effect %s" % str(description["name"]),
+				"A fighter plate does not name its kit effect %s" % str(description["name"]),
 			)
 
 	# The opponent's roll must not be anywhere on screen during a blind phase.
@@ -278,11 +280,24 @@ func _check_reduced_motion(main) -> void:
 	UiTheme.reduced_motion = false
 
 
-func _collect_cards(node: Node, into: Array) -> void:
-	if node is CharacterCard:
+func _collect_plates(node: Node, into: Array) -> void:
+	if node is PlateButton:
 		into.append(node)
 	for child in node.get_children():
-		_collect_cards(child, into)
+		_collect_plates(child, into)
+
+
+## Which character a plate belongs to. The plate is a plain Control, so the
+## mapping comes from the battlefield that placed it rather than from the node.
+func _plate_character_id(main, plate: Control) -> String:
+	if main.battlefield == null:
+		return ""
+	for player in 2:
+		for character in main.game.state["teams"][player]["characters"]:
+			var fighter = main.battlefield.fighter_for(player, str(character["id"]))
+			if fighter != null and fighter.plate == plate:
+				return str(character["id"])
+	return ""
 
 
 func _find_button(node: Node, text: String) -> Button:

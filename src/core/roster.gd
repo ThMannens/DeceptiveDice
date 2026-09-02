@@ -1,40 +1,40 @@
 extends RefCounted
 
 const DEFINITIONS := {
-	"ledger": {
-		"display_name": "The Ledger",
+	"scribe": {
+		"display_name": "The Scribe",
 		"max_hp": 55,
 		"defence": 1,
 		"attack": 2,
 		"damage": 18,
 		"initiative": 6,
 	},
-	"bruiser": {
-		"display_name": "The Bruiser",
+	"knight": {
+		"display_name": "The Knight",
 		"max_hp": 70,
 		"defence": -2,
 		"attack": 3,
 		"damage": 24,
 		"initiative": 3,
 	},
-	"mirror": {
-		"display_name": "The Mirror",
+	"wizard": {
+		"display_name": "The Wizard",
 		"max_hp": 50,
 		"defence": 2,
 		"attack": 1,
 		"damage": 16,
 		"initiative": 8,
 	},
-	"gambler": {
-		"display_name": "The Gambler",
+	"bard": {
+		"display_name": "The Bard",
 		"max_hp": 45,
 		"defence": 0,
 		"attack": 2,
 		"damage": 20,
 		"initiative": 7,
 	},
-	"hook": {
-		"display_name": "The Hook",
+	"rogue": {
+		"display_name": "The Rogue",
 		"max_hp": 60,
 		"defence": 0,
 		"attack": 1,

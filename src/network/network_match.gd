@@ -484,10 +484,10 @@ func _on_transport_connected() -> void:
 func _setup_match_state() -> void:
 	state = MatchState.create(_match_id, PLAYER_NAMES)
 	var setup_events := [
-		[MatchEvent.DRAFT_SUBMITTED, 0, {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}],
-		[MatchEvent.DRAFT_SUBMITTED, 1, {"character_ids": ["mirror", "bruiser", "gambler", "hook"]}],
-		[MatchEvent.FORMATION_SUBMITTED, 0, {"character_ids": ["ledger", "gambler", "hook", "bruiser"]}],
-		[MatchEvent.FORMATION_SUBMITTED, 1, {"character_ids": ["bruiser", "hook", "gambler", "mirror"]}],
+		[MatchEvent.DRAFT_SUBMITTED, 0, {"character_ids": ["scribe", "knight", "bard", "rogue"]}],
+		[MatchEvent.DRAFT_SUBMITTED, 1, {"character_ids": ["wizard", "knight", "bard", "rogue"]}],
+		[MatchEvent.FORMATION_SUBMITTED, 0, {"character_ids": ["scribe", "bard", "rogue", "knight"]}],
+		[MatchEvent.FORMATION_SUBMITTED, 1, {"character_ids": ["knight", "rogue", "bard", "wizard"]}],
 	]
 	for setup_event in setup_events:
 		var result := _preview_event(str(setup_event[0]), int(setup_event[1]), setup_event[2])

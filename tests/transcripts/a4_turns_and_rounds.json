@@ -5,33 +5,33 @@
     "player_ids": ["alice", "bob"]
   },
   "setup_steps": [
-    {"event": {"type": "draft_submitted", "match_id": "a4-turns", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}},
-    {"event": {"type": "draft_submitted", "match_id": "a4-turns", "exchange_number": 0, "phase": "DRAFT", "sender": 1, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}},
-    {"event": {"type": "formation_submitted", "match_id": "a4-turns", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}},
-    {"event": {"type": "formation_submitted", "match_id": "a4-turns", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["ledger", "bruiser", "gambler", "hook"]}}}
+    {"event": {"type": "draft_submitted", "match_id": "a4-turns", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["scribe", "knight", "bard", "rogue"]}}},
+    {"event": {"type": "draft_submitted", "match_id": "a4-turns", "exchange_number": 0, "phase": "DRAFT", "sender": 1, "payload": {"character_ids": ["scribe", "knight", "bard", "rogue"]}}},
+    {"event": {"type": "formation_submitted", "match_id": "a4-turns", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["scribe", "knight", "bard", "rogue"]}}},
+    {"event": {"type": "formation_submitted", "match_id": "a4-turns", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["scribe", "knight", "bard", "rogue"]}}}
   ],
   "cases": [
     {
       "name": "every living character acts before round rollover",
       "steps": [
-        {"event": {"type": "action_selected", "match_id": "a4-turns", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "ledger", "move_id": "defensive_stance", "target_id": "ledger"}}},
+        {"event": {"type": "action_selected", "match_id": "a4-turns", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "scribe", "move_id": "defensive_stance", "target_id": "scribe"}}},
         {"event": {"type": "exchange_resolved", "match_id": "a4-turns", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {}}},
-        {"event": {"type": "action_selected", "match_id": "a4-turns", "exchange_number": 2, "phase": "SELECT", "sender": 1, "payload": {"actor_id": "ledger", "move_id": "defensive_stance", "target_id": "ledger"}}},
+        {"event": {"type": "action_selected", "match_id": "a4-turns", "exchange_number": 2, "phase": "SELECT", "sender": 1, "payload": {"actor_id": "scribe", "move_id": "defensive_stance", "target_id": "scribe"}}},
         {"event": {"type": "exchange_resolved", "match_id": "a4-turns", "exchange_number": 2, "phase": "RESOLVE", "sender": -1, "payload": {}}},
-        {"event": {"type": "action_selected", "match_id": "a4-turns", "exchange_number": 3, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "bruiser", "move_id": "defensive_stance", "target_id": "bruiser"}}},
+        {"event": {"type": "action_selected", "match_id": "a4-turns", "exchange_number": 3, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "knight", "move_id": "defensive_stance", "target_id": "knight"}}},
         {"event": {"type": "exchange_resolved", "match_id": "a4-turns", "exchange_number": 3, "phase": "RESOLVE", "sender": -1, "payload": {}}},
-        {"event": {"type": "action_selected", "match_id": "a4-turns", "exchange_number": 4, "phase": "SELECT", "sender": 1, "payload": {"actor_id": "bruiser", "move_id": "defensive_stance", "target_id": "bruiser"}}},
+        {"event": {"type": "action_selected", "match_id": "a4-turns", "exchange_number": 4, "phase": "SELECT", "sender": 1, "payload": {"actor_id": "knight", "move_id": "defensive_stance", "target_id": "knight"}}},
         {"event": {"type": "exchange_resolved", "match_id": "a4-turns", "exchange_number": 4, "phase": "RESOLVE", "sender": -1, "payload": {}}},
-        {"event": {"type": "action_selected", "match_id": "a4-turns", "exchange_number": 5, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "gambler", "move_id": "defensive_stance", "target_id": "gambler"}}},
+        {"event": {"type": "action_selected", "match_id": "a4-turns", "exchange_number": 5, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "bard", "move_id": "defensive_stance", "target_id": "bard"}}},
         {"event": {"type": "exchange_resolved", "match_id": "a4-turns", "exchange_number": 5, "phase": "RESOLVE", "sender": -1, "payload": {}}},
-        {"event": {"type": "action_selected", "match_id": "a4-turns", "exchange_number": 6, "phase": "SELECT", "sender": 1, "payload": {"actor_id": "gambler", "move_id": "defensive_stance", "target_id": "gambler"}}},
+        {"event": {"type": "action_selected", "match_id": "a4-turns", "exchange_number": 6, "phase": "SELECT", "sender": 1, "payload": {"actor_id": "bard", "move_id": "defensive_stance", "target_id": "bard"}}},
         {"event": {"type": "exchange_resolved", "match_id": "a4-turns", "exchange_number": 6, "phase": "RESOLVE", "sender": -1, "payload": {}}},
-        {"event": {"type": "action_selected", "match_id": "a4-turns", "exchange_number": 7, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "hook", "move_id": "defensive_stance", "target_id": "hook"}}},
+        {"event": {"type": "action_selected", "match_id": "a4-turns", "exchange_number": 7, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "rogue", "move_id": "defensive_stance", "target_id": "rogue"}}},
         {"event": {"type": "exchange_resolved", "match_id": "a4-turns", "exchange_number": 7, "phase": "RESOLVE", "sender": -1, "payload": {}}},
-        {"event": {"type": "action_selected", "match_id": "a4-turns", "exchange_number": 8, "phase": "SELECT", "sender": 1, "payload": {"actor_id": "hook", "move_id": "defensive_stance", "target_id": "hook"}}},
+        {"event": {"type": "action_selected", "match_id": "a4-turns", "exchange_number": 8, "phase": "SELECT", "sender": 1, "payload": {"actor_id": "rogue", "move_id": "defensive_stance", "target_id": "rogue"}}},
         {"event": {"type": "exchange_resolved", "match_id": "a4-turns", "exchange_number": 8, "phase": "RESOLVE", "sender": -1, "payload": {}}},
         {
-          "event": {"type": "action_selected", "match_id": "a4-turns", "exchange_number": 9, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "ledger", "move_id": "defensive_stance", "target_id": "ledger"}},
+          "event": {"type": "action_selected", "match_id": "a4-turns", "exchange_number": 9, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "scribe", "move_id": "defensive_stance", "target_id": "scribe"}},
           "assertions": [{"path": "teams.0.characters.0.effect_counters.defensive_stance_active", "equals": false}]
         }
       ],
@@ -47,12 +47,12 @@
     {
       "name": "a used character cannot act twice in one round",
       "steps": [
-        {"event": {"type": "action_selected", "match_id": "a4-turns", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "ledger", "move_id": "defensive_stance", "target_id": "ledger"}}},
+        {"event": {"type": "action_selected", "match_id": "a4-turns", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "scribe", "move_id": "defensive_stance", "target_id": "scribe"}}},
         {"event": {"type": "exchange_resolved", "match_id": "a4-turns", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {}}},
-        {"event": {"type": "action_selected", "match_id": "a4-turns", "exchange_number": 2, "phase": "SELECT", "sender": 1, "payload": {"actor_id": "ledger", "move_id": "defensive_stance", "target_id": "ledger"}}},
+        {"event": {"type": "action_selected", "match_id": "a4-turns", "exchange_number": 2, "phase": "SELECT", "sender": 1, "payload": {"actor_id": "scribe", "move_id": "defensive_stance", "target_id": "scribe"}}},
         {"event": {"type": "exchange_resolved", "match_id": "a4-turns", "exchange_number": 2, "phase": "RESOLVE", "sender": -1, "payload": {}}},
         {
-          "event": {"type": "action_selected", "match_id": "a4-turns", "exchange_number": 3, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "ledger", "move_id": "defensive_stance", "target_id": "ledger"}},
+          "event": {"type": "action_selected", "match_id": "a4-turns", "exchange_number": 3, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "scribe", "move_id": "defensive_stance", "target_id": "scribe"}},
           "expect_ok": false,
           "error_contains": "already acted"
         }

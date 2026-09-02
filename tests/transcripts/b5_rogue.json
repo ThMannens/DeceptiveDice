@@ -1,20 +1,20 @@
 {
-  "name": "B5 The Hook",
+  "name": "B5 The Rogue",
   "initial_state": {
     "match_id": "b5-hook",
     "player_ids": ["alice", "bob"]
   },
   "setup_steps": [
-    {"event": {"type": "draft_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["hook", "bruiser", "mirror", "ledger"]}}},
-    {"event": {"type": "draft_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "DRAFT", "sender": 1, "payload": {"character_ids": ["hook", "bruiser", "mirror", "ledger"]}}}
+    {"event": {"type": "draft_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["rogue", "knight", "wizard", "scribe"]}}},
+    {"event": {"type": "draft_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "DRAFT", "sender": 1, "payload": {"character_ids": ["rogue", "knight", "wizard", "scribe"]}}}
   ],
   "cases": [
     {
       "name": "Drag pulls a hit target one position toward the front",
       "steps": [
-        {"event": {"type": "formation_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["mirror", "ledger", "bruiser", "hook"]}}},
-        {"event": {"type": "formation_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["mirror", "ledger", "bruiser", "hook"]}}},
-        {"event": {"type": "action_selected", "match_id": "b5-hook", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "hook", "move_id": "light_attack", "target_id": "ledger"}}},
+        {"event": {"type": "formation_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["wizard", "scribe", "knight", "rogue"]}}},
+        {"event": {"type": "formation_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["wizard", "scribe", "knight", "rogue"]}}},
+        {"event": {"type": "action_selected", "match_id": "b5-hook", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "rogue", "move_id": "light_attack", "target_id": "scribe"}}},
         {"event": {"type": "commit_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
         {"event": {"type": "commit_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
         {"event": {"type": "claim_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 18}}},
@@ -39,9 +39,9 @@
     {
       "name": "Drag hits a position 4 target for extra damage instead of pulling",
       "steps": [
-        {"event": {"type": "formation_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["mirror", "ledger", "bruiser", "hook"]}}},
-        {"event": {"type": "formation_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["mirror", "bruiser", "hook", "ledger"]}}},
-        {"event": {"type": "action_selected", "match_id": "b5-hook", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "hook", "move_id": "light_attack", "target_id": "ledger"}}},
+        {"event": {"type": "formation_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["wizard", "scribe", "knight", "rogue"]}}},
+        {"event": {"type": "formation_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["wizard", "knight", "rogue", "scribe"]}}},
+        {"event": {"type": "action_selected", "match_id": "b5-hook", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "rogue", "move_id": "light_attack", "target_id": "scribe"}}},
         {"event": {"type": "commit_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
         {"event": {"type": "commit_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
         {"event": {"type": "claim_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 18}}},
@@ -64,9 +64,9 @@
     {
       "name": "Drag does not fire when the attack misses",
       "steps": [
-        {"event": {"type": "formation_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["mirror", "ledger", "bruiser", "hook"]}}},
-        {"event": {"type": "formation_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["mirror", "ledger", "bruiser", "hook"]}}},
-        {"event": {"type": "action_selected", "match_id": "b5-hook", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "hook", "move_id": "light_attack", "target_id": "ledger"}}},
+        {"event": {"type": "formation_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["wizard", "scribe", "knight", "rogue"]}}},
+        {"event": {"type": "formation_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["wizard", "scribe", "knight", "rogue"]}}},
+        {"event": {"type": "action_selected", "match_id": "b5-hook", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "rogue", "move_id": "light_attack", "target_id": "scribe"}}},
         {"event": {"type": "commit_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
         {"event": {"type": "commit_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
         {"event": {"type": "claim_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 4}}},
@@ -85,11 +85,11 @@
       ]
     },
     {
-      "name": "Slippery swaps the Hook instead of taking padding damage",
+      "name": "Slippery swaps the Rogue instead of taking padding damage",
       "steps": [
-        {"event": {"type": "formation_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["mirror", "ledger", "hook", "bruiser"]}}},
-        {"event": {"type": "formation_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["mirror", "ledger", "bruiser", "hook"]}}},
-        {"event": {"type": "action_selected", "match_id": "b5-hook", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "hook", "move_id": "light_attack", "target_id": "mirror"}}},
+        {"event": {"type": "formation_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["wizard", "scribe", "rogue", "knight"]}}},
+        {"event": {"type": "formation_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["wizard", "scribe", "knight", "rogue"]}}},
+        {"event": {"type": "action_selected", "match_id": "b5-hook", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "rogue", "move_id": "light_attack", "target_id": "wizard"}}},
         {"event": {"type": "commit_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
         {"event": {"type": "commit_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
         {"event": {"type": "claim_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 17}}},
@@ -112,11 +112,11 @@
       ]
     },
     {
-      "name": "Slippery does not fire when the Hook claims honestly",
+      "name": "Slippery does not fire when the Rogue claims honestly",
       "steps": [
-        {"event": {"type": "formation_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["mirror", "ledger", "hook", "bruiser"]}}},
-        {"event": {"type": "formation_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["mirror", "ledger", "bruiser", "hook"]}}},
-        {"event": {"type": "action_selected", "match_id": "b5-hook", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "hook", "move_id": "light_attack", "target_id": "mirror"}}},
+        {"event": {"type": "formation_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["wizard", "scribe", "rogue", "knight"]}}},
+        {"event": {"type": "formation_submitted", "match_id": "b5-hook", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["wizard", "scribe", "knight", "rogue"]}}},
+        {"event": {"type": "action_selected", "match_id": "b5-hook", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "rogue", "move_id": "light_attack", "target_id": "wizard"}}},
         {"event": {"type": "commit_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
         {"event": {"type": "commit_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
         {"event": {"type": "claim_submitted", "match_id": "b5-hook", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 10}}},

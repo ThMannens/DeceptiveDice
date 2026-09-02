@@ -1,0 +1,189 @@
+{
+  "name": "B3 The Scribe",
+  "initial_state": {
+    "match_id": "b3-scribe",
+    "player_ids": ["alice", "bob"]
+  },
+  "setup_steps": [
+    {"event": {"type": "draft_submitted", "match_id": "b3-scribe", "exchange_number": 0, "phase": "DRAFT", "sender": 0, "payload": {"character_ids": ["scribe", "knight", "bard", "rogue"]}}},
+    {"event": {"type": "draft_submitted", "match_id": "b3-scribe", "exchange_number": 0, "phase": "DRAFT", "sender": 1, "payload": {"character_ids": ["scribe", "knight", "bard", "rogue"]}}},
+    {"event": {"type": "formation_submitted", "match_id": "b3-scribe", "exchange_number": 0, "phase": "PLACEMENT", "sender": 0, "payload": {"character_ids": ["bard", "rogue", "knight", "scribe"]}}},
+    {"event": {"type": "formation_submitted", "match_id": "b3-scribe", "exchange_number": 0, "phase": "PLACEMENT", "sender": 1, "payload": {"character_ids": ["bard", "rogue", "knight", "scribe"]}}}
+  ],
+  "cases": [
+    {
+      "name": "Bookkeeping locks in a claim whose padding is already on record",
+      "steps": [
+        {"event": {"type": "action_selected", "match_id": "b3-scribe", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "scribe", "move_id": "light_attack", "target_id": "bard"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
+        {"event": {"type": "claim_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 18}}},
+        {"event": {"type": "claim_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 6}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "b"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "b3-scribe", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [12, 6]}}},
+        {"event": {"type": "action_selected", "match_id": "b3-scribe", "exchange_number": 2, "phase": "SELECT", "sender": 1, "payload": {"actor_id": "bard", "move_id": "light_attack", "target_id": "scribe"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b3-scribe", "exchange_number": 2, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b3-scribe", "exchange_number": 2, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
+        {"event": {"type": "claim_submitted", "match_id": "b3-scribe", "exchange_number": 2, "phase": "CLAIM", "sender": 0, "payload": {"value": 9}}},
+        {"event": {"type": "claim_submitted", "match_id": "b3-scribe", "exchange_number": 2, "phase": "CLAIM", "sender": 1, "payload": {"value": 9}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b3-scribe", "exchange_number": 2, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b3-scribe", "exchange_number": 2, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": true}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b3-scribe", "exchange_number": 2, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b3-scribe", "exchange_number": 2, "phase": "REVEAL", "sender": 1, "payload": {"secret": "b"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "b3-scribe", "exchange_number": 2, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [3, 9]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.defence.outcome", "equals": "PADDED_PASS"},
+        {"path": "last_resolution.defence.locked_in", "equals": true},
+        {"path": "last_resolution.defence.padding", "equals": 6},
+        {"path": "last_resolution.kit_effects.0.effect", "equals": "BOOKKEEPING"},
+        {"path": "last_resolution.kit_effects.0.detail", "equals": "CLAIM_LOCKED_IN"},
+        {"path": "last_resolution.kit_effects.0.padding", "equals": 6},
+        {"path": "teams.0.recorded_paddings", "equals": []}
+      ]
+    },
+    {
+      "name": "Bookkeeping does not protect a padding that is not on record",
+      "steps": [
+        {"event": {"type": "action_selected", "match_id": "b3-scribe", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "scribe", "move_id": "light_attack", "target_id": "bard"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
+        {"event": {"type": "claim_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 18}}},
+        {"event": {"type": "claim_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 6}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "b"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "b3-scribe", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [12, 6]}}},
+        {"event": {"type": "action_selected", "match_id": "b3-scribe", "exchange_number": 2, "phase": "SELECT", "sender": 1, "payload": {"actor_id": "bard", "move_id": "light_attack", "target_id": "scribe"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b3-scribe", "exchange_number": 2, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b3-scribe", "exchange_number": 2, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
+        {"event": {"type": "claim_submitted", "match_id": "b3-scribe", "exchange_number": 2, "phase": "CLAIM", "sender": 0, "payload": {"value": 13}}},
+        {"event": {"type": "claim_submitted", "match_id": "b3-scribe", "exchange_number": 2, "phase": "CLAIM", "sender": 1, "payload": {"value": 9}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b3-scribe", "exchange_number": 2, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b3-scribe", "exchange_number": 2, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": true}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b3-scribe", "exchange_number": 2, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b3-scribe", "exchange_number": 2, "phase": "REVEAL", "sender": 1, "payload": {"secret": "b"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "b3-scribe", "exchange_number": 2, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [8, 9]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.defence.outcome", "equals": "CAUGHT"},
+        {"path": "last_resolution.defence.locked_in", "equals": false},
+        {"path": "last_resolution.defence.padding", "equals": 5},
+        {"path": "teams.0.recorded_paddings", "equals": [5, 6]}
+      ]
+    },
+    {
+      "name": "Audit caps the caught character's next claim",
+      "steps": [
+        {"event": {"type": "action_selected", "match_id": "b3-scribe", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "scribe", "move_id": "light_attack", "target_id": "knight"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
+        {"event": {"type": "claim_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 10}}},
+        {"event": {"type": "claim_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 16}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": true}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "b"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "b3-scribe", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [10, 9]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.defence.outcome", "equals": "CAUGHT"},
+        {"path": "teams.1.characters.1.effect_counters.audit_claim_cap", "equals": 16}
+      ]
+    },
+    {
+      "name": "a capped character cannot claim above the cap",
+      "steps": [
+        {"event": {"type": "action_selected", "match_id": "b3-scribe", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "scribe", "move_id": "light_attack", "target_id": "knight"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
+        {"event": {"type": "claim_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 10}}},
+        {"event": {"type": "claim_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 16}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": true}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "b"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "b3-scribe", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [10, 9]}}},
+        {"event": {"type": "action_selected", "match_id": "b3-scribe", "exchange_number": 2, "phase": "SELECT", "sender": 1, "payload": {"actor_id": "knight", "move_id": "light_attack", "target_id": "bard"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b3-scribe", "exchange_number": 2, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b3-scribe", "exchange_number": 2, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
+        {"event": {"type": "claim_submitted", "match_id": "b3-scribe", "exchange_number": 2, "phase": "CLAIM", "sender": 1, "payload": {"value": 18}}, "expect_ok": false, "error_contains": "capped at 16"}
+      ],
+      "assertions": [
+        {"path": "phase", "equals": "CLAIM"}
+      ]
+    },
+    {
+      "name": "Audit does not fire on a wrong call",
+      "steps": [
+        {"event": {"type": "action_selected", "match_id": "b3-scribe", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "scribe", "move_id": "light_attack", "target_id": "knight"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "b", "observer_secret": "a"}}},
+        {"event": {"type": "claim_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 10}}},
+        {"event": {"type": "claim_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 9}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": true}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "b"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "b3-scribe", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [10, 9]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.defence.outcome", "equals": "WRONG_CALL"}
+      ]
+    },
+    {
+      "name": "a consumed padding must be recorded again before it protects another claim",
+      "steps": [
+        {"event": {"type": "action_selected", "match_id": "b3-scribe", "exchange_number": 1, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "scribe", "move_id": "light_attack", "target_id": "bard"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "claim_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "CLAIM", "sender": 0, "payload": {"value": 18}}},
+        {"event": {"type": "claim_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "CLAIM", "sender": 1, "payload": {"value": 6}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b3-scribe", "exchange_number": 1, "phase": "REVEAL", "sender": 1, "payload": {"secret": "a"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "b3-scribe", "exchange_number": 1, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [12, 6]}}},
+        {"event": {"type": "action_selected", "match_id": "b3-scribe", "exchange_number": 2, "phase": "SELECT", "sender": 1, "payload": {"actor_id": "bard", "move_id": "light_attack", "target_id": "scribe"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b3-scribe", "exchange_number": 2, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b3-scribe", "exchange_number": 2, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "claim_submitted", "match_id": "b3-scribe", "exchange_number": 2, "phase": "CLAIM", "sender": 0, "payload": {"value": 9}}},
+        {"event": {"type": "claim_submitted", "match_id": "b3-scribe", "exchange_number": 2, "phase": "CLAIM", "sender": 1, "payload": {"value": 9}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b3-scribe", "exchange_number": 2, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b3-scribe", "exchange_number": 2, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": true}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b3-scribe", "exchange_number": 2, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b3-scribe", "exchange_number": 2, "phase": "REVEAL", "sender": 1, "payload": {"secret": "a"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "b3-scribe", "exchange_number": 2, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [3, 9]}}},
+        {"event": {"type": "action_selected", "match_id": "b3-scribe", "exchange_number": 3, "phase": "SELECT", "sender": 0, "payload": {"actor_id": "knight", "move_id": "light_attack", "target_id": "bard"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b3-scribe", "exchange_number": 3, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b3-scribe", "exchange_number": 3, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "claim_submitted", "match_id": "b3-scribe", "exchange_number": 3, "phase": "CLAIM", "sender": 0, "payload": {"value": 10}}},
+        {"event": {"type": "claim_submitted", "match_id": "b3-scribe", "exchange_number": 3, "phase": "CLAIM", "sender": 1, "payload": {"value": 5}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b3-scribe", "exchange_number": 3, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b3-scribe", "exchange_number": 3, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": false}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b3-scribe", "exchange_number": 3, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b3-scribe", "exchange_number": 3, "phase": "REVEAL", "sender": 1, "payload": {"secret": "a"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "b3-scribe", "exchange_number": 3, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [10, 5]}}},
+        {"event": {"type": "action_selected", "match_id": "b3-scribe", "exchange_number": 4, "phase": "SELECT", "sender": 1, "payload": {"actor_id": "rogue", "move_id": "light_attack", "target_id": "scribe"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b3-scribe", "exchange_number": 4, "phase": "COMMIT", "sender": 0, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "commit_submitted", "match_id": "b3-scribe", "exchange_number": 4, "phase": "COMMIT", "sender": 1, "payload": {"roll_commit": "a", "observer_secret": "b"}}},
+        {"event": {"type": "claim_submitted", "match_id": "b3-scribe", "exchange_number": 4, "phase": "CLAIM", "sender": 0, "payload": {"value": 10}}},
+        {"event": {"type": "claim_submitted", "match_id": "b3-scribe", "exchange_number": 4, "phase": "CLAIM", "sender": 1, "payload": {"value": 7}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b3-scribe", "exchange_number": 4, "phase": "CHALLENGE", "sender": 0, "payload": {"challenge": false}}},
+        {"event": {"type": "challenge_submitted", "match_id": "b3-scribe", "exchange_number": 4, "phase": "CHALLENGE", "sender": 1, "payload": {"challenge": true}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b3-scribe", "exchange_number": 4, "phase": "REVEAL", "sender": 0, "payload": {"secret": "a"}}},
+        {"event": {"type": "reveal_submitted", "match_id": "b3-scribe", "exchange_number": 4, "phase": "REVEAL", "sender": 1, "payload": {"secret": "a"}}},
+        {"event": {"type": "exchange_resolved", "match_id": "b3-scribe", "exchange_number": 4, "phase": "RESOLVE", "sender": -1, "payload": {"true_rolls": [4, 7]}}}
+      ],
+      "assertions": [
+        {"path": "last_resolution.defence.outcome", "equals": "CAUGHT"},
+        {"path": "last_resolution.defence.padding", "equals": 6},
+        {"path": "teams.0.recorded_paddings", "equals": [6]}
+      ]
+    }
+  ]
+}

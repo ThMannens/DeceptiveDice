@@ -73,13 +73,13 @@ static func attack_damage_modifier(attacker: Dictionary) -> Dictionary:
 	var notes: Array = []
 	var modifier := 0
 
-	if str(attacker.get("id", "")) == "bruiser":
+	if str(attacker.get("id", "")) == "knight":
 		# Front Fighter. +6 from position 4, and no damage bonus from 1 or 2. The
 		# stat itself is untouched; only the move's damage modifier moves.
 		var position := int(attacker.get("position", 0))
 		if position == 4:
 			modifier += 6
-			notes.append(_note("bruiser", EFFECT_FRONT_FIGHTER, "POSITION_4_BONUS", {"damage_modifier": 6}))
+			notes.append(_note("knight", EFFECT_FRONT_FIGHTER, "POSITION_4_BONUS", {"damage_modifier": 6}))
 
 	return {"modifier": modifier, "notes": notes}
 
@@ -89,8 +89,8 @@ static func attack_damage_modifier(attacker: Dictionary) -> Dictionary:
 ## margin bonus rather than the flat stat.
 static func suppresses_margin_bonus(attacker: Dictionary) -> Dictionary:
 	var notes: Array = []
-	if str(attacker.get("id", "")) == "bruiser" and int(attacker.get("position", 0)) in [1, 2]:
-		notes.append(_note("bruiser", EFFECT_FRONT_FIGHTER, "BACK_POSITION_PENALTY", {}))
+	if str(attacker.get("id", "")) == "knight" and int(attacker.get("position", 0)) in [1, 2]:
+		notes.append(_note("knight", EFFECT_FRONT_FIGHTER, "BACK_POSITION_PENALTY", {}))
 		return {"suppressed": true, "notes": notes}
 	return {"suppressed": false, "notes": notes}
 
@@ -104,20 +104,20 @@ static func modify_self_damage(character: Dictionary, amount: int) -> Dictionary
 
 	var character_id := str(character.get("id", ""))
 	match character_id:
-		"bruiser":
+		"knight":
 			# Thick Skull. Padding damage from being caught is halved, rounded down
 			# to match every other rounding rule in the game.
 			result = floori(float(amount) / 2.0)
-			notes.append(_note("bruiser", EFFECT_THICK_SKULL, "PADDING_HALVED", {
+			notes.append(_note("knight", EFFECT_THICK_SKULL, "PADDING_HALVED", {
 				"amount_before": amount,
 				"amount_after": result,
 			}))
-		"gambler":
-			# All In. Being caught costs the Gambler double padding. Cold Streak then
+		"bard":
+			# All In. Being caught costs the Bard double padding. Cold Streak then
 			# discounts that doubled figure, so a long honest run softens a big lie
 			# without ever making the gamble free.
 			result = amount * 2
-			notes.append(_note("gambler", EFFECT_ALL_IN, "PADDING_DOUBLED", {
+			notes.append(_note("bard", EFFECT_ALL_IN, "PADDING_DOUBLED", {
 				"amount_before": amount,
 				"amount_after": result,
 			}))
@@ -125,7 +125,7 @@ static func modify_self_damage(character: Dictionary, amount: int) -> Dictionary
 			var reduction := mini(honest_turns * COLD_STREAK_STEP, COLD_STREAK_MAX_REDUCTION)
 			if reduction > 0:
 				var reduced := maxi(0, result - reduction)
-				notes.append(_note("gambler", EFFECT_COLD_STREAK, "PADDING_REDUCED", {
+				notes.append(_note("bard", EFFECT_COLD_STREAK, "PADDING_REDUCED", {
 					"honest_turns": honest_turns,
 					"reduction": reduction,
 					"amount_before": result,
@@ -142,11 +142,11 @@ static func modify_self_damage(character: Dictionary, amount: int) -> Dictionary
 static func redirect_self_damage(challenger: Dictionary, amount: int) -> Dictionary:
 	var notes: Array = []
 
-	if amount > 0 and str(challenger.get("id", "")) == "mirror":
-		# Reflect. The Mirror deals the padded amount instead of the bluffer taking
+	if amount > 0 and str(challenger.get("id", "")) == "wizard":
+		# Reflect. The Wizard deals the padded amount instead of the bluffer taking
 		# it as self-damage. The figure is whatever survived the bluffer's own kit,
 		# so Thick Skull still halves what Reflect then deals.
-		notes.append(_note("mirror", EFFECT_REFLECT, "PADDING_REFLECTED", {"amount": amount}))
+		notes.append(_note("wizard", EFFECT_REFLECT, "PADDING_REFLECTED", {"amount": amount}))
 		return {"redirect": true, "notes": notes}
 
 	return {"redirect": false, "notes": notes}
@@ -158,8 +158,8 @@ static func redirect_self_damage(challenger: Dictionary, amount: int) -> Diction
 static func absorbs_wrong_call(challenger: Dictionary) -> Dictionary:
 	var notes: Array = []
 
-	if str(challenger.get("id", "")) == "mirror" and bool(challenger.get("effect_counters", {}).get(COUNTER_READ_THE_ROOM, false)):
-		notes.append(_note("mirror", EFFECT_READ_THE_ROOM, "WRONG_CALL_ABSORBED", {}))
+	if str(challenger.get("id", "")) == "wizard" and bool(challenger.get("effect_counters", {}).get(COUNTER_READ_THE_ROOM, false)):
+		notes.append(_note("wizard", EFFECT_READ_THE_ROOM, "WRONG_CALL_ABSORBED", {}))
 		return {"absorbed": true, "notes": notes}
 
 	return {"absorbed": false, "notes": notes}
@@ -175,31 +175,31 @@ static func after_exchange(character: Dictionary, own_claim: Dictionary, opposin
 	var challenged := bool(opposing_claim.get("challenged", false))
 
 	match str(character.get("id", "")):
-		"mirror":
-			# Read the Room. Arming lasts until the Mirror spends the challenge, and
+		"wizard":
+			# Read the Room. Arming lasts until the Wizard spends the challenge, and
 			# is cleared at round rollover by the reducer, since the spec scopes it to
 			# "this round". Spending it and re-arming in the same exchange is legal:
-			# the Mirror used the armed challenge and locked its own claim in.
+			# the Wizard used the armed challenge and locked its own claim in.
 			var armed := bool(character.get("effect_counters", {}).get(COUNTER_READ_THE_ROOM, false))
 			if challenged and armed:
 				armed = false
-				notes.append(_note("mirror", EFFECT_READ_THE_ROOM, "SPENT", {}))
+				notes.append(_note("wizard", EFFECT_READ_THE_ROOM, "SPENT", {}))
 			if locked_in_claim:
 				if not armed:
-					notes.append(_note("mirror", EFFECT_READ_THE_ROOM, "ARMED", {}))
+					notes.append(_note("wizard", EFFECT_READ_THE_ROOM, "ARMED", {}))
 				armed = true
 			counters[COUNTER_READ_THE_ROOM] = armed
-		"gambler":
+		"bard":
 			# Cold Streak. Count consecutive honest claims, and reset the moment the
-			# Gambler pads one, whether or not that padding was caught.
+			# Bard pads one, whether or not that padding was caught.
 			var honest_turns := int(character.get("effect_counters", {}).get(COUNTER_COLD_STREAK, 0))
 			if bool(own_claim.get("is_padded", false)):
 				if honest_turns > 0:
-					notes.append(_note("gambler", EFFECT_COLD_STREAK, "RESET", {"honest_turns_before": honest_turns}))
+					notes.append(_note("bard", EFFECT_COLD_STREAK, "RESET", {"honest_turns_before": honest_turns}))
 				honest_turns = 0
 			else:
 				honest_turns += 1
-				notes.append(_note("gambler", EFFECT_COLD_STREAK, "EXTENDED", {"honest_turns": honest_turns}))
+				notes.append(_note("bard", EFFECT_COLD_STREAK, "EXTENDED", {"honest_turns": honest_turns}))
 			counters[COUNTER_COLD_STREAK] = honest_turns
 
 	# An Audit cap is consumed by the capped character's next claim, whoever imposed
@@ -214,13 +214,13 @@ static func after_exchange(character: Dictionary, own_claim: Dictionary, opposin
 ## Hook: a cap one kit imposes on the character it just caught bluffing. Returns 20
 ## when nothing is imposed. Owned by the challenger's kit.
 static func imposes_claim_cap(challenger: Dictionary, caught_claim: Dictionary) -> Dictionary:
-	if str(challenger.get("id", "")) != "ledger":
+	if str(challenger.get("id", "")) != "scribe":
 		return {"cap": 20, "notes": []}
 
 	# Audit. The caught character's next claim this round is capped at the value of
 	# their previous claim, which is the claim they were just caught on.
 	var cap := int(caught_claim.get("claim", 20))
-	return {"cap": cap, "notes": [_note("ledger", EFFECT_AUDIT, "CAP_IMPOSED", {"cap": cap})]}
+	return {"cap": cap, "notes": [_note("scribe", EFFECT_AUDIT, "CAP_IMPOSED", {"cap": cap})]}
 
 
 ## Counters cleared when a new round begins. Kit state scoped to "this round" lives
@@ -235,14 +235,14 @@ static func claim_ceiling(character: Dictionary) -> Dictionary:
 	var cap := int(character.get("effect_counters", {}).get(COUNTER_AUDIT_CAP, 20))
 	if cap < 20:
 		# Audit. The capped character is the one that was caught, so the note names
-		# the capped character rather than the Ledger that imposed the cap.
+		# the capped character rather than the Scribe that imposed the cap.
 		return {"ceiling": cap, "notes": [_note(str(character.get("id", "")), EFFECT_AUDIT, "CLAIM_CAPPED", {"cap": cap})]}
 	return {"ceiling": 20, "notes": []}
 
 
 ## Hook: whether `character`'s claim cannot be challenged and locks in automatically.
 ##
-## Bookkeeping matches on *padding*, not on the claimed number: what the Ledger has
+## Bookkeeping matches on *padding*, not on the claimed number: what the Scribe has
 ## on record is how far it lied, so a padding of 6 recorded by claiming 18 on a roll
 ## of 12 also covers claiming 9 on a roll of 3. The entry is spent by the claim it
 ## protects, so the same padding has to be put back on record before it works again.
@@ -250,40 +250,40 @@ static func claim_ceiling(character: Dictionary) -> Dictionary:
 ## `recorded_paddings` is the player's live ledger. The reducer owns writing to it;
 ## this hook only reports whether a match exists.
 static func claim_is_immune(character: Dictionary, padding: int, recorded_paddings: Array) -> Dictionary:
-	if str(character.get("id", "")) != "ledger":
+	if str(character.get("id", "")) != "scribe":
 		return {"immune": false, "notes": []}
 
 	if padding in recorded_paddings:
 		return {
 			"immune": true,
 			"consumes_padding": padding,
-			"notes": [_note("ledger", EFFECT_BOOKKEEPING, "CLAIM_LOCKED_IN", {"padding": padding})],
+			"notes": [_note("scribe", EFFECT_BOOKKEEPING, "CLAIM_LOCKED_IN", {"padding": padding})],
 		}
 	return {"immune": false, "notes": []}
 
 
 ## Hook: whether this player's claim goes onto the Bookkeeping ledger. Only the
-## Ledger's own claims are recorded, and only when they did not just consume an
+## Scribe's own claims are recorded, and only when they did not just consume an
 ## entry: a claim that spent its padding has to earn that padding again.
 static func records_padding(character: Dictionary) -> bool:
-	return str(character.get("id", "")) == "ledger"
+	return str(character.get("id", "")) == "scribe"
 
 
 ## Hook: a multiplier on the hit damage a locked-in claim produces.
 static func hit_damage_multiplier(attacker: Dictionary, attack_result: Dictionary) -> Dictionary:
-	if str(attacker.get("id", "")) != "gambler":
+	if str(attacker.get("id", "")) != "bard":
 		return {"multiplier": 1, "notes": []}
 
 	# All In. A locked-in claim of 15 or higher doubles margin damage.
 	if bool(attack_result.get("locked_in", false)) and int(attack_result.get("claim", 0)) >= ALL_IN_THRESHOLD:
-		return {"multiplier": 2, "notes": [_note("gambler", EFFECT_ALL_IN, "DAMAGE_DOUBLED", {"claim": int(attack_result["claim"])})]}
+		return {"multiplier": 2, "notes": [_note("bard", EFFECT_ALL_IN, "DAMAGE_DOUBLED", {"claim": int(attack_result["claim"])})]}
 	return {"multiplier": 1, "notes": []}
 
 
 ## Hook: a target position change caused by a landed hit. `steps_forward` moves the
 ## target toward the front; `extra_damage` applies when it cannot be moved further.
 static func on_hit(attacker: Dictionary, target: Dictionary) -> Dictionary:
-	if str(attacker.get("id", "")) != "hook":
+	if str(attacker.get("id", "")) != "rogue":
 		return {"steps_forward": 0, "extra_damage": 0, "notes": []}
 
 	# Drag. Pull the target one position toward the front, or hit an already-front
@@ -292,21 +292,21 @@ static func on_hit(attacker: Dictionary, target: Dictionary) -> Dictionary:
 		return {
 			"steps_forward": 0,
 			"extra_damage": DRAG_FRONT_DAMAGE,
-			"notes": [_note("hook", EFFECT_DRAG, "FRONT_TARGET_BONUS", {"extra_damage": DRAG_FRONT_DAMAGE})],
+			"notes": [_note("rogue", EFFECT_DRAG, "FRONT_TARGET_BONUS", {"extra_damage": DRAG_FRONT_DAMAGE})],
 		}
 	return {
 		"steps_forward": 1,
 		"extra_damage": 0,
-		"notes": [_note("hook", EFFECT_DRAG, "TARGET_PULLED", {"from_position": int(target.get("position", 0))})],
+		"notes": [_note("rogue", EFFECT_DRAG, "TARGET_PULLED", {"from_position": int(target.get("position", 0))})],
 	}
 
 
 ## Hook: whether a caught character escapes its padding damage by moving instead.
 ## The reducer performs the swap, because only it knows the rest of the team.
 static func evades_padding_by_swapping(character: Dictionary) -> Dictionary:
-	if str(character.get("id", "")) == "hook":
-		# Slippery. The Hook swaps with an ally rather than taking padding damage.
-		return {"evades": true, "notes": [_note("hook", EFFECT_SLIPPERY, "SWAPPED_INSTEAD_OF_DAMAGE", {})]}
+	if str(character.get("id", "")) == "rogue":
+		# Slippery. The Rogue swaps with an ally rather than taking padding damage.
+		return {"evades": true, "notes": [_note("rogue", EFFECT_SLIPPERY, "SWAPPED_INSTEAD_OF_DAMAGE", {})]}
 	return {"evades": false, "notes": []}
 
 
@@ -333,27 +333,27 @@ const EFFECT_TEXT := {
 	},
 	EFFECT_REFLECT: {
 		"name": "Reflect",
-		"text": "When the Mirror challenges a bluff and is right, the bluffer takes that padding as damage dealt by the Mirror rather than as self-damage.",
+		"text": "When the Wizard challenges a bluff and is right, the bluffer takes that padding as damage dealt by the Wizard rather than as self-damage.",
 	},
 	EFFECT_READ_THE_ROOM: {
 		"name": "Read the Room",
-		"text": "Once the Mirror's own claim locks in, its next challenge this round is free: correct against a bluff, and costing nothing against an honest claim.",
+		"text": "Once the Wizard's own claim locks in, its next challenge this round is free: correct against a bluff, and costing nothing against an honest claim.",
 	},
 	EFFECT_BOOKKEEPING: {
 		"name": "Bookkeeping",
-		"text": "The Ledger keeps a record of how far this player has padded before. A claim that pads by an amount already on record cannot be challenged and locks in automatically, but using it spends that entry: the same padding must be recorded again before it protects another claim.",
+		"text": "The Scribe keeps a record of how far this player has padded before. A claim that pads by an amount already on record cannot be challenged and locks in automatically, but using it spends that entry: the same padding must be recorded again before it protects another claim.",
 	},
 	EFFECT_AUDIT: {
 		"name": "Audit",
-		"text": "When the Ledger challenges a bluff and is right, the character it caught cannot claim above that same value on their next claim this round.",
+		"text": "When the Scribe challenges a bluff and is right, the character it caught cannot claim above that same value on their next claim this round.",
 	},
 	EFFECT_ALL_IN: {
 		"name": "All In",
-		"text": "If the Gambler claims 15 or higher and the claim locks in, hit damage is doubled. If the claim is caught instead, the padding damage is doubled.",
+		"text": "If the Bard claims 15 or higher and the claim locks in, hit damage is doubled. If the claim is caught instead, the padding damage is doubled.",
 	},
 	EFFECT_COLD_STREAK: {
 		"name": "Cold Streak",
-		"text": "Every consecutive honest claim takes 3 more off the padding damage of the Gambler's next caught bluff, up to 9. One padded claim resets the count to zero.",
+		"text": "Every consecutive honest claim takes 3 more off the padding damage of the Bard's next caught bluff, up to 9. One padded claim resets the count to zero.",
 	},
 	EFFECT_DRAG: {
 		"name": "Drag",
@@ -361,7 +361,7 @@ const EFFECT_TEXT := {
 	},
 	EFFECT_SLIPPERY: {
 		"name": "Slippery",
-		"text": "When the Hook's bluff is caught, it swaps positions with an ally and takes no padding damage at all.",
+		"text": "When the Rogue's bluff is caught, it swaps positions with an ally and takes no padding damage at all.",
 	},
 }
 
@@ -472,9 +472,9 @@ static func effect_descriptions(character_id: String) -> Array:
 
 static func _kit_effect_names() -> Dictionary:
 	return {
-		"ledger": [EFFECT_BOOKKEEPING, EFFECT_AUDIT],
-		"bruiser": [EFFECT_THICK_SKULL, EFFECT_FRONT_FIGHTER],
-		"mirror": [EFFECT_REFLECT, EFFECT_READ_THE_ROOM],
-		"gambler": [EFFECT_ALL_IN, EFFECT_COLD_STREAK],
-		"hook": [EFFECT_DRAG, EFFECT_SLIPPERY],
+		"scribe": [EFFECT_BOOKKEEPING, EFFECT_AUDIT],
+		"knight": [EFFECT_THICK_SKULL, EFFECT_FRONT_FIGHTER],
+		"wizard": [EFFECT_REFLECT, EFFECT_READ_THE_ROOM],
+		"bard": [EFFECT_ALL_IN, EFFECT_COLD_STREAK],
+		"rogue": [EFFECT_DRAG, EFFECT_SLIPPERY],
 	}
