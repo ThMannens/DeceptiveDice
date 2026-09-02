@@ -24,8 +24,9 @@ signal clicked(player: int, character_id: String)
 const PLATE_DROP := 6
 const PLATE_MIN_WIDTH := 84
 
-## The plate width below which a name can no longer be printed without clipping.
-const NAME_MIN_WIDTH := 76
+## The least height a plate may take, so a plate whose rows have not been laid
+## out yet still reserves room rather than collapsing to its own margins.
+const PLATE_MIN_HEIGHT := 44
 
 ## Damage taken by formation slot. Mirrors CombatResolver.POSITION_DAMAGE_PERCENT,
 ## which stays the authority; this is the display string only.
@@ -101,6 +102,15 @@ func bind(character: Dictionary, view: Dictionary) -> void:
 	# and at four ranks a side the plate has no room to spare. The full name
 	# stays in the tooltip and the claim record.
 	_name_label.text = _short_name(str(character.get("display_name", character_id)))
+	# A label in an expanding row reports a near-zero minimum, so without this
+	# the row squeezes it and the name is cut on a plate that was sized to fit
+	# it. This is the width name_width() then reports up to the board.
+	var name_font := _name_label.get_theme_font("font")
+	if name_font != null:
+		_name_label.custom_minimum_size.x = ceilf(name_font.get_string_size(
+			_name_label.text, HORIZONTAL_ALIGNMENT_LEFT, -1,
+			_name_label.get_theme_font_size("font_size"),
+		).x)
 	_name_label.add_theme_color_override("font_color", UiTheme.COLOR_INK if _alive else UiTheme.COLOR_DISABLED)
 	_rank_label.text = "%d" % position_rank
 
@@ -212,6 +222,17 @@ func _render_stamps(character: Dictionary, view: Dictionary) -> void:
 		_kit_row.add_child(kit_patch)
 
 
+## The plate width this fighter needs to print its name in full.
+##
+## Measured off the assembled rows rather than re-derived from the font, so it
+## accounts for the rank digit, the row separation, and the stylebox margins
+## without a second copy of the plate's own geometry that could drift from it.
+func name_width() -> float:
+	if plate == null:
+		return float(PLATE_MIN_WIDTH)
+	return maxf(PLATE_MIN_WIDTH, ceilf(plate.get_combined_minimum_size().x))
+
+
 ## Positions the plate under a figure standing at `anchor` on the field.
 ##
 ## `compact` drops the kit row: at the smallest window four plates a side cannot
@@ -221,15 +242,22 @@ func place_plate(anchor: Vector2, width: float, field_size: Vector2, compact: bo
 	_kit_row.visible = not compact
 	# Below a readable name the plate keeps only the rank and the health bar.
 	# A clipped word is worse than no word: the name is still on the tooltip,
-	# but a health bar has no other home on the field.
-	# The stamps stay whatever the width: TARGET and DOWN are the two cues a
-	# player acts on, and the plate is the only place either of them appears.
-	_name_label.visible = width >= NAME_MIN_WIDTH
-	plate.size = Vector2(width, plate.get_combined_minimum_size().y)
+	# but a health bar has no other home on the field. The stamps stay whatever
+	# the width — TARGET and DOWN are the two cues a player acts on, and the
+	# plate is the only place either of them appears.
+	#
+	# The board asks name_width() before choosing this width, so in practice the
+	# name prints in full; this is the fallback for a field too narrow for that.
+	_name_label.visible = width + 0.5 >= name_width()
+	# Width is the board's call; height is the plate's own, and it has to be
+	# asked for after the rows inside it are laid out or the plate collapses to
+	# its stylebox margins and clips every line. reset_size() then re-measures.
+	var height := maxf(PLATE_MIN_HEIGHT, plate.get_combined_minimum_size().y)
+	plate.size = Vector2(width, height)
 	var x := clampf(anchor.x - width * 0.5, 2.0, maxf(2.0, field_size.x - width - 2.0))
 	# The plate and everything hanging off it must stay inside the field, or a
 	# status patch prints over the panel edge.
-	var y := minf(anchor.y + PLATE_DROP, field_size.y - plate.size.y - 2.0)
+	var y := minf(anchor.y + PLATE_DROP, field_size.y - height - 2.0)
 	plate.position = Vector2(x, y)
 
 
@@ -344,8 +372,8 @@ func _build_placeholder() -> Node2D:
 	var body := ColorRect.new()
 	body.color = UiTheme.COLOR_CARDBOARD
 	# Sized in rig units so the board scales it exactly like a real rig.
-	var width := FighterRigs.RIG_HEIGHT * 0.26
-	body.size = Vector2(width, FighterRigs.RIG_HEIGHT * 0.62)
+	var width := FighterRigs.RIG_HEIGHT * 0.22
+	body.size = Vector2(width, FighterRigs.RIG_HEIGHT * 0.52)
 	body.position = Vector2(-width * 0.5, FighterRigs.RIG_GROUND - body.size.y)
 	node.add_child(body)
 
@@ -359,7 +387,7 @@ func _build_placeholder() -> Node2D:
 
 	var initial := Label.new()
 	initial.text = _initial()
-	initial.add_theme_font_size_override("font_size", int(FighterRigs.RIG_HEIGHT * 0.16))
+	initial.add_theme_font_size_override("font_size", int(FighterRigs.RIG_HEIGHT * 0.13))
 	initial.add_theme_color_override("font_color", UiTheme.COLOR_INK)
 	initial.size = body.size
 	initial.position = body.position
@@ -402,15 +430,20 @@ func _build_plate() -> PlateButton:
 	node.focus_mode = Control.FOCUS_ALL
 	node.pressed.connect(func() -> void: clicked.emit(player, character_id))
 
+	# A MarginContainer rather than an anchored child: an anchored VBox
+	# contributes nothing to its parent's minimum size, so the plate collapsed to
+	# its own stylebox margins and clipped every row inside it. Laid out as a
+	# real child, the plate is as tall as its contents need.
+	var frame := MarginContainer.new()
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for side in ["left", "right"]:
+		frame.add_theme_constant_override("margin_%s" % side, 2)
+	node.add_child(frame)
+
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 2)
-	box.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	box.offset_left = 3
-	box.offset_right = -3
-	box.offset_top = 3
-	box.offset_bottom = -3
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	node.add_child(box)
+	frame.add_child(box)
 
 	var title := HBoxContainer.new()
 	title.add_theme_constant_override("separation", 4)
@@ -419,8 +452,11 @@ func _build_plate() -> PlateButton:
 
 	_rank_label = Widgets.label("4", 9, UiTheme.COLOR_INK_MUTED)
 	title.add_child(_rank_label)
+	# Not clip_text: a clipping label reports a near-zero minimum width, so the
+	# row happily squeezes it to nothing and the name is cut even on a plate that
+	# was sized to fit it. The board asks name_width() and gives the plate the
+	# room, and the label is left to insist on that room.
 	_name_label = Widgets.label("", 10, UiTheme.COLOR_INK)
-	_name_label.clip_text = true
 	_name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title.add_child(_name_label)
 

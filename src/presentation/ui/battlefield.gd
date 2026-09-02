@@ -20,10 +20,11 @@ const Fighter = preload("res://src/presentation/ui/fighter.gd")
 
 signal fighter_clicked(player: int, character_id: String)
 
-## How much of the field's height one figure takes. The rig is scaled to this,
-## so the board is legible at the 1024x640 floor without the art dictating a
-## minimum the decision footer would have to pay for.
-const FIGURE_HEIGHT_RATIO := 1.0
+## How much of the room above the ground line one figure takes. Well under 1.0:
+## the figures are the scenery the formation is drawn on, and at full height they
+## crowded the field and left the nameplates — which carry the actual reading —
+## competing with them for attention.
+const FIGURE_HEIGHT_RATIO := 0.56
 
 ## The ground line, as a fraction of the field's height. Figures stand on it and
 ## the nameplates hang below, which leaves the upper field free for the banner
@@ -35,6 +36,11 @@ const GROUND_RATIO := 0.72
 ## made two crews read as one crowd, and the nameplates ran together into a
 ## single illegible strip.
 const RANK_SPACING := 1.15
+
+## How far the outermost rank sits from the field edge, as a fraction of the
+## field width. Small, because the crews belong at the edges: the middle is the
+## no man's land the exchange happens across.
+const EDGE_MARGIN := 0.02
 
 ## How far the two front ranks stay apart, as a fraction of the field width. The
 ## centre has to stay clear: it is where the exchange banner and the clash sit.
@@ -53,9 +59,25 @@ const MIN_FIELD_HEIGHT := 210
 ## derived, so a short field shrinks the figures and never the plates.
 const PLATE_BAND := 70
 
+## The least room a figure gets above the ground line, whatever the banner would
+## rather have. A figure below this stops being identifiable at a glance.
+const MIN_FIGURE_ROOM := 190.0
+
 ## Headroom kept above the figures for the exchange banner that prints over the
 ## top of the field.
 const BANNER_CLEARANCE := 84
+
+## The clear space kept between neighbouring plates, so a row of them reads as
+## separate plates rather than one strip.
+const PLATE_GUTTER := 8
+
+## The widest a rank step may grow. Past this the four ranks stop reading as one
+## crew and start reading as four separate fighters that happen to share a side.
+const RANK_STEP_MAX := 210
+
+## The widest a plate may grow. Past this the plates start to read as panels in
+## their own right and compete with the figures they belong to.
+const PLATE_MAX_WIDTH := 190
 
 ## The plate width below which the kit names stop fitting and the row is dropped.
 ## The field decides this from its own measurements rather than from the window
@@ -192,7 +214,11 @@ func _layout() -> void:
 	# left, so squeezing the field shortens the fighters rather than pushing
 	# their health bars off the edge.
 	var ground_y := maxf(size.y * GROUND_RATIO, size.y - PLATE_BAND)
-	var figure_room := maxf(40.0, ground_y - BANNER_CLEARANCE)
+	# A short field would otherwise scale the figures to specks, because the
+	# banner clearance eats a fixed slice of a small number. The floor keeps them
+	# recognisable; below it the banner simply overlaps them, which costs less
+	# than a board whose fighters cannot be told apart.
+	var figure_room := maxf(MIN_FIGURE_ROOM, ground_y - BANNER_CLEARANCE)
 	var scale_factor := figure_room * FIGURE_HEIGHT_RATIO / FighterRigs.RIG_HEIGHT
 	# The rig's origin sits at hip height, so standing it on the ground line
 	# means lifting it by the scaled distance from origin to feet.
@@ -202,20 +228,46 @@ func _layout() -> void:
 	var centre := size.x * 0.5
 	var inset := size.x * CENTRE_GAP * 0.5
 
-	# Four ranks and the centre gap have to fit one half of the field, and a
-	# plate is what actually has to stay legible, so the rank step is bounded by
-	# the space available rather than by the figure alone. Without this the
-	# plates overlap at the smallest window and the names clip to nothing.
-	var half := maxf(1.0, centre - inset - 4.0)
-	var step := minf(figure_width * RANK_SPACING, half / 3.0)
-	var plate_width := minf(maxf(Fighter.PLATE_MIN_WIDTH, figure_width * 1.15), step - 4.0)
+	# A plate has to hold the longest name on the field, not its own: every plate
+	# is the same width, so a row of them reads as a row rather than as ragged
+	# tabs, and the step below is what has to make room for that width.
+	var widest_name := float(Fighter.PLATE_MIN_WIDTH)
+	for key: String in _fighters:
+		widest_name = maxf(widest_name, (_fighters[key] as Fighter).name_width())
+
+	# The crews are pushed out to the edges: rank 1 stands an edge margin in from
+	# its own side and the ranks march inward from there, so the four are spread
+	# across the half rather than huddled against the centre gap.
+	#
+	# The plate width and the outer margin each want the other first — the margin
+	# has to clear half a plate, and the plate takes what the ranks leave it. The
+	# knot is cut by reserving against the widest a plate is ever allowed to be,
+	# so the edge plates are guaranteed to fit whatever the field width.
+	var outer := size.x * EDGE_MARGIN + _reserved_plate_width(size) * 0.5
+	var half := maxf(1.0, centre - inset - outer)
+	# Three gaps between four ranks. The ranks spread across the whole half-field
+	# rather than only as far as the figures need, which is what puts the crews
+	# out at the edges instead of bunched beside the centre gap; the figure and
+	# plate widths are the floor it may not fall below.
+	var step := maxf(
+		minf(half / 3.0, RANK_STEP_MAX),
+		maxf(figure_width * RANK_SPACING, widest_name + PLATE_GUTTER),
+	)
+	# The plate takes the room the step leaves it, never less than its name needs
+	# and never more than a plate should be. With the crews pushed to the edges
+	# the step is wide, so the kit patches fit again at the larger windows and
+	# fold away only where they genuinely cannot.
+	var plate_width := clampf(step - PLATE_GUTTER, minf(widest_name, step), PLATE_MAX_WIDTH)
 
 	for key: String in _fighters:
 		var fighter: Fighter = _fighters[key]
 		var facing := 1.0 if fighter.player == 0 else -1.0
 		# Rank 4 stands closest to the centre line; rank 1 falls back from it.
 		var rank := clampi(fighter.position_rank, 1, 4)
-		var distance := inset + float(4 - rank) * step
+		# Rank 1 sits at the outer edge; each rank forward steps toward the
+		# centre. Anchoring outward rather than inward is what keeps the crews on
+		# their own sides when the field is wide.
+		var distance := inset + half - float(rank - 1) * step
 		var x := centre - distance if fighter.player == 0 else centre + distance
 
 		fighter.rig_root.position = Vector2(x, ground_y - feet_offset)
@@ -225,6 +277,14 @@ func _layout() -> void:
 		fighter.rig_root.z_index = rank
 
 		fighter.place_plate(Vector2(x, ground_y), plate_width, size, plate_width < KIT_ROW_MIN_WIDTH)
+
+
+## The widest a plate could be on a field this size.
+##
+## Used to reserve the outer margin before the real plate width is known, which
+## is what breaks the circular dependency between the two.
+static func _reserved_plate_width(field_size: Vector2) -> float:
+	return clampf(field_size.x * 0.125, 24.0, PLATE_MAX_WIDTH)
 
 
 static func _key(player: int, character_id: String) -> String:
